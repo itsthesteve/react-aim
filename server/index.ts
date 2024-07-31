@@ -1,15 +1,18 @@
-const mockData = JSON.stringify([
-  {
-    id: "1",
-    owner: "User123",
-    payload: "hey there",
-  },
-  {
-    id: "2",
-    owner: "user989483",
-    payload: "howdy",
-  },
-]);
+const mockData = JSON.stringify({
+  channel: "abc",
+  data: [
+    {
+      id: "1",
+      owner: "Admin",
+      payload: "Welcome! Please check the FAQ for rules and whatnot.",
+    },
+    {
+      id: "2",
+      owner: "user2312312",
+      payload: "Hello there",
+    },
+  ],
+});
 
 Bun.serve({
   port: 9000,
