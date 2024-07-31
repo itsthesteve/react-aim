@@ -14,10 +14,13 @@ export default function MessagesList() {
 
   return (
     <section>
-      <header>Messages:</header>
       <div>
         {messages.map((message) => {
-          return <p key={message.id}>{message.payload}</p>;
+          return (
+            <p className="bg-blue-900 rounded-sm m-4 px-4 py-2 max-w-fit" key={message.id}>
+              {message.payload}
+            </p>
+          );
         })}
       </div>
     </section>
