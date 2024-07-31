@@ -1,3 +1,16 @@
+const mockData = JSON.stringify([
+  {
+    id: "1",
+    owner: "User123",
+    payload: "hey there",
+  },
+  {
+    id: "2",
+    owner: "user989483",
+    payload: "howdy",
+  },
+]);
+
 Bun.serve({
   port: 9000,
   fetch(req, server) {
@@ -12,7 +25,9 @@ Bun.serve({
       console.log("message:", message);
     }, // a message is received
     open(ws) {
+      // Send all messages on open
       console.log("opened");
+      ws.send(mockData);
     }, // a socket is opened
     close(ws, code, message) {
       console.log("closed");

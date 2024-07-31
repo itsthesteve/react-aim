@@ -1,13 +1,16 @@
 import "./App.css";
-import { useChatSocket } from "./hooks/chat";
+import MessagesList from "./components/MessagesList";
+import { MessagesProvider } from "./context/messages/context";
 
 function App() {
-  const { loading, sendMessage } = useChatSocket();
-
   return (
     <>
-      <div>{loading}</div>
-      <button onClick={() => sendMessage("hello")}>Send</button>
+      <header>
+        <h1>Chat</h1>
+        <MessagesProvider>
+          <MessagesList />
+        </MessagesProvider>
+      </header>
     </>
   );
 }
