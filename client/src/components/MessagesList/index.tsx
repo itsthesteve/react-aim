@@ -13,13 +13,13 @@ export default function MessagesList() {
   });
 
   return (
-    <>
+    <section>
       <header>Messages:</header>
       <div>
         {messages.map((message) => {
           return <p key={message.id}>{message.payload}</p>;
         })}
       </div>
-    </>
+    </section>
   );
 }

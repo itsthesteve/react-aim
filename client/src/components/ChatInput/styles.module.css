@@ -1,0 +1,4 @@
+.chatInput {
+  /* defined in app.module.css */
+  grid-area: input;
+}

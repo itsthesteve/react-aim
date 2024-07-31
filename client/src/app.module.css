@@ -1,0 +1,7 @@
+.chatContainer {
+  display: grid;
+  grid-template-columns: auto 25rem;
+  grid-template-areas:
+    "message users"
+    "input users";
+}
