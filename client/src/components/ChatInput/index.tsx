@@ -25,8 +25,10 @@ export default function ChatInput() {
 
   return (
     <section className={styles.chatInput}>
-      <form onSubmit={(e) => submitMessage(e)}>
-        <input ref={inputRef} />
+      <form onSubmit={(e) => submitMessage(e)} className="p-4 mx-2 flex gap-2">
+        <div className="field-row-stacked grow">
+          <input id="text22" type="text" />
+        </div>
         <button type="submit">Submit</button>
       </form>
     </section>

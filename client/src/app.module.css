@@ -1,12 +1,13 @@
 .chatContainer {
   display: grid;
-  grid-template-columns: auto 20rem;
+  grid-template-columns: 1fr 10rem;
   grid-template-rows: 1fr auto;
   grid-template-areas:
     "message users"
-    "input ."; /* todo - controls next to input */
+    "input users"; /* todo - controls next to input */
+}
 
-  input {
-    width: 100%;
-  }
+.content {
+  display: grid;
+  grid-template-rows: 1fr auto;
 }

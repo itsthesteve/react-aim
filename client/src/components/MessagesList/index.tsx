@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMessages } from "../../context/messages/hook";
 import { MessageData } from "../../context/messages/context";
+import styles from "./styles.module.css";
 
 export default function MessagesList() {
   const { subscribe } = useMessages();
@@ -11,11 +12,11 @@ export default function MessagesList() {
   });
 
   return (
-    <section>
+    <section className={`p-4 bg-white mx-6 mt-6 ${styles.messageWindow}`}>
       <div>
         {messages.map((message) => {
           return (
-            <p className="bg-blue-900 rounded-sm m-4 px-4 py-2 max-w-fit" key={message.id}>
+            <p className="max-w-fit" key={message.id}>
               {message.payload}
             </p>
           );
