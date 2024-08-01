@@ -7,8 +7,8 @@ export default function MessagesList() {
   const { subscribe } = useMessages();
   const [messages, setMessages] = useState<MessageData[]>([]);
 
-  subscribe("abc", (data: MessageData[]) => {
-    setMessages((prev: MessageData[]) => [...prev, ...data]);
+  subscribe("abc", (data: MessageData) => {
+    setMessages((prev: MessageData[]) => [...prev, data]);
   });
 
   return (

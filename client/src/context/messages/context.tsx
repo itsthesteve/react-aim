@@ -47,7 +47,7 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:9000");
+    ws.current = new WebSocket("ws://localhost:9000/ws");
 
     ws.current.addEventListener("message", onMessage);
     ws.current.addEventListener("close", onClose);

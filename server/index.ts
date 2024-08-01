@@ -1,42 +1,20 @@
-import { getAll, persistMessage } from "./data/index.ts";
+import { Application, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { json, INITIAL_WELCOME } from "./data/system-messages.ts";
+import msgRoutes from "./routes/msg.ts";
 
-const abortController = new AbortController();
+const router = new Router();
 
-const initialMessage = JSON.stringify({
-  channel: "abc",
-  data: [
-    {
-      id: "",
-      owner: "Admin",
-      payload: "Welcome, Please check the FAQ for rules and whatnot.",
-    },
-  ],
-});
-
-Deno.serve({
-  handler: (req) => {
-    if (req.headers.get("upgrade") != "websocket") {
-      return new Response(null, { status: 501 });
-    }
-    const { socket, response } = Deno.upgradeWebSocket(req);
-
+router
+  .get("/ws", (context) => {
+    const socket = context.upgrade();
     socket.addEventListener("open", () => {
-      socket.send(initialMessage);
+      socket.send(json(INITIAL_WELCOME));
     });
+  })
+  .use(msgRoutes);
 
-    socket.addEventListener("message", async (event) => {
-      try {
-        const obj = JSON.parse(event.data);
-        await persistMessage(obj);
-      } catch (e) {
-        console.warn("Unable to persist message", e);
-      }
-    });
+const app = new Application();
+app.use(router.allowedMethods());
+app.use(router.routes());
 
-    return response;
-  },
-  port: 9000,
-  signal: abortController.signal,
-});
-
-globalThis.addEventListener("unload", () => abortController.abort());
+await app.listen({ port: 9000 });
