@@ -1,5 +1,5 @@
 import { Application, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { json, INITIAL_WELCOME } from "./data/system-messages.ts";
+import { INITIAL_WELCOME, json } from "./data/system-messages.ts";
 import msgRoutes from "./routes/msg.ts";
 
 const router = new Router();
