@@ -8,6 +8,12 @@
 }
 
 .content {
-  display: grid;
   grid-template-rows: 1fr auto;
+  height: 100%;
+}
+
+.windowContainer {
+  width: 768px;
+  max-width: 90vw;
+  aspect-ratio: 16/9;
 }

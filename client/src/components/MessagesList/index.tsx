@@ -12,7 +12,7 @@ export default function MessagesList() {
   });
 
   return (
-    <section className={`p-4 bg-white mx-6 mt-6 ${styles.messageWindow}`}>
+    <section className={`p-2 bg-white mx-4 mt-4 ${styles.messageWindow}`}>
       <div>
         {messages.map((message) => {
           return (
