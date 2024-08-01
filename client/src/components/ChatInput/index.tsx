@@ -8,7 +8,7 @@ export default function ChatInput() {
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  const submit = () => {
+  const submit = useCallback(() => {
     if (!message.length) {
       return console.warn("Nothing to submit");
     }
@@ -22,20 +22,19 @@ export default function ChatInput() {
       },
     });
 
+    // shouldn't happen, way past first render here
     if (!textAreaRef.current) {
-      return; // shouldn't happen, way past first render here
+      return;
     }
 
     setMessage("");
     textAreaRef.current.value = "";
     textAreaRef.current.focus();
-  };
+  }, [message, sendMessage]);
 
-  // Even though we're not using message in the callback, it's needed otherwise
-  // the message is null. Not entirely sure why.
   const sendListener = useCallback(() => {
     submit();
-  }, [message, submit]);
+  }, [submit]);
 
   return (
     <section className={styles.chatInput}>
@@ -50,11 +49,9 @@ export default function ChatInput() {
         </div>
         <button
           onClick={submit}
-          type="button"
           disabled={!message.length}
           className={`${styles.sendButton} rounded-md flex flex-col gap-2 w-16 items-center justify-center`}>
           <img src="/aimguy.png" width="32" height="32"></img>
-          {/* <span className="keyboard-ctrl">Send</span> */}
           <KeyboardSpan listener={() => sendListener()}>Send</KeyboardSpan>
         </button>
       </div>
