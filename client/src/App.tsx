@@ -11,7 +11,10 @@ function App() {
         <div className={`window ${styles.windowContainer}`}>
           <div className="title-bar">
             <div className="title-bar-text">React Chat | XP Edition</div>
-            <div className="title-bar-controls"></div>
+            <div className="title-bar-controls">
+              <button aria-label="Help" onClick={() => alert("todo")}></button>
+              <button aria-label="Close" onClick={() => alert("todo")}></button>
+            </div>
           </div>
           <div
             className={`window-body my-0 grid ${styles.content}`}
