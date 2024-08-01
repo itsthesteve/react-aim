@@ -6,10 +6,16 @@ To install dependencies:
 bun install
 ```
 
-To run:
+Run with deno
 
-```bash
-bun run index.ts
+```
+deno run --watch --allow-net --unstable index.ts
 ```
 
-This project was created using `bun init` in bun v1.0.11. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Run the Deno KV store locally:
+
+```
+docker run -it --init -p 4512:4512 -v ./data:/data ghcr.io/denoland/denokv --sqlite-path /data/react-chat.sqlite serve --access-token qwepoi9832745
+```
+
+The access token is the same as the one in .env

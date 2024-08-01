@@ -1,17 +1,14 @@
+import { getAll, persistMessage } from "./data/index.ts";
+
 const abortController = new AbortController();
 
-const mockData = JSON.stringify({
+const initialMessage = JSON.stringify({
   channel: "abc",
   data: [
     {
-      id: "1",
+      id: "",
       owner: "Admin",
       payload: "Welcome, Please check the FAQ for rules and whatnot.",
-    },
-    {
-      id: "2",
-      owner: "user2312312",
-      payload: "Hello there",
     },
   ],
 });
@@ -24,15 +21,15 @@ Deno.serve({
     const { socket, response } = Deno.upgradeWebSocket(req);
 
     socket.addEventListener("open", () => {
-      socket.send(mockData);
+      socket.send(initialMessage);
     });
 
-    socket.addEventListener("message", (event) => {
+    socket.addEventListener("message", async (event) => {
       try {
         const obj = JSON.parse(event.data);
-        console.log({ obj });
-      } catch {
-        console.warn("Invalid JSON");
+        await persistMessage(obj);
+      } catch (e) {
+        console.warn("Unable to persist message", e);
       }
     });
 
