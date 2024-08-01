@@ -10,3 +10,11 @@
     filter: grayscale(1);
   }
 }
+
+.textarea {
+  resize: none;
+  border-left: 2px solid #808080;
+  border-top: 2px solid #808080;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
