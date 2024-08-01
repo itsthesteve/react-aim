@@ -16,7 +16,7 @@ export default function ChatInput() {
     sendMessage({
       channel: "abc",
       data: {
-        id: "",
+        id: "msg-" + Math.round(Math.random() * 1000),
         owner: "user123",
         payload: message,
       },

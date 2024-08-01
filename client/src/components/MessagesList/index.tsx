@@ -1,11 +1,15 @@
-import { useState } from "react";
-import { useMessages } from "../../context/messages/hook";
+import { useEffect, useState } from "react";
 import { MessageData } from "../../context/messages/context";
+import { useMessages } from "../../context/messages/hook";
 import styles from "./styles.module.css";
 
 export default function MessagesList() {
-  const { subscribe } = useMessages();
+  const { subscribe, load } = useMessages();
   const [messages, setMessages] = useState<MessageData[]>([]);
+
+  useEffect(() => {
+    load().then((messages) => setMessages((prev: MessageData[]) => [...prev, ...messages]));
+  }, []);
 
   subscribe("abc", (data: MessageData) => {
     setMessages((prev: MessageData[]) => [...prev, data]);

@@ -19,6 +19,7 @@ export type MessageContextType = {
   subscribe: (channel: string, fn: CallableFunction) => void;
   unsubscribe: (channel: string) => void;
   sendMessage: (message: Message) => void;
+  load: () => Promise<MessageData[]>;
 };
 
 type Props = {
@@ -26,7 +27,7 @@ type Props = {
 };
 
 export const MessagesProvider = ({ children }: Props) => {
-  const ws = useRef<WebSocket>();
+  // const ws = useRef<WebSocket>();
   const listeners = useRef<Record<string, CallableFunction>>({});
 
   const subscribe = (channel: string, fn: CallableFunction) => {
@@ -37,38 +38,54 @@ export const MessagesProvider = ({ children }: Props) => {
     delete listeners.current[channel];
   };
 
-  const sendMessage = (message: Message) => {
-    if (!ws.current) {
-      return console.warn("WS not ready yet.");
-    }
+  const sendMessage = async (message: Message) => {
+    try {
+      const response = await fetch("http://localhost:9000/msg", {
+        method: "POST",
+        body: JSON.stringify(message),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    console.log("Sending", message);
-    ws.current.send(JSON.stringify(message));
+      console.log(await response.json());
+    } catch (e) {
+      console.warn("Error posting message", e);
+    }
+  };
+
+  /**
+   * Retrieve all messages for the channel.
+   * TODO: Pass in the channel. This pulls messages
+   * for the channel "ABC"
+   */
+  const load = async (): Promise<MessageData[]> => {
+    const response = await fetch("http://localhost:9000/channel", {
+      method: "GET",
+    });
+
+    return await response.json();
   };
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:9000/ws");
-
-    ws.current.addEventListener("message", onMessage);
-    ws.current.addEventListener("close", onClose);
-
-    return () => {
-      ws.current?.close();
-    };
+    const eventSrc = new EventSource("http://localhost:9000/events");
+    eventSrc.addEventListener("message", onMessage);
+    eventSrc.addEventListener("error", onError);
 
     function onMessage(message: MessageEvent) {
       const msg = JSON.parse(message.data);
+      console.log("Parsed message", msg);
       listeners.current[msg.channel]?.(msg.data);
     }
 
-    function onClose(e: Event) {
-      console.warn("Socket closed", e);
+    function onError(e: Event) {
+      console.error("!!!", e);
     }
   }, []);
 
   return (
     <>
-      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage }}>
+      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load }}>
         {children}
       </MessagesContext.Provider>
     </>
