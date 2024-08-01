@@ -1,7 +1,7 @@
 import "jsr:@std/dotenv/load";
 import { Message } from "./models.ts";
 
-export const kv = await Deno.openKv("./data/react-chat.sqlite");
+const kv = await Deno.openKv("./data/react-chat.sqlite");
 
 /**
  * (1) TODO: Once there's something that resembles authentication here,
@@ -15,7 +15,7 @@ const getRandKey = (): string => {
 
 export async function persistMessage(msg: Message) {
   console.log("Saving", msg);
-  const result = await kv.set(["message", getRandKey() /* [1] */], msg);
+  const result = await kv.set(["message", "abc" /* 1 */], msg);
   console.log(result);
 }
 
