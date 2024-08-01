@@ -28,7 +28,12 @@ Deno.serve({
     });
 
     socket.addEventListener("message", (event) => {
-      console.log("got a message", event);
+      try {
+        const obj = JSON.parse(event.data);
+        console.log({ obj });
+      } catch {
+        console.warn("Invalid JSON");
+      }
     });
 
     return response;

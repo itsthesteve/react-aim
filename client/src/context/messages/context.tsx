@@ -2,20 +2,23 @@ import { createContext, ReactNode, useEffect, useRef } from "react";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
+export interface MessageData {
+  id: string;
+  owner: string;
+  payload: string;
+}
+
 // Message payload
 export interface Message {
   channel: string;
-  data: {
-    id: string;
-    owner: string;
-    payload: string;
-  };
+  data: MessageData;
 }
 
 // React context interface
 export type MessageContextType = {
   subscribe: (channel: string, fn: CallableFunction) => void;
   unsubscribe: (channel: string) => void;
+  sendMessage: (message: Message) => void;
 };
 
 type Props = {
@@ -32,6 +35,15 @@ export const MessagesProvider = ({ children }: Props) => {
 
   const unsubscribe = (channel: string) => {
     delete listeners.current[channel];
+  };
+
+  const sendMessage = (message: Message) => {
+    if (!ws.current) {
+      return console.warn("WS not ready yet.");
+    }
+
+    console.log("Sending", message);
+    ws.current.send(JSON.stringify(message));
   };
 
   useEffect(() => {
@@ -56,7 +68,7 @@ export const MessagesProvider = ({ children }: Props) => {
 
   return (
     <>
-      <MessagesContext.Provider value={{ subscribe, unsubscribe }}>
+      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage }}>
         {children}
       </MessagesContext.Provider>
     </>

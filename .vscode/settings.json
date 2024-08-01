@@ -1,4 +1,5 @@
 {
   "deno.enable": true,
-  "deno.path": "/Users/steve/.deno/bin/deno"
+  "deno.path": "/Users/steve/.deno/bin/deno",
+  "deno.disablePaths": ["./client"]
 }

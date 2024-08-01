@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { useMessages } from "../../context/messages/hook";
-import { Message } from "../../context/messages/context";
-
-type MData = Message["data"];
+import { MessageData } from "../../context/messages/context";
 
 export default function MessagesList() {
   const { subscribe } = useMessages();
-  const [messages, setMessages] = useState<MData[]>([]);
+  const [messages, setMessages] = useState<MessageData[]>([]);
 
-  subscribe("abc", (data: MData[]) => {
-    setMessages((prev) => [...prev, ...data]);
+  subscribe("abc", (data: MessageData[]) => {
+    setMessages((prev: MessageData[]) => [...prev, ...data]);
   });
 
   return (
