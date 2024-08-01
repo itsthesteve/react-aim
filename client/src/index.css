@@ -20,3 +20,8 @@ body {
   display: grid;
   grid-template-rows: auto 1fr;
 }
+
+span.keyboard-ctrl:first-letter {
+  font-weight: bold;
+  text-decoration: underline;
+}

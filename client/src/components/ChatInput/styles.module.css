@@ -2,3 +2,11 @@
   /* defined in app.module.css */
   grid-area: input;
 }
+
+.sendButton {
+  all: unset;
+
+  &[disabled] {
+    filter: grayscale(1);
+  }
+}
