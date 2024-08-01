@@ -12,12 +12,13 @@ export default function MessagesList() {
   });
 
   return (
-    <section className={`p-2 bg-white mx-4 mt-4 ${styles.messageWindow}`}>
+    <section className={`p-2 bg-white mx-2 mt-2 ${styles.messageWindow}`}>
       <div>
         {messages.map((message) => {
           return (
-            <p className="max-w-fit" key={message.id}>
-              {message.payload}
+            <p key={message.id} className="flex gap-1">
+              <span className={styles.notMe}>xXSlayer420Xx:</span>
+              <span>{message.payload}</span>
             </p>
           );
         })}

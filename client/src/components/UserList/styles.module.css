@@ -11,3 +11,8 @@
     border-bottom: 1px dashed #808080;
   }
 }
+
+.borderWindow {
+  border-left: 1px inset #808080;
+  border-top: 1px inset #808080;
+}

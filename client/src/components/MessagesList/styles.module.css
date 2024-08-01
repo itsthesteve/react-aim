@@ -4,3 +4,16 @@
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
 }
+
+.notMe,
+.me {
+  @apply font-bold;
+}
+
+.notMe {
+  @apply text-red-500;
+}
+
+.me {
+  @apply text-blue-700;
+}
