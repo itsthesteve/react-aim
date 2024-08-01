@@ -28,12 +28,17 @@ function KeyboardSpan({ children, listener }: Props) {
             const cleaned = e.code.toLowerCase().replace("key", "");
 
             if (cleaned === commandChar) {
-              e.preventDefault();
               console.log("Firing listener!");
+
+              e.preventDefault();
               setWaiting(false);
               listener();
 
               return false;
+            } else {
+              // Cancel the waiting phase as another key was pressed, i.e. enter
+              setWaiting(false);
+              return true;
             }
           },
           { once: true }
