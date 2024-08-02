@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
 import { useMessages } from "../../context/messages/hook";
 import KeyboardSpan from "../KeyboardSpan";
 import styles from "./styles.module.css";
@@ -7,6 +7,14 @@ export default function ChatInput() {
   const { sendMessage } = useMessages();
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const checkEnterKey: KeyboardEventHandler = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      submit();
+      e.preventDefault();
+      return false;
+    }
+  };
 
   const submit = useCallback(() => {
     if (!message.length) {
@@ -44,6 +52,7 @@ export default function ChatInput() {
             autoFocus
             ref={textAreaRef}
             className={styles.textarea}
+            onKeyDown={checkEnterKey}
             onChange={(e) => setMessage(() => e.target.value)}
             rows={5}></textarea>
         </div>

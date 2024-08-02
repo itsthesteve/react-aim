@@ -15,7 +15,7 @@ export default function MessagesList() {
   }, []);
 
   useLayoutEffect(() => {
-    messagesWrapper.current?.scrollTo({ top: Number.MAX_SAFE_INTEGER });
+    messagesWrapper.current?.scrollTo({ top: messagesWrapper.current.scrollHeight });
   }, [messages.length]);
 
   subscribe("abc", (data: MessageData) => {
@@ -30,12 +30,9 @@ export default function MessagesList() {
     <section ref={messagesWrapper} className={`p-2 bg-white mx-2 mt-2 ${styles.messageWindow}`}>
       {messages.map((message) => {
         return (
-          <p key={message.id} className="flex gap-1 items-center">
-            <span className={styles.notMe}>{message.owner}</span>
-            <span>
-              {message.payload}
-              <kbd className="bg-slate-200 ml-2 p-1 inline-block">{message.id}</kbd>
-            </span>
+          <p key={message.id} className="flex gap-1 items-start">
+            <span className={styles.notMe}>{message.owner}:</span>
+            <span className="whitespace-pre">{message.payload}</span>
           </p>
         );
       })}
