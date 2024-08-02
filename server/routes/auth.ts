@@ -71,8 +71,6 @@ router.post("/create", async ({ request, response }) => {
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  console.log({ hashedPassword });
-
   const result = await db.set(["users", username], hashedPassword);
   console.log("User created", result);
   if (result.ok) {
@@ -103,8 +101,8 @@ router.delete("/", ({ request, response }) => {
   response.body = { ok: true };
 });
 
+// Debug
 router.get("/", async ({ request, response }) => {
-  console.log(request.ip);
   if (request.ip !== "127.0.0.1") {
     response.status = 403;
     response.body = { ok: false };
