@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageData } from "../../context/messages/context";
 import { useMessages } from "../../context/messages/hook";
 import styles from "./styles.module.css";
@@ -12,6 +12,9 @@ export default function MessagesList() {
   }, []);
 
   subscribe("abc", (data: MessageData) => {
+    if (messages.find((pm) => pm.id === data.id)) {
+      return console.warn("Duplicate message sent. Skipping.", data);
+    }
     setMessages((prev: MessageData[]) => [...prev, data]);
   });
 
@@ -20,9 +23,12 @@ export default function MessagesList() {
       <div>
         {messages.map((message) => {
           return (
-            <p key={message.id} className="flex gap-1">
-              <span className={styles.notMe}>xXSlayer420Xx:</span>
-              <span>{message.payload}</span>
+            <p key={message.id} className="flex gap-1 items-center">
+              <span className={styles.notMe}>{message.owner}</span>
+              <span>
+                {message.payload}
+                <kbd className="bg-slate-200 ml-2 p-1 inline-block">{message.id}</kbd>
+              </span>
             </p>
           );
         })}

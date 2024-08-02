@@ -4,7 +4,7 @@ import { Message } from "./models.ts";
 const INITIAL_WELCOME: Message = {
   channel: "abc",
   data: {
-    id: "admin" + Math.round(Math.random() * 1000),
+    id: "admin" + Date.now(),
     owner: "Admin",
     payload: "Welcome, Please check the FAQ for rules and whatnot!",
   },

@@ -1,5 +1,6 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { INITIAL_WELCOME } from "../data/system-messages.ts";
+import { Message, MessageData } from "../data/models.ts";
 
 const router = new Router();
 const db = await Deno.openKv("./data/react-chat.sqlite");
@@ -18,16 +19,29 @@ router.get("/channel", async (ctx) => {
   ctx.response.body = result;
 });
 
+let seen = "";
 router.get("/events", async (ctx) => {
   const target = await ctx.sendEvents();
   target.dispatchMessage(INITIAL_WELCOME);
 
-  // YAH: Figure out how to set and retrieve messages instead
-  // of overwriting them
-  const stream = db.watch([["abc", "????"], []]);
-  for await (const entry of stream) {
-    console.log("Dispatching", entry);
-    target.dispatchMessage(entry);
+  for await (const [lastEntry] of db.watch([["last_message_id", "abc"]])) {
+    const lastId = lastEntry.value as string;
+    const newMessages = await Array.fromAsync(
+      db.list({
+        start: ["message", "abc", seen, ""],
+        end: ["message", "abc", lastId, ""],
+      })
+    );
+    seen = lastId;
+
+    newMessages
+      .map((m) => {
+        return {
+          channel: m.key[1] as string,
+          data: m.value as MessageData,
+        };
+      })
+      .forEach((payload) => target.dispatchMessage(payload));
   }
 });
 

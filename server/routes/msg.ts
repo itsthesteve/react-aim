@@ -16,7 +16,12 @@ router.post("/msg", async (context) => {
   try {
     const body = await context.request.body.json();
     console.log("Saving message:", body);
+
     const result = await kv.set(["message", "abc", body.data.id], body.data);
+    await kv.set(["last_message_id", "abc"], body.data.id, {
+      expireIn: 3_600_000, // one hour
+    });
+
     console.log("Result saving:", result);
 
     context.response.status = 201;
