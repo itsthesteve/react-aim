@@ -2,11 +2,16 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ChatRoute from "./routes/chat";
 import "./index.css";
+import SignIn from "./components/SignIn";
 
 const router = createBrowserRouter([
   {
     path: "/chat",
     element: <ChatRoute />,
+  },
+  {
+    path: "/",
+    element: <SignIn />,
   },
 ]);
 

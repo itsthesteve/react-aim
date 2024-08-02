@@ -1,8 +1,8 @@
-import styles from "./app.module.css";
 import ChatInput from "../../components/ChatInput";
 import MessagesList from "../../components/MessagesList";
 import UserList from "../../components/UserList";
 import { MessagesProvider } from "../../context/messages/context";
+import styles from "./app.module.css";
 
 export default function ChatRoute() {
   return (
