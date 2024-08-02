@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 
 export interface User {
   id: string;
@@ -16,18 +16,31 @@ export interface AuthCredentials {
 }
 
 export type AuthContextType = {
-  loading: boolean;
   login: (creds: AuthCredentials) => Promise<User | null>;
   logout: () => Promise<void>;
-  user: User;
+  user: User | null;
 };
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 type Props = {
   children: ReactNode;
 };
 
 export const AuthProvider = ({ children }: Props) => {
-  const login = async (creds: AuthCredentials): Promise<User | null> => {};
+  const [user, setUser] = useState<User | null>(null);
 
-  return <>{children}</>;
+  const login = async (creds: AuthCredentials): Promise<User | null> => {
+    throw new Error("Not yet implemented");
+  };
+
+  const logout = async () => {
+    throw new Error("Not yet implemented");
+  };
+
+  return (
+    <>
+      <AuthContext.Provider value={{ login, logout, user }}>{children}</AuthContext.Provider>
+    </>
+  );
 };

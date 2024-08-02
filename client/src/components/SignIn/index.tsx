@@ -1,5 +1,4 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
-import KeyboardSpan from "../KeyboardSpan";
 import styles from "./signin.module.css";
 
 export default function SignIn() {
