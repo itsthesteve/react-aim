@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useEffect } from "react";
+import { type ReactNode } from "react";
 
 export interface User {
   id: string;
