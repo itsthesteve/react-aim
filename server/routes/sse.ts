@@ -1,6 +1,6 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { MessageData } from "../data/models.ts";
 import { INITIAL_WELCOME } from "../data/system-messages.ts";
-import { Message, MessageData } from "../data/models.ts";
 
 const router = new Router();
 const db = await Deno.openKv("./data/react-chat.sqlite");
@@ -26,6 +26,9 @@ router.get("/events", async (ctx) => {
 
   for await (const [lastEntry] of db.watch([["last_message_id", "abc"]])) {
     const lastId = lastEntry.value as string;
+    if (!lastId) {
+      return;
+    }
     const newMessages = await Array.fromAsync(
       db.list({
         start: ["message", "abc", seen, ""],

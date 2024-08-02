@@ -2,10 +2,12 @@ import { oakCors } from "https://deno.land/x/cors/mod.ts";
 import { Application, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import msgRoutes from "./routes/msg.ts";
 import sseRoutes from "./routes/sse.ts";
+import authRoutes from "./routes/auth.ts";
 
 const router = new Router();
 
 router
+  .use(authRoutes)
   .use(sseRoutes)
   .use(msgRoutes)
   .get("/test", async (context) => {

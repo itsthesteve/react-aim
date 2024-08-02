@@ -1,12 +1,10 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router();
 const kv = await Deno.openKv("./data/react-chat.sqlite");
 
-router.use(async (ctx, next) => {
-  ctx.response.headers.set("Content-Type", "application/json");
-  await next();
-});
+router.use(JsonResponseMiddleware);
 
 /**
  * Receieves a message payload from the chat window and saves to the KV
