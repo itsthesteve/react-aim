@@ -18,7 +18,7 @@ export default function SignIn() {
 
   return (
     <>
-      <div className={`window ${styles.windowContainer}`}>
+      <div className={`window`}>
         <div className="title-bar">
           <div className="title-bar-text">Sign On</div>
           <div className="title-bar-controls">
