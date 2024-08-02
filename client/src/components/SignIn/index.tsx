@@ -1,8 +1,18 @@
-import { ChangeEventHandler, FormEventHandler, useState } from "react";
+import { ChangeEventHandler, FormEventHandler, useEffect, useState } from "react";
 import styles from "./signin.module.css";
 
 export default function SignIn() {
   const [creds, setCreds] = useState({ username: "", password: "" });
+
+  // After signing up, the form redirects here with the username in the search params
+  // as a prefill for the username field to log in
+  const usernameFromSignup = new URLSearchParams(window.location.search).get("username") || "";
+
+  useEffect(() => {
+    if (usernameFromSignup) {
+      setCreds((prev) => ({ ...prev, username: usernameFromSignup }));
+    }
+  }, [usernameFromSignup]);
 
   const updateForm: ChangeEventHandler = (e) => {
     const t = e.target as HTMLFormElement;
@@ -18,7 +28,7 @@ export default function SignIn() {
 
   return (
     <>
-      <div className={`window`}>
+      <div className="window">
         <div className="title-bar">
           <div className="title-bar-text">Sign On</div>
           <div className="title-bar-controls">
@@ -36,7 +46,10 @@ export default function SignIn() {
             <div>
               <label htmlFor="username" className="flex flex-col gap-1 items-stretch">
                 <span className="font-bold">Username</span>
-                <input name="username" onChange={updateForm}></input>
+                <input
+                  defaultValue={usernameFromSignup}
+                  name="username"
+                  onChange={updateForm}></input>
               </label>
               <a href="/" className="mt-1 inline-block">
                 Get a screen name

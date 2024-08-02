@@ -4,11 +4,16 @@ import ChatRoute from "./routes/chat";
 import "./index.css";
 import SignIn from "./components/SignIn";
 import { AuthProvider } from "./context/auth/context";
+import SignUp from "./routes/sign-up";
 
 const router = createBrowserRouter([
   {
     path: "/chat",
     element: <ChatRoute />,
+  },
+  {
+    path: "/sign-up",
+    element: <SignUp />,
   },
   {
     path: "/",
