@@ -69,7 +69,6 @@ export const AuthProvider = ({ children }: Props) => {
     if (resJson.ok) {
       const user = { username: creds.username };
       setUser(() => user);
-      localStorage.setItem("__rcuser", JSON.stringify(user));
       return user;
     }
 
