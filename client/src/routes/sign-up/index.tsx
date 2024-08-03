@@ -19,7 +19,6 @@ export default function SignUp() {
 
   const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
-    console.log("Signing up with", creds);
     const success = await signUp(creds);
 
     if (success) {

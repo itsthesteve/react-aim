@@ -2,8 +2,10 @@ import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { MessageData } from "../../context/messages/context";
 import { useMessages } from "../../context/messages/hook";
 import styles from "./styles.module.css";
+import { useAuthContext } from "../../context/auth/hook";
 
 export default function MessagesList() {
+  const { user } = useAuthContext();
   const { subscribe, load } = useMessages();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const messagesWrapper = useRef<HTMLElement>(null);
@@ -28,6 +30,7 @@ export default function MessagesList() {
 
   return (
     <section ref={messagesWrapper} className={`p-2 bg-white mx-2 mt-2 ${styles.messageWindow}`}>
+      <header>Welcome back, {user?.username}</header>
       {messages.map((message) => {
         return (
           <p key={message.id} className="flex gap-1 items-start">

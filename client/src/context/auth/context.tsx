@@ -1,22 +1,21 @@
-import { createContext, useState, type ReactNode } from "react";
+import { createContext, useEffect, useState, type ReactNode } from "react";
 
 export interface User {
   username: string;
 }
 
-export interface UserRow extends User {
-  hashedPassword: string;
-}
-
+// Used in the sign in form
 export interface AuthCredentials {
   username: string;
   password: string;
 }
 
+// Used in the sign up form, adds the verification field to the AuthCredentials interface
 export interface SignUpAuthCredentials extends AuthCredentials {
   verifyPassword: string;
 }
 
+// Provider context type
 export type AuthContextType = {
   signUp: (creds: SignUpAuthCredentials) => Promise<boolean>;
   login: (creds: AuthCredentials) => Promise<User | null>;
@@ -33,6 +32,17 @@ type Props = {
 export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
 
+  // Make a quick call to make sure the user is still logged in, returns
+  // a User object. Just call once on initialization.
+  useEffect(() => {
+    fetch("http://localhost:9000/auth/me", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then(setUser);
+  }, []);
+
   const login = async (creds: AuthCredentials): Promise<User | null> => {
     const res = await fetch("http://localhost:9000/auth/login", {
       method: "POST",
@@ -46,7 +56,10 @@ export const AuthProvider = ({ children }: Props) => {
     const resJson = await res.json();
 
     if (resJson.ok) {
-      return { username: creds.username };
+      const user = { username: creds.username };
+      setUser(() => user);
+      localStorage.setItem("__rcuser", JSON.stringify(user));
+      return user;
     }
 
     throw new Error("Unable to login: " + resJson.reason);
@@ -76,7 +89,8 @@ export const AuthProvider = ({ children }: Props) => {
   return (
     <>
       <AuthContext.Provider value={{ login, logout, signUp, user }}>
-        {children}
+        {/* TODO: useQuery or other loading mech here when the user is being resolved? */}
+        {!user ? <div>Loading</div> : children}
       </AuthContext.Provider>
     </>
   );

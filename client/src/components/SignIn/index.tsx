@@ -1,9 +1,11 @@
 import { ChangeEventHandler, FormEventHandler, useEffect, useState } from "react";
-import styles from "./signin.module.css";
+import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/auth/hook";
+import styles from "./signin.module.css";
 
 export default function SignIn() {
   const { login } = useAuthContext();
+  const navigate = useNavigate();
   const [creds, setCreds] = useState({ username: "", password: "" });
 
   // After signing up, the form redirects here with the username in the search params
@@ -27,8 +29,8 @@ export default function SignIn() {
   const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(creds);
-      console.log(response);
+      await login(creds);
+      navigate("/chat", { replace: true });
     } catch (e) {
       console.warn("Unable to login", e);
     }

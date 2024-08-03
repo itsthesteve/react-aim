@@ -1,4 +1,4 @@
-import { deleteCookie, setCookie } from "https://deno.land/std/http/cookie.ts";
+import { deleteCookie, getCookies, setCookie } from "https://deno.land/std/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { AuthCredentials, UserRow } from "../data/models.ts";
@@ -111,6 +111,22 @@ router.get("/", async ({ request, response }) => {
     console.log("user:", r);
   }
   response.body = { ok: true };
+});
+
+/**
+ * Verifies the user is logged in via the http cookie
+ */
+router.get("/me", ({ request, response }) => {
+  const cookies = getCookies(request.headers);
+
+  if (cookies[AUTH_COOKIE_NAME]) {
+    response.status = 200;
+    response.body = { username: cookies[AUTH_COOKIE_NAME] };
+    return;
+  }
+
+  response.status = 403;
+  response.body = { ok: false, reason: "NOSESSION" };
 });
 
 export default router.routes();
