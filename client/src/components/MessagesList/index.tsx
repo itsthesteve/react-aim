@@ -34,7 +34,9 @@ export default function MessagesList() {
       {messages.map((message) => {
         return (
           <p key={message.id} className="flex gap-1 items-start">
-            <span className={styles.notMe}>{message.owner}:</span>
+            <span className={message.owner === user!.username ? styles.me : styles.notMe}>
+              {message.owner}:
+            </span>
             <span className="whitespace-pre">{message.payload}</span>
           </p>
         );

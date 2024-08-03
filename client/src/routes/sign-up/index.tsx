@@ -36,7 +36,7 @@ export default function SignUp() {
           </div>
         </div>
         <div className="window-body grid place-items-center">
-          <header className="bg-blue-700 aspect-square text-center font-sans font-bold flex flex-col text-white justify-between p-4">
+          <header className="bg-blue-700 w-40 aspect-square text-center font-sans font-bold flex flex-col text-white justify-between p-4">
             <img className="self-end" src="/aimguy.png" width="112" height="122" />
             React Instant Messenger
           </header>

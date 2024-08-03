@@ -61,7 +61,7 @@ export default function SignIn() {
                   name="username"
                   onChange={updateForm}></input>
               </label>
-              <a href="/" className="mt-1 inline-block">
+              <a href="/sign-up" className="mt-1 inline-block">
                 Get a screen name
               </a>
             </div>

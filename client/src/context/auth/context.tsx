@@ -45,7 +45,6 @@ export const AuthProvider = ({ children }: Props) => {
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log("RESULT", res);
         if (!res.ok) {
           return null;
         }
@@ -55,7 +54,7 @@ export const AuthProvider = ({ children }: Props) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (creds: AuthCredentials): Promise<User | null> => {
+  const login = async (creds: AuthCredentials): Promise<User> => {
     const res = await fetch("http://localhost:9000/auth/login", {
       method: "POST",
       credentials: "include",

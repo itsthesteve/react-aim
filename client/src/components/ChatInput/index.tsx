@@ -2,8 +2,10 @@ import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
 import { useMessages } from "../../context/messages/hook";
 import KeyboardSpan from "../KeyboardSpan";
 import styles from "./styles.module.css";
+import { useAuthContext } from "../../context/auth/hook";
 
 export default function ChatInput() {
+  const { user } = useAuthContext();
   const { sendMessage } = useMessages();
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -25,7 +27,7 @@ export default function ChatInput() {
       channel: "abc",
       data: {
         id: "msg-" + Date.now(),
-        owner: "user123",
+        owner: user!.username,
         payload: message,
       },
     });
@@ -38,7 +40,7 @@ export default function ChatInput() {
     setMessage("");
     textAreaRef.current.value = "";
     textAreaRef.current.focus();
-  }, [message, sendMessage]);
+  }, [message, sendMessage, user]);
 
   const sendListener = useCallback(() => {
     submit();
