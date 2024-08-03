@@ -32,3 +32,4 @@ TODO
 - Chat rooms, moderation?
 - Friend lists/favorites
 - Sanitization, adding links, changing background colors/text colors a la AOL AIM
+- Prevent users logging in with the same credentials
