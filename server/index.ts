@@ -30,6 +30,7 @@ router
 
     console.log({ newMessages });
     context.response.body = newMessages;
+    db.close();
   });
 
 const app = new Application();

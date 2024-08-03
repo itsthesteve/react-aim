@@ -3,13 +3,13 @@ import { MessageData } from "../data/models.ts";
 import { INITIAL_WELCOME } from "../data/system-messages.ts";
 
 const router = new Router();
-const db = await Deno.openKv("./data/react-chat.sqlite");
 
 /**
  * Get's all the messages for the channel "abc" at once.
  * No need for SSE here
  */
 router.get("/channel", async (ctx) => {
+  const db = await Deno.openKv("./data/react-chat.sqlite");
   const entries = db.list({ prefix: ["message", "abc"] });
   const result = [];
   for await (const entry of entries) {
@@ -17,10 +17,12 @@ router.get("/channel", async (ctx) => {
   }
 
   ctx.response.body = result;
+  db.close();
 });
 
 let seen = "";
 router.get("/events", async (ctx) => {
+  const db = await Deno.openKv("./data/react-chat.sqlite");
   const target = await ctx.sendEvents();
   target.dispatchMessage(INITIAL_WELCOME);
 
@@ -46,6 +48,7 @@ router.get("/events", async (ctx) => {
       })
       .forEach((payload) => target.dispatchMessage(payload));
   }
+  db.close();
 });
 
 export default router.routes();

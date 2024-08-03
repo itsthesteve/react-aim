@@ -1,8 +1,8 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { JsonResponseMiddleware } from "../middleware/index.ts";
+import { decodeBase64 } from "jsr:@std/encoding@^0.223.0/base64";
 
 const router = new Router();
-const kv = await Deno.openKv("./data/react-chat.sqlite");
 
 router.use(JsonResponseMiddleware);
 
@@ -11,12 +11,13 @@ router.use(JsonResponseMiddleware);
  * store with the keys "message" and the channel ID.
  */
 router.post("/msg", async (context) => {
+  const db = await Deno.openKv("./data/react-chat.sqlite");
   try {
     const body = await context.request.body.json();
     console.log("Saving message:", body);
 
-    const result = await kv.set(["message", "abc", body.data.id], body.data);
-    await kv.set(["last_message_id", "abc"], body.data.id, {
+    const result = await db.set(["message", "abc", body.data.id], body.data);
+    await db.set(["last_message_id", "abc"], body.data.id, {
       expireIn: 3_600_000, // one hour
     });
 
@@ -30,6 +31,7 @@ router.post("/msg", async (context) => {
     context.response.status = 400;
     context.response.body = { result: ":(" };
   }
+  db.close();
 });
 
 export default router.routes();

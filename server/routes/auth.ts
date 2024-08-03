@@ -86,6 +86,7 @@ router.post("/create", async ({ request, response }) => {
 
   response.status = 500;
   response.body = { ok: true, reason: "Error creating user" };
+  db.close();
 });
 
 /**
@@ -111,6 +112,7 @@ router.get("/", async ({ request, response }) => {
     console.log("user:", r);
   }
   response.body = { ok: true };
+  db.close();
 });
 
 /**
