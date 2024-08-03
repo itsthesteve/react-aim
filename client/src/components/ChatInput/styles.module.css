@@ -4,8 +4,6 @@
 }
 
 .sendButton {
-  all: unset;
-
   &[disabled] {
     filter: grayscale(1);
   }

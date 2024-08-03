@@ -19,7 +19,7 @@ export interface SignUpAuthCredentials extends AuthCredentials {
 // Provider context type
 export type AuthContextType = {
   signUp: (creds: SignUpAuthCredentials) => Promise<boolean>;
-  login: (creds: AuthCredentials) => Promise<User | null>;
+  login: (creds: AuthCredentials) => Promise<User>;
   logout: () => Promise<void>;
   user: User | null;
   loading: boolean;
@@ -72,7 +72,8 @@ export const AuthProvider = ({ children }: Props) => {
       return user;
     }
 
-    throw new Error("Unable to login: " + resJson.reason);
+    console.warn(resJson);
+    throw new Error("Unable to log in");
   };
 
   const logout = async () => {
