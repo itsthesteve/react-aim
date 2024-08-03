@@ -1,6 +1,5 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { JsonResponseMiddleware } from "../middleware/index.ts";
-import { decodeBase64 } from "jsr:@std/encoding@^0.223.0/base64";
 
 const router = new Router();
 
