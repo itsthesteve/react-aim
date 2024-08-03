@@ -1,10 +1,7 @@
-import { deleteCookie, getCookies, setCookie } from "https://deno.land/std/http/cookie.ts";
+import { getCookies, setCookie } from "https://deno.land/std/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
-import { Context, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { AuthCredentials, UserRow } from "../data/models.ts";
-import { responseRange } from "jsr:@oak/commons@0.11/range";
-import { createMockNext } from "https://deno.land/x/oak@v16.1.0/testing.ts";
-import { STATUS_TEXT } from "https://deno.land/x/oak@v16.1.0/deps.ts";
 
 const router = new Router({
   prefix: "/auth",
