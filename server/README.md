@@ -29,5 +29,6 @@ writing.
 
 TODO
 
-- Basic auth
-- ...more
+- Chat rooms, moderation?
+- Friend lists/favorites
+- Sanitization, adding links, changing background colors/text colors a la AOL AIM
