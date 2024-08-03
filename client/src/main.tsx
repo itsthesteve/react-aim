@@ -4,6 +4,7 @@ import SignIn from "./components/SignIn";
 import { AuthProvider } from "./context/auth/context";
 import "./index.css";
 import ChatRoute from "./routes/chat";
+import ProtectedRoutes from "./routes/protected";
 import SignUp from "./routes/sign-up";
 
 const router = createBrowserRouter([
@@ -16,8 +17,13 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/chat",
-        element: <ChatRoute />,
+        element: <ProtectedRoutes />,
+        children: [
+          {
+            path: "/chat",
+            element: <ChatRoute />,
+          },
+        ],
       },
       {
         path: "/sign-up",

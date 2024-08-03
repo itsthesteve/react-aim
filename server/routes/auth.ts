@@ -1,7 +1,10 @@
 import { deleteCookie, getCookies, setCookie } from "https://deno.land/std/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
-import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Context, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { AuthCredentials, UserRow } from "../data/models.ts";
+import { responseRange } from "jsr:@oak/commons@0.11/range";
+import { createMockNext } from "https://deno.land/x/oak@v16.1.0/testing.ts";
+import { STATUS_TEXT } from "https://deno.land/x/oak@v16.1.0/deps.ts";
 
 const router = new Router({
   prefix: "/auth",
@@ -92,9 +95,9 @@ router.post("/create", async ({ request, response }) => {
  * Logout
  * Delete the http cookie
  */
-router.delete("/", ({ request, response }) => {
-  deleteCookie(request.headers, AUTH_COOKIE_NAME);
-  response.body = { ok: true };
+router.post("/logout", (ctx) => {
+  ctx.cookies.delete(AUTH_COOKIE_NAME);
+  ctx.response.status = 200;
 });
 
 // Debug
@@ -121,11 +124,10 @@ router.get("/me", ({ request, response }) => {
 
   if (cookies[AUTH_COOKIE_NAME]) {
     response.status = 200;
-    response.body = { username: cookies[AUTH_COOKIE_NAME] };
+    response.body = { ok: true, user: { username: cookies[AUTH_COOKIE_NAME] } };
     return;
   }
 
-  response.status = 403;
   response.body = { ok: false, reason: "NOSESSION" };
 });
 

@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface User {
   username: string;
@@ -21,6 +22,7 @@ export type AuthContextType = {
   login: (creds: AuthCredentials) => Promise<User | null>;
   logout: () => Promise<void>;
   user: User | null;
+  loading: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,6 +33,8 @@ type Props = {
 
 export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   // Make a quick call to make sure the user is still logged in, returns
   // a User object. Just call once on initialization.
@@ -40,7 +44,15 @@ export const AuthProvider = ({ children }: Props) => {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then(setUser);
+      .then((res) => {
+        console.log("RESULT", res);
+        if (!res.ok) {
+          return null;
+        }
+
+        setUser(res.user);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const login = async (creds: AuthCredentials): Promise<User | null> => {
@@ -66,7 +78,12 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   const logout = async () => {
-    throw new Error("Not yet implemented");
+    await fetch("http://localhost:9000/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    navigate("/", { replace: true });
   };
 
   const signUp = async (creds: SignUpAuthCredentials) => {
@@ -88,9 +105,9 @@ export const AuthProvider = ({ children }: Props) => {
 
   return (
     <>
-      <AuthContext.Provider value={{ login, logout, signUp, user }}>
+      <AuthContext.Provider value={{ login, logout, signUp, user, loading }}>
         {/* TODO: useQuery or other loading mech here when the user is being resolved? */}
-        {!user ? <div>Loading</div> : children}
+        {children}
       </AuthContext.Provider>
     </>
   );

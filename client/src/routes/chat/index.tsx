@@ -6,9 +6,8 @@ import { MessagesProvider } from "../../context/messages/context";
 import styles from "./app.module.css";
 
 export default function ChatRoute() {
-  const { user } = useAuthContext();
+  const { logout } = useAuthContext();
 
-  console.log("USERRRR", user);
   return (
     <MessagesProvider>
       <div className={`window ${styles.windowContainer}`}>
@@ -16,7 +15,7 @@ export default function ChatRoute() {
           <div className="title-bar-text">React Chat | XP Edition</div>
           <div className="title-bar-controls">
             <button aria-label="Help" onClick={() => alert("todo")}></button>
-            <button aria-label="Close" onClick={() => alert("todo")}></button>
+            <button aria-label="Close" onClick={logout}></button>
           </div>
         </div>
         <div
