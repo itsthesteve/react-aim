@@ -1,14 +1,17 @@
 import { ChangeEventHandler, FormEventHandler, useEffect, useState } from "react";
 import styles from "./signin.module.css";
+import { useAuthContext } from "../../context/auth/hook";
 
 export default function SignIn() {
+  const { login } = useAuthContext();
   const [creds, setCreds] = useState({ username: "", password: "" });
 
   // After signing up, the form redirects here with the username in the search params
-  // as a prefill for the username field to log in
+  // as a prefill for the username field to log in.
   const usernameFromSignup = new URLSearchParams(window.location.search).get("username") || "";
 
   useEffect(() => {
+    // Be sure the state is set correctly if the username is in the search params
     if (usernameFromSignup) {
       setCreds((prev) => ({ ...prev, username: usernameFromSignup }));
     }
@@ -21,9 +24,14 @@ export default function SignIn() {
     });
   };
 
-  const onSubmit: FormEventHandler = (e) => {
+  const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
-    console.log("Signing on", creds);
+    try {
+      const response = await login(creds);
+      console.log(response);
+    } catch (e) {
+      console.warn("Unable to login", e);
+    }
   };
 
   return (

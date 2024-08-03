@@ -42,6 +42,7 @@ export const MessagesProvider = ({ children }: Props) => {
     try {
       const response = await fetch("http://localhost:9000/msg", {
         method: "POST",
+        credentials: "include",
         body: JSON.stringify(message),
         headers: {
           "Content-Type": "application/json",
@@ -62,6 +63,7 @@ export const MessagesProvider = ({ children }: Props) => {
   const load = async (): Promise<MessageData[]> => {
     const response = await fetch("http://localhost:9000/channel", {
       method: "GET",
+      credentials: "include",
     });
 
     return await response.json();

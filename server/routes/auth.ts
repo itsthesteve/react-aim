@@ -14,32 +14,37 @@ const AUTH_COOKIE_NAME = "__rcsession";
  * Requires username, password and password verfication in
  * the request body
  */
-router.post("/login", async (context) => {
-  const { username, password } = await context.request.body.json();
+router.post("/login", async ({ response, request }) => {
+  const { username, password } = await request.body.json();
 
   const db = await Deno.openKv("./data/react-chat.sqlite");
-  const existingUser = await db.get<UserRow>(["users", username]);
+  const existingUser = await db.get<string>(["users", username]);
 
   if (!existingUser.value) {
-    context.response.status = 401;
-    context.response.body = { ok: false, reason: "NOTFOUND" };
+    response.status = 401;
+    response.body = { ok: false, reason: "NOTFOUND" };
     return;
   }
 
-  const { hashedPassword } = existingUser.value;
-  const match = await bcrypt.compare(password, hashedPassword);
+  const match = await bcrypt.compare(password, existingUser.value);
 
   if (!match) {
-    context.response.status = 401;
-    context.response.body = { ok: false, reason: "BADPASS" };
+    response.status = 401;
+    response.body = { ok: false, reason: "BADPASS" };
     return;
   }
 
-  const response = new Response();
+  // All good, set cookie and return ok
   setCookie(response.headers, {
-    name: "username",
+    name: AUTH_COOKIE_NAME,
     value: username,
+    path: "/",
+    secure: true,
+    httpOnly: true,
+    maxAge: 31536000,
   });
+
+  response.body = { ok: true };
 
   db.close();
 });
@@ -74,15 +79,6 @@ router.post("/create", async ({ request, response }) => {
   const result = await db.set(["users", username], hashedPassword);
   console.log("User created", result);
   if (result.ok) {
-    setCookie(response.headers, {
-      name: AUTH_COOKIE_NAME,
-      value: username,
-      domain: "/",
-      secure: true,
-      httpOnly: true,
-      maxAge: 31536000,
-    });
-
     response.status = 201;
     response.body = { ok: true };
     return;

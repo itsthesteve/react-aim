@@ -35,6 +35,7 @@ router
 const app = new Application();
 app.use(
   oakCors({
+    credentials: true,
     origin: /http:\/\/localhost:[\d]{4}/i,
   })
 );

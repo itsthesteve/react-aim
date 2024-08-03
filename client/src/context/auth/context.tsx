@@ -1,7 +1,6 @@
 import { createContext, useState, type ReactNode } from "react";
 
 export interface User {
-  id: string;
   username: string;
 }
 
@@ -35,7 +34,22 @@ export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<User | null>(null);
 
   const login = async (creds: AuthCredentials): Promise<User | null> => {
-    throw new Error("Not yet implemented");
+    const res = await fetch("http://localhost:9000/auth/login", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify(creds),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const resJson = await res.json();
+
+    if (resJson.ok) {
+      return { username: creds.username };
+    }
+
+    throw new Error("Unable to login: " + resJson.reason);
   };
 
   const logout = async () => {
@@ -45,6 +59,7 @@ export const AuthProvider = ({ children }: Props) => {
   const signUp = async (creds: SignUpAuthCredentials) => {
     const response = await fetch("http://localhost:9000/auth/create", {
       method: "POST",
+      credentials: "include",
       body: JSON.stringify(creds),
       headers: {
         "Content-Type": "application/json",
