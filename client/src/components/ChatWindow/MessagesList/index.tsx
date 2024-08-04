@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { MessageData } from "../../context/messages/context";
-import { useMessages } from "../../context/messages/hook";
 import styles from "./styles.module.css";
-import { useAuthContext } from "../../context/auth/hook";
 import { useLoaderData } from "react-router-dom";
+import { useAuthContext } from "../../../context/auth/hook";
+import { MessageData } from "../../../context/messages/context";
+import { useMessages } from "../../../context/messages/hook";
 
 export default function MessagesList() {
   const { user } = useAuthContext();

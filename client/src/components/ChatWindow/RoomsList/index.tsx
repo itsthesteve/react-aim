@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ChatRoom } from "../../types/room";
 import { useLoaderData } from "react-router-dom";
+import { ChatRoom } from "../../../types/room";
 
 export default function UserList() {
   const roomName = useLoaderData();

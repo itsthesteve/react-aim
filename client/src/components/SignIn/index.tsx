@@ -10,7 +10,7 @@ const processingSteps = [
   { step: 3, text: "Starting services..." },
 ];
 
-export default function SignIn() {
+export function SignIn() {
   const { login } = useAuthContext();
   const navigate = useNavigate();
   // TODO: reduce number of useStates
@@ -50,8 +50,8 @@ export default function SignIn() {
   const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
     setSubmitted(true);
+    await randSleep(0);
     await randSleep(1);
-    await randSleep(2);
 
     try {
       await login(creds);
@@ -62,7 +62,7 @@ export default function SignIn() {
       return;
     }
 
-    await randSleep(3);
+    await randSleep(2);
     // Navigate to the global default room by default
     // In the future, this value can be retrieved and set dynamically
     navigate("/chat?room=" + DEFAULT_ROOM, { replace: true });
@@ -130,7 +130,7 @@ export default function SignIn() {
           ) : (
             <div className="text-center py-2 flex flex-col gap-2">
               <span>{creds.username}</span>
-              <span>{processingSteps[step].text}</span>
+              <span>{processingSteps[step]?.text}</span>
             </div>
           )}
         </div>
