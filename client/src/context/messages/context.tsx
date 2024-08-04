@@ -1,4 +1,5 @@
-import { createContext, ReactNode, useEffect, useRef, useState } from "react";
+import { createContext, ReactNode, useEffect, useRef } from "react";
+import { useLoaderData } from "react-router-dom";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -16,12 +17,10 @@ export interface Message {
 
 // React context interface
 export type MessageContextType = {
-  setChatId: (roomId: string) => void;
   subscribe: (channel: string, fn: CallableFunction) => void;
   unsubscribe: (channel: string) => void;
   sendMessage: (message: Message) => void;
   load: () => Promise<MessageData[]>;
-  roomId: string;
 };
 
 type Props = {
@@ -29,13 +28,8 @@ type Props = {
 };
 
 export const MessagesProvider = ({ children }: Props) => {
-  const [chatroomId, setChatroomId] = useState<string>("abc");
+  const roomId = useLoaderData();
   const listeners = useRef<Record<string, CallableFunction>>({});
-
-  const setChatId = (id: string) => {
-    setChatroomId(id);
-    console.log("Set room ID to", chatroomId);
-  };
 
   const subscribe = (channel: string, fn: CallableFunction) => {
     listeners.current[channel] = fn;
@@ -47,7 +41,7 @@ export const MessagesProvider = ({ children }: Props) => {
 
   const sendMessage = async (message: Message) => {
     try {
-      const response = await fetch("http://localhost:9000/msg", {
+      const response = await fetch(`http://localhost:9000/msg?room=${roomId}`, {
         method: "POST",
         credentials: "include",
         body: JSON.stringify(message),
@@ -64,11 +58,10 @@ export const MessagesProvider = ({ children }: Props) => {
 
   /**
    * Retrieve all messages for the channel.
-   * TODO: Pass in the channel. This pulls messages
-   * for the channel "ABC"
+   * The roomId is retrieved from the chatLoader function set in the router.
    */
   const load = async (): Promise<MessageData[]> => {
-    const response = await fetch(`http://localhost:9000/channel?room=${chatroomId}`, {
+    const response = await fetch(`http://localhost:9000/channel?room=${roomId}`, {
       method: "GET",
       credentials: "include",
     });
@@ -77,7 +70,7 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    const eventSrc = new EventSource(`http://localhost:9000/events?room=${chatroomId}`);
+    const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomId}`);
     eventSrc.addEventListener("message", onMessage);
     eventSrc.addEventListener("error", onError);
 
@@ -89,12 +82,11 @@ export const MessagesProvider = ({ children }: Props) => {
     function onError(e: Event) {
       console.error("!!!", e);
     }
-  }, []);
+  }, [roomId]);
 
   return (
     <>
-      <MessagesContext.Provider
-        value={{ subscribe, unsubscribe, sendMessage, load, setChatId, roomId: chatroomId }}>
+      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load }}>
         {children}
       </MessagesContext.Provider>
     </>

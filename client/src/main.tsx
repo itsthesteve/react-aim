@@ -2,11 +2,12 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import SignIn from "./components/SignIn";
 import { AuthProvider } from "./context/auth/context";
+import { MessagesProvider } from "./context/messages/context";
 import "./index.css";
 import ChatRoute from "./routes/chat";
 import ProtectedRoutes from "./routes/protected";
 import SignUp from "./routes/sign-up";
-import { MessagesProvider } from "./context/messages/context";
+import { chatRouteLoader } from "./routes/chat/loader";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/chat",
+            loader: chatRouteLoader,
             element: (
               <MessagesProvider>
                 <ChatRoute />
