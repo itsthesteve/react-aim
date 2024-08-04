@@ -3,9 +3,11 @@ import { MessageData } from "../../context/messages/context";
 import { useMessages } from "../../context/messages/hook";
 import styles from "./styles.module.css";
 import { useAuthContext } from "../../context/auth/hook";
+import { useLoaderData } from "react-router-dom";
 
 export default function MessagesList() {
   const { user } = useAuthContext();
+  const roomId = useLoaderData();
   const { subscribe, load } = useMessages();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const messagesWrapper = useRef<HTMLElement>(null);
@@ -20,7 +22,7 @@ export default function MessagesList() {
     messagesWrapper.current?.scrollTo({ top: messagesWrapper.current.scrollHeight });
   }, [messages.length]);
 
-  subscribe("abc", (data: MessageData) => {
+  subscribe(roomId as string, (data: MessageData) => {
     if (messages.find((pm) => pm.id === data.id)) {
       return console.warn("Duplicate message sent. Skipping.", data);
     }
