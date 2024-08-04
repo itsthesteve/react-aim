@@ -70,25 +70,12 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    //test
-    fetch("http://localhost:9000/rooms", {
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify({ room: "someRoomName" }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then(console.log);
-    //end test
     const eventSrc = new EventSource("http://localhost:9000/events");
     eventSrc.addEventListener("message", onMessage);
     eventSrc.addEventListener("error", onError);
 
     function onMessage(message: MessageEvent) {
       const msg = JSON.parse(message.data);
-      console.log("Parsed message", msg);
       listeners.current[msg.channel]?.(msg.data);
     }
 
