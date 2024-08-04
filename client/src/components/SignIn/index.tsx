@@ -62,7 +62,9 @@ export default function SignIn() {
     }
 
     await randSleep(3);
-    navigate("/chat", { replace: true });
+    // Navigate to the global "abc" room by default
+    // In the future, this value can be retrieved and set dynamically
+    navigate("/chat?room=abc", { replace: true });
   };
 
   return (

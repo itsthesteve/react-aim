@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useRef } from "react";
+import { createContext, ReactNode, useEffect, useRef, useState } from "react";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -16,10 +16,12 @@ export interface Message {
 
 // React context interface
 export type MessageContextType = {
+  setChatId: (roomId: string) => void;
   subscribe: (channel: string, fn: CallableFunction) => void;
   unsubscribe: (channel: string) => void;
   sendMessage: (message: Message) => void;
   load: () => Promise<MessageData[]>;
+  roomId: string;
 };
 
 type Props = {
@@ -27,8 +29,13 @@ type Props = {
 };
 
 export const MessagesProvider = ({ children }: Props) => {
-  // const ws = useRef<WebSocket>();
+  const [chatroomId, setChatroomId] = useState<string>("abc");
   const listeners = useRef<Record<string, CallableFunction>>({});
+
+  const setChatId = (id: string) => {
+    setChatroomId(id);
+    console.log("Set room ID to", chatroomId);
+  };
 
   const subscribe = (channel: string, fn: CallableFunction) => {
     listeners.current[channel] = fn;
@@ -61,7 +68,7 @@ export const MessagesProvider = ({ children }: Props) => {
    * for the channel "ABC"
    */
   const load = async (): Promise<MessageData[]> => {
-    const response = await fetch("http://localhost:9000/channel", {
+    const response = await fetch(`http://localhost:9000/channel?room=${chatroomId}`, {
       method: "GET",
       credentials: "include",
     });
@@ -70,7 +77,7 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    const eventSrc = new EventSource("http://localhost:9000/events");
+    const eventSrc = new EventSource(`http://localhost:9000/events?room=${chatroomId}`);
     eventSrc.addEventListener("message", onMessage);
     eventSrc.addEventListener("error", onError);
 
@@ -86,7 +93,8 @@ export const MessagesProvider = ({ children }: Props) => {
 
   return (
     <>
-      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load }}>
+      <MessagesContext.Provider
+        value={{ subscribe, unsubscribe, sendMessage, load, setChatId, roomId: chatroomId }}>
         {children}
       </MessagesContext.Provider>
     </>

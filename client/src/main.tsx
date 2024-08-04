@@ -6,6 +6,7 @@ import "./index.css";
 import ChatRoute from "./routes/chat";
 import ProtectedRoutes from "./routes/protected";
 import SignUp from "./routes/sign-up";
+import { MessagesProvider } from "./context/messages/context";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,11 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/chat",
-            element: <ChatRoute />,
+            element: (
+              <MessagesProvider>
+                <ChatRoute />
+              </MessagesProvider>
+            ),
           },
         ],
       },
