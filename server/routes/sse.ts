@@ -5,36 +5,50 @@ import { INITIAL_WELCOME } from "../data/system-messages.ts";
 const router = new Router();
 
 /**
- * Get's all the messages for the channel "abc" at once.
- * No need for SSE here
+ * Get's all the messages for the channel based on the roomId search param at once.
  */
-router.get("/channel", async (ctx) => {
+router.get("/channel", async ({ request, response }) => {
+  // Ensure there's a room parameter
+  const roomId = request.url.searchParams.get("room");
+  if (!roomId) {
+    response.status = 400;
+    response.body = { ok: false, reason: "NOROOMID" };
+    return;
+  }
+
   const db = await Deno.openKv("./data/react-chat.sqlite");
-  const entries = db.list({ prefix: ["message", "abc"] });
+  const entries = db.list({ prefix: ["message", roomId] });
   const result = [];
   for await (const entry of entries) {
     result.push(entry.value);
   }
 
-  ctx.response.body = result;
+  response.body = result;
   db.close();
 });
 
 let seen = "";
 router.get("/events", async (ctx) => {
+  const roomId = ctx.request.url.searchParams.get("room");
+  if (!roomId) {
+    ctx.response.status = 400;
+    ctx.response.body = { ok: false, reason: "NOROOMID" };
+    return;
+  }
+
   const db = await Deno.openKv("./data/react-chat.sqlite");
   const target = await ctx.sendEvents();
   target.dispatchMessage(INITIAL_WELCOME);
 
-  for await (const [lastEntry] of db.watch([["last_message_id", "abc"]])) {
+  for await (const [lastEntry] of db.watch([["last_message_id", roomId]])) {
     const lastId = lastEntry.value as string;
     if (!lastId) {
       return;
     }
     const newMessages = await Array.fromAsync(
       db.list({
-        start: ["message", "abc", seen, ""],
-        end: ["message", "abc", lastId, ""],
+        start: ["message", roomId, seen, ""],
+        end: ["message", roomId, lastId, ""],
       })
     );
     seen = lastId;
