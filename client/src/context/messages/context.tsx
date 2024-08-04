@@ -70,6 +70,18 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
+    //test
+    fetch("http://localhost:9000/rooms", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ room: "someRoomName" }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then(console.log);
+    //end test
     const eventSrc = new EventSource("http://localhost:9000/events");
     eventSrc.addEventListener("message", onMessage);
     eventSrc.addEventListener("error", onError);

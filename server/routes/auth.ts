@@ -7,6 +7,7 @@ const router = new Router({
   prefix: "/auth",
 });
 
+// TODO: Move this to a shared location
 const AUTH_COOKIE_NAME = "__rcsession";
 
 /**
@@ -118,10 +119,21 @@ router.get("/", async ({ request, response }) => {
 /**
  * Verifies the user is logged in via the http cookie
  */
-router.get("/me", ({ request, response }) => {
+router.get("/me", async ({ request, response }) => {
   const cookies = getCookies(request.headers);
+  const cookieUsername = cookies[AUTH_COOKIE_NAME];
 
-  if (cookies[AUTH_COOKIE_NAME]) {
+  // Ensure the user exists
+  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const user = await db.get(["users", cookieUsername]);
+  db.close();
+  if (!user.value) {
+    response.status = 403;
+    response.body = { ok: false, reason: "NOUSER" };
+    return;
+  }
+
+  if (cookieUsername) {
     response.status = 200;
     response.body = { ok: true, user: { username: cookies[AUTH_COOKIE_NAME] } };
     return;
