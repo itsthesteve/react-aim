@@ -64,6 +64,7 @@ router.get("/events", async (ctx) => {
       })
       .forEach((payload) => target.dispatchMessage(payload));
   }
+
   db.close();
 });
 
