@@ -3,9 +3,11 @@ import { useMessages } from "../../context/messages/hook";
 import KeyboardSpan from "../KeyboardSpan";
 import styles from "./styles.module.css";
 import { useAuthContext } from "../../context/auth/hook";
+import { useLoaderData } from "react-router-dom";
 
 export default function ChatInput() {
   const { user } = useAuthContext();
+  const roomId = useLoaderData();
   const { sendMessage } = useMessages();
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -24,7 +26,7 @@ export default function ChatInput() {
     }
 
     sendMessage({
-      channel: "abc",
+      channel: roomId as string,
       data: {
         id: "msg-" + Date.now(),
         owner: user!.username,
@@ -40,7 +42,7 @@ export default function ChatInput() {
     setMessage("");
     textAreaRef.current.value = "";
     textAreaRef.current.focus();
-  }, [message, sendMessage, user]);
+  }, [message, sendMessage, user, roomId]);
 
   const sendListener = useCallback(() => {
     submit();
