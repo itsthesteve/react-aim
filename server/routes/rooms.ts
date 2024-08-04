@@ -9,10 +9,6 @@ router.use(AuthMiddleware).use(JsonResponseMiddleware);
 router.get("/rooms", async ({ response, cookies }) => {
   // Middleware catches this, so we can be sure (?) the cookie exists here
   const username = (await cookies.get("__rcsession")) as string;
-  if (!username) {
-    response.body = { ok: false, reason: "unknown cookie error" };
-    return;
-  }
 
   const db = await Deno.openKv("./data/react-chat.sqlite");
   const userRoomRows = db.list({ prefix: ["rooms", username] });
@@ -35,9 +31,8 @@ router.get("/rooms", async ({ response, cookies }) => {
  * Create a new room. Requires a session cookie and a "room" property in the post body
  */
 router.post("/rooms", async ({ request, response, cookies }) => {
-  // Make sure the cookie exists
-  // The middleware will ensure this exists, so tell TS it's definitely here.
-  const username = await cookies.get("__rcsession")!;
+  // Middleware catches this, so we can be sure (?) the cookie exists here
+  const username = (await cookies.get("__rcsession")) as string;
 
   const { room: roomName } = await request.body.json();
 
@@ -76,7 +71,7 @@ router.post("/rooms", async ({ request, response, cookies }) => {
     createdAt: Date.now(),
   });
 
-  console.log(username, "created", roomName);
+  console.log(username, "created room:", roomName);
 
   response.body = { ok: true, result };
 
