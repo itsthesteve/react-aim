@@ -27,6 +27,7 @@ router.get("/channel", async ({ request, response }) => {
   db.close();
 });
 
+// TODO: Move this to the store or something, it's wonky moving between rooms
 let seen = "";
 router.get("/events", async (ctx) => {
   const roomId = ctx.request.url.searchParams.get("room");
@@ -45,6 +46,7 @@ router.get("/events", async (ctx) => {
     if (!lastId) {
       return;
     }
+
     const newMessages = await Array.fromAsync(
       db.list({
         start: ["message", roomId, seen, ""],

@@ -2,6 +2,7 @@ import { getCookies, setCookie } from "https://deno.land/std/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { AuthCredentials, UserRow } from "../data/models.ts";
+import { AuthMiddleware } from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/auth",
@@ -119,7 +120,7 @@ router.get("/", async ({ request, response }) => {
 /**
  * Verifies the user is logged in via the http cookie
  */
-router.get("/me", async ({ request, response }) => {
+router.get("/me", AuthMiddleware, async ({ request, response }) => {
   const cookies = getCookies(request.headers);
   const cookieUsername = cookies[AUTH_COOKIE_NAME];
 

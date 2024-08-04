@@ -1,19 +1,20 @@
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { Application, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import msgRoutes from "./routes/msg.ts";
-import sseRoutes from "./routes/sse.ts";
 import authRoutes from "./routes/auth.ts";
+import msgRoutes from "./routes/msg.ts";
 import roomRoutes from "./routes/rooms.ts";
+import sseRoutes from "./routes/sse.ts";
+import { DEFAULT_ROOM } from "./data/models.ts";
 
 const router = new Router();
 
 // Initial set up
-// - Create the global "abc" store
+// - Create the global default store. Based on the value of DEFAULT_ROOM
 try {
   const db = await Deno.openKv("./data/react-chat.sqlite");
-  await db.set(["rooms", "__admin__", "abc"], {
+  await db.set(["rooms", "__admin__", DEFAULT_ROOM], {
     id: "0001",
-    name: "abc",
+    name: DEFAULT_ROOM,
     createdBy: "__admin__",
     createdAt: Date.now(),
   });

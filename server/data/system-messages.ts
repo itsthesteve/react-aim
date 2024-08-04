@@ -1,8 +1,8 @@
-import { Message } from "./models.ts";
+import { DEFAULT_ROOM, Message } from "./models.ts";
 
 // Sent when a new socket connection is created
 const INITIAL_WELCOME: Message = {
-  channel: "abc",
+  channel: DEFAULT_ROOM,
   data: {
     id: "admin" + Date.now(),
     owner: "Admin",

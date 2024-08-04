@@ -2,6 +2,7 @@ import { ChangeEventHandler, FormEventHandler, useEffect, useState } from "react
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/auth/hook";
 import styles from "./signin.module.css";
+import { DEFAULT_ROOM } from "../../types/room";
 
 const processingSteps = [
   { step: 1, text: "Connecting..." },
@@ -62,9 +63,9 @@ export default function SignIn() {
     }
 
     await randSleep(3);
-    // Navigate to the global "abc" room by default
+    // Navigate to the global default room by default
     // In the future, this value can be retrieved and set dynamically
-    navigate("/chat?room=abc", { replace: true });
+    navigate("/chat?room=" + DEFAULT_ROOM, { replace: true });
   };
 
   return (

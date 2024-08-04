@@ -70,6 +70,7 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
+    console.log("context events useEffect", roomId);
     const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomId}`);
     eventSrc.addEventListener("message", onMessage);
     eventSrc.addEventListener("error", onError);
@@ -82,6 +83,13 @@ export const MessagesProvider = ({ children }: Props) => {
     function onError(e: Event) {
       console.error("!!!", e);
     }
+
+    return () => {
+      eventSrc.removeEventListener("message", onMessage);
+      eventSrc.removeEventListener("error", onError);
+      console.log("closing connection");
+      eventSrc.close();
+    };
   }, [roomId]);
 
   return (

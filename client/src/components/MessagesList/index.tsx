@@ -14,9 +14,10 @@ export default function MessagesList() {
 
   // Load all the existing chats right off the bat, may not be necessary depending on how the
   // SSE endpoint is going to work
-  useEffect(() => {
-    load().then((messages) => setMessages((prev: MessageData[]) => [...prev, ...messages]));
-  }, []);
+  // NOTE: I'm leaving this for now until I do more testing. Seems to work with the latest changes
+  // useEffect(() => {
+  //   load().then((messages) => setMessages((prev: MessageData[]) => [...prev, ...messages]));
+  // }, []);
 
   useLayoutEffect(() => {
     messagesWrapper.current?.scrollTo({ top: messagesWrapper.current.scrollHeight });

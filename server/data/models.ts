@@ -26,3 +26,6 @@ export interface AuthCredentials {
   password: string;
   verifyPassword: string;
 }
+
+// Env driven
+export const DEFAULT_ROOM = Deno.env.get("DEFAULT_ROOM") ?? "abc";

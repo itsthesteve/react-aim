@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }: Props) => {
 
         setUser(res.user);
       })
+      .catch((e) => console.warn("Unable to get me:", e))
       .finally(() => setLoading(false));
   }, []);
 
