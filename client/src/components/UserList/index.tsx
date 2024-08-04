@@ -1,4 +1,24 @@
+import { useEffect, useState } from "react";
+import { ChatRoom } from "../../types/room";
+
 export default function UserList() {
+  const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[] }>({
+    user: [],
+    global: [],
+  });
+  useEffect(() => {
+    fetch("http://localhost:9000/rooms", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then(({ userRooms, globalRooms }) => {
+        setRooms({
+          user: userRooms,
+          global: globalRooms,
+        });
+      });
+  }, []);
   return (
     <>
       <aside className="[grid-area:users] flex flex-col mt-3">
@@ -15,17 +35,21 @@ export default function UserList() {
             <ul className="tree-view h-full">
               <li>
                 <details>
-                  <summary>Global (1)</summary>
+                  <summary>Global ({rooms.global.length})</summary>
                   <ul>
-                    <li className="font-bold">abc</li>
+                    {rooms.global.map((room) => (
+                      <li key={room.id}>{room.name}</li>
+                    ))}
                   </ul>
                 </details>
               </li>
               <li>
                 <details>
-                  <summary>Your rooms (1)</summary>
+                  <summary>Your rooms ({rooms.user.length})</summary>
                   <ul>
-                    <li>xXSlayerXx</li>
+                    {rooms.user.map((room) => (
+                      <li key={room.id}>{room.name}</li>
+                    ))}
                   </ul>
                 </details>
               </li>

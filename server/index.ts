@@ -7,6 +7,21 @@ import roomRoutes from "./routes/rooms.ts";
 
 const router = new Router();
 
+// Initial set up
+// - Create the global "abc" store
+try {
+  const db = await Deno.openKv("./data/react-chat.sqlite");
+  await db.set(["rooms", "__admin__", "abc"], {
+    id: "0001",
+    name: "abc",
+    createdBy: "__admin__",
+    createdAt: Date.now(),
+  });
+  db.close();
+} catch (e) {
+  console.warn("Error setting up", e);
+}
+
 router
   .use(authRoutes)
   .use(sseRoutes)

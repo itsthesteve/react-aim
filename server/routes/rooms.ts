@@ -1,19 +1,43 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
+import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router();
+
+router.use(AuthMiddleware).use(JsonResponseMiddleware);
+
+router.get("/rooms", async ({ response, cookies }) => {
+  // Middleware catches this, so we can be sure (?) the cookie exists here
+  const username = (await cookies.get("__rcsession")) as string;
+  if (!username) {
+    response.body = { ok: false, reason: "unknown cookie error" };
+    return;
+  }
+
+  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const userRoomRows = db.list({ prefix: ["rooms", username] });
+  const globalRoomsRows = db.list({ prefix: ["rooms", "__admin__"] });
+
+  const userRooms = [];
+  for await (const room of userRoomRows) {
+    userRooms.push(room.value);
+  }
+
+  const globalRooms = [];
+  for await (const room of globalRoomsRows) {
+    globalRooms.push(room.value);
+  }
+
+  response.body = { ok: true, userRooms, globalRooms };
+});
 
 /**
  * Create a new room. Requires a session cookie and a "room" property in the post body
  */
 router.post("/rooms", async ({ request, response, cookies }) => {
   // Make sure the cookie exists
-  const username = await cookies.get("__rcsession");
-  if (!username) {
-    response.status = 403;
-    response.body = { ok: false, reason: "NOUSER" };
-    return;
-  }
+  // The middleware will ensure this exists, so tell TS it's definitely here.
+  const username = await cookies.get("__rcsession")!;
 
   const { room: roomName } = await request.body.json();
 
@@ -33,19 +57,10 @@ router.post("/rooms", async ({ request, response, cookies }) => {
 
   const db = await Deno.openKv("./data/react-chat.sqlite");
 
-  // Make sure the user exists
-  const user = await db.get(["users", username]);
-  if (!user) {
-    response.status = 403;
-    response.body = { ok: false, reason: "NOUSER" };
-    db.close();
-    return;
-  }
-
   console.log("User", username, "wants to create room", roomName);
 
   // Check to see if the room exists
-  const { value: existingRoom } = await db.get(["rooms", roomName]);
+  const { value: existingRoom } = await db.get(["rooms", username, roomName]);
   if (existingRoom) {
     response.status = 400;
     response.body = { ok: false };
@@ -54,7 +69,7 @@ router.post("/rooms", async ({ request, response, cookies }) => {
   }
 
   // User checks pass, create the room
-  const result = await db.set(["rooms", roomName], {
+  const result = await db.set(["rooms", username, roomName], {
     id: uuid.v1.generate(),
     name: roomName,
     createdBy: username,
