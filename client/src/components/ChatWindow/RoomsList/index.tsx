@@ -3,11 +3,13 @@ import { useLoaderData } from "react-router-dom";
 import { ChatRoom } from "../../../types/room";
 
 export default function UserList() {
-  const roomName = useLoaderData();
+  const roomName = useLoaderData() as string;
+  const [visibleTab, setVisibleTab] = useState(0);
   const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[] }>({
     user: [],
     global: [],
   });
+
   useEffect(() => {
     fetch("http://localhost:9000/rooms", {
       method: "GET",
@@ -21,22 +23,35 @@ export default function UserList() {
         });
       });
   }, []);
+
   return (
     <>
       <aside className="[grid-area:users] flex flex-col mt-3">
         <section className="tabs h-full">
           <menu role="tablist" aria-label="Sample Tabs">
-            <button role="tab" aria-selected="true" aria-controls="tab-A">
+            <button
+              onClick={() => setVisibleTab(0)}
+              role="tab"
+              aria-selected={visibleTab === 0}
+              aria-controls="tab-A">
               Rooms
             </button>
-            <button role="tab" aria-controls="tab-B">
+            <button
+              aria-selected={visibleTab === 1}
+              onClick={() => setVisibleTab(1)}
+              role="tab"
+              aria-controls="tab-B">
               Users
             </button>
           </menu>
-          <article role="tabpanel" id="tab-A" className="h-full p-0 border-none">
+          <article
+            hidden={visibleTab === 1}
+            role="tabpanel"
+            id="tab-A"
+            className="h-full p-0 border-none">
             <ul className="tree-view h-full">
               <li>
-                <details>
+                <details open>
                   <summary>Global ({rooms.global.length})</summary>
                   <ul>
                     {rooms.global.map((room) => (
@@ -59,9 +74,13 @@ export default function UserList() {
               </li>
             </ul>
           </article>
-          <article hidden role="tabpanel" id="tab-B" className="h-full p-0">
-            <ul className="h-full p-0 list-none">
-              <li className="p-1 hover:bg-slate-200">userdata</li>
+          <article hidden={visibleTab === 0} role="tabpanel" id="tab-B" className="h-full p-0">
+            <p className="px-2 text-center">
+              Members of <strong>{roomName}</strong>
+            </p>
+            <hr className="mb-0" />
+            <ul className="h-full m-0 p-0 list-none">
+              <li className="px-2 py-1 hover:bg-slate-200">userdata</li>
             </ul>
           </article>
         </section>
