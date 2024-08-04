@@ -1,6 +1,6 @@
 import ChatInput from "../../components/ChatInput";
 import MessagesList from "../../components/MessagesList";
-import UserList from "../../components/UserList";
+import UserList from "../../components/RoomsList";
 import { useAuthContext } from "../../context/auth/hook";
 import styles from "./app.module.css";
 

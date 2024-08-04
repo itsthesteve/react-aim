@@ -7,7 +7,7 @@ import { useLoaderData } from "react-router-dom";
 
 export default function MessagesList() {
   const { user } = useAuthContext();
-  const roomId = useLoaderData();
+  const roomName = useLoaderData();
   const { subscribe, load } = useMessages();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const messagesWrapper = useRef<HTMLElement>(null);
@@ -15,15 +15,15 @@ export default function MessagesList() {
   // Load all the existing chats right off the bat, may not be necessary depending on how the
   // SSE endpoint is going to work
   // NOTE: I'm leaving this for now until I do more testing. Seems to work with the latest changes
-  // useEffect(() => {
-  //   load().then((messages) => setMessages((prev: MessageData[]) => [...prev, ...messages]));
-  // }, []);
+  useEffect(() => {
+    load().then((messages) => setMessages((prev: MessageData[]) => [...prev, ...messages]));
+  }, []);
 
   useLayoutEffect(() => {
     messagesWrapper.current?.scrollTo({ top: messagesWrapper.current.scrollHeight });
   }, [messages.length]);
 
-  subscribe(roomId as string, (data: MessageData) => {
+  subscribe(roomName as string, (data: MessageData) => {
     if (messages.find((pm) => pm.id === data.id)) {
       return console.warn("Duplicate message sent. Skipping.", data);
     }

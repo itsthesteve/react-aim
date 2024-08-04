@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { ChatRoom } from "../../types/room";
+import { useLoaderData } from "react-router-dom";
 
 export default function UserList() {
+  const roomName = useLoaderData();
   const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[] }>({
     user: [],
     global: [],
@@ -38,7 +40,9 @@ export default function UserList() {
                   <summary>Global ({rooms.global.length})</summary>
                   <ul>
                     {rooms.global.map((room) => (
-                      <li key={room.id}>{room.name}</li>
+                      <li className={roomName === room.name ? "font-bold" : ""} key={room.id}>
+                        {room.name}
+                      </li>
                     ))}
                   </ul>
                 </details>

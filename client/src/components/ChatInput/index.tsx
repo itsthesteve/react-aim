@@ -7,7 +7,7 @@ import { useLoaderData } from "react-router-dom";
 
 export default function ChatInput() {
   const { user } = useAuthContext();
-  const roomId = useLoaderData();
+  const roomName = useLoaderData();
   const { sendMessage } = useMessages();
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -26,7 +26,7 @@ export default function ChatInput() {
     }
 
     sendMessage({
-      channel: roomId as string,
+      channel: roomName as string,
       data: {
         id: "msg-" + Date.now(),
         owner: user!.username,
@@ -42,7 +42,7 @@ export default function ChatInput() {
     setMessage("");
     textAreaRef.current.value = "";
     textAreaRef.current.focus();
-  }, [message, sendMessage, user, roomId]);
+  }, [message, sendMessage, user, roomName]);
 
   const sendListener = useCallback(() => {
     submit();

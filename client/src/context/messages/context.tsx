@@ -28,7 +28,7 @@ type Props = {
 };
 
 export const MessagesProvider = ({ children }: Props) => {
-  const roomId = useLoaderData();
+  const roomName = useLoaderData();
   const listeners = useRef<Record<string, CallableFunction>>({});
 
   const subscribe = (channel: string, fn: CallableFunction) => {
@@ -41,7 +41,7 @@ export const MessagesProvider = ({ children }: Props) => {
 
   const sendMessage = async (message: Message) => {
     try {
-      const response = await fetch(`http://localhost:9000/msg?room=${roomId}`, {
+      const response = await fetch(`http://localhost:9000/msg?room=${roomName}`, {
         method: "POST",
         credentials: "include",
         body: JSON.stringify(message),
@@ -58,10 +58,10 @@ export const MessagesProvider = ({ children }: Props) => {
 
   /**
    * Retrieve all messages for the channel.
-   * The roomId is retrieved from the chatLoader function set in the router.
+   * The roomName is retrieved from the chatLoader function set in the router.
    */
   const load = async (): Promise<MessageData[]> => {
-    const response = await fetch(`http://localhost:9000/channel?room=${roomId}`, {
+    const response = await fetch(`http://localhost:9000/channel?room=${roomName}`, {
       method: "GET",
       credentials: "include",
     });
@@ -70,8 +70,7 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    console.log("context events useEffect", roomId);
-    const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomId}`);
+    const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomName}`);
     eventSrc.addEventListener("message", onMessage);
     eventSrc.addEventListener("error", onError);
 
@@ -90,7 +89,7 @@ export const MessagesProvider = ({ children }: Props) => {
       console.log("closing connection");
       eventSrc.close();
     };
-  }, [roomId]);
+  }, [roomName]);
 
   return (
     <>
