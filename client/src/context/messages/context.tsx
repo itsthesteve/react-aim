@@ -70,7 +70,10 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomName}`);
+    const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomName}`, {
+      withCredentials: true,
+    });
+
     eventSrc.addEventListener("message", onMessage);
     eventSrc.addEventListener("error", onError);
 

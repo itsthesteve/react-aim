@@ -9,9 +9,10 @@ export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
 // Expect a valid user
 export const AuthMiddleware = async (ctx: Context, next: Next) => {
   const username = await ctx.cookies.get("__rcsession");
+
   if (!username) {
     ctx.response.status = 403;
-    ctx.response.body = { ok: false, reason: "NOUSER" };
+    ctx.response.body = { ok: false, reason: "NOUSERCOOKIE" };
     return;
   }
 

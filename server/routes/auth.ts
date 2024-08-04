@@ -37,11 +37,13 @@ router.post("/login", async ({ response, request }) => {
   }
 
   // All good, set cookie and return ok
+  // TODO: Safari doesn't set the cookie when set to {secure: false}. Investigate and update
+  // based on .env for dev/prod
   setCookie(response.headers, {
     name: AUTH_COOKIE_NAME,
     value: username,
     path: "/",
-    secure: true,
+    secure: false,
     httpOnly: true,
     maxAge: 31536000,
   });
