@@ -89,9 +89,9 @@ export default function UserList() {
           </article>
         </section>
         <footer className="py-1 mb-2">
-          <a className="boxed-link" href="/create-room">
+          <Link className="boxed-link" to="/create-room">
             Create room
-          </a>
+          </Link>
         </footer>
       </aside>
     </>
