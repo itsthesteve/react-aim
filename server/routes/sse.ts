@@ -46,6 +46,7 @@ router.get("/events", async (ctx) => {
 
   // Store the last seen message and make sure it sticks
   const seen = await db.get<string>(["last_seen", username, roomId], { consistency: "strong" });
+  console.log("!! Filtering", seen);
 
   for await (const [lastEntry] of db.watch([["last_message_id", roomId]])) {
     const lastId = lastEntry.value as string;
@@ -62,6 +63,7 @@ router.get("/events", async (ctx) => {
 
     // Update the last seen to get only fresh messages
     await db.set(["last_seen", username, roomId], lastId);
+    console.log("!! Setting last seen", lastId);
 
     newMessages
       .map((m) => {

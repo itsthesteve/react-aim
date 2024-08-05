@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { ChatRoom } from "../../../types/room";
 
 export default function UserList() {
@@ -26,8 +26,8 @@ export default function UserList() {
 
   return (
     <>
-      <aside className="[grid-area:users] flex flex-col mt-3">
-        <section className="tabs h-full">
+      <aside className="[grid-area:users] flex flex-col mt-2">
+        <section className="tabs flex flex-col grow overflow-hidden pt-[2px]">
           <menu role="tablist" aria-label="Sample Tabs">
             <button
               onClick={() => setVisibleTab(0)}
@@ -45,11 +45,10 @@ export default function UserList() {
             </button>
           </menu>
           <article
-            hidden={visibleTab === 1}
             role="tabpanel"
             id="tab-A"
-            className="h-full p-0 border-none">
-            <ul className="tree-view h-full">
+            className={`grow p-0 overflow-hidden flex-col ${visibleTab === 0 ? "flex" : "hidden"}`}>
+            <ul className="tree-view">
               <li>
                 <details open>
                   <summary>Global ({rooms.global.length})</summary>
@@ -68,7 +67,7 @@ export default function UserList() {
                   <ul>
                     {rooms.user.map((room) => (
                       <li key={room.id}>
-                        <a href="#">{room.name}</a>
+                        <Link to={`/chat?room=${room.name}`}>{room.name}</Link>
                       </li>
                     ))}
                   </ul>
@@ -76,16 +75,24 @@ export default function UserList() {
               </li>
             </ul>
           </article>
-          <article hidden={visibleTab === 0} role="tabpanel" id="tab-B" className="h-full p-0">
-            <p className="px-2 text-center">
+          <article
+            role="tabpanel"
+            id="tab-B"
+            className={`grow p-0 overflow-hidden flex-col ${visibleTab === 1 ? "flex" : "hidden"}`}>
+            <p className="px-2 m-0 mt-2 text-center">
               Members of <strong>{roomName}</strong>
             </p>
             <hr className="mb-0" />
-            <ul className="h-full m-0 p-0 list-none">
+            <ul className="h-full m-0 p-0 list-none overflow-auto">
               <li className="px-2 py-1 hover:bg-slate-200">userdata</li>
             </ul>
           </article>
         </section>
+        <footer className="py-1 mb-2">
+          <a className="boxed-link" href="/create-room">
+            Create room
+          </a>
+        </footer>
       </aside>
     </>
   );

@@ -70,6 +70,7 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
+    console.log("+++ Creating new event source for", roomName);
     const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomName}`, {
       withCredentials: true,
     });
@@ -87,6 +88,7 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     return () => {
+      console.warn("Removing event source");
       eventSrc.removeEventListener("message", onMessage);
       eventSrc.removeEventListener("error", onError);
       console.log("closing connection");

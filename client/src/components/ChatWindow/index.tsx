@@ -1,13 +1,8 @@
-import { MessagesProvider } from "../../context/messages/context";
 import ChatRoute from "../../routes/chat";
 import { DEFAULT_ROOM, ROOM_LOCALSTORAGE_KEY } from "../../types/room";
 
 export function ChatWindow() {
-  return (
-    <MessagesProvider>
-      <ChatRoute />
-    </MessagesProvider>
-  );
+  return <ChatRoute />;
 }
 
 /**

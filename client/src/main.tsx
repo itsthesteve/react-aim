@@ -26,6 +26,13 @@ const router = createBrowserRouter([
               };
             },
           },
+          {
+            path: "/create-room",
+            async lazy() {
+              const { CreateRoom, createRoomLoader } = await import("./routes/create-room");
+              return { loader: createRoomLoader, Component: CreateRoom };
+            },
+          },
         ],
       },
       {

@@ -64,16 +64,17 @@ router.post("/rooms", async ({ request, response, cookies }) => {
   }
 
   // User checks pass, create the room
-  const result = await db.set(["rooms", username, roomName], {
+  const roomValue = {
     id: uuid.v1.generate(),
     name: roomName,
     createdBy: username,
     createdAt: Date.now(),
-  });
+  };
 
+  await db.set(["rooms", username, roomName], roomValue);
   console.log(username, "created room:", roomName);
 
-  response.body = { ok: true, result };
+  response.body = { ok: true, roomValue };
 
   db.close();
 });

@@ -21,15 +21,34 @@ body {
   grid-template-rows: auto 1fr;
 }
 
+/* XP.css overrides */
 details > summary {
   list-style: none;
 }
 
-details > summary::marker, /* Latest Chrome, Edge, Firefox */ 
+details > summary::marker, /* Latest Chrome, Edge, Firefox */
 details > summary::-webkit-details-marker /* Safari */ {
   display: none;
 }
 
 .title-bar {
   user-select: none;
+}
+
+ul.tree-view {
+  border: 0;
+}
+
+.boxed-link::before {
+  text-align: center;
+  display: block;
+  float: left;
+  content: "+";
+  border: 1px solid grey;
+  width: 8px;
+  height: 9px;
+  line-height: 9px;
+  margin-right: 5px;
+  padding-left: 1px;
+  background-color: #fff;
 }
