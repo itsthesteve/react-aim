@@ -1,5 +1,6 @@
-import { createContext, ReactNode, useEffect, useRef } from "react";
+import { createContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { useLoaderData } from "react-router-dom";
+import logger from "../../logger";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export const MessagesProvider = ({ children }: Props) => {
+  const eventSrcRef = useRef<EventSource>();
   const roomName = useLoaderData();
   const listeners = useRef<Record<string, CallableFunction>>({});
 
@@ -60,26 +62,23 @@ export const MessagesProvider = ({ children }: Props) => {
    * Retrieve all messages for the channel.
    * The roomName is retrieved from the chatLoader function set in the router.
    */
-  const load = async (): Promise<MessageData[]> => {
+  const load = useCallback(async () => {
     const response = await fetch(`http://localhost:9000/channel?room=${roomName}`, {
       method: "GET",
       credentials: "include",
     });
 
     return await response.json();
-  };
+  }, [roomName]);
 
   useEffect(() => {
-    console.log(
-      `%c+++ Creating new event source for ${roomName}`,
-      "background-color: lightgreen; color: black"
-    );
-    const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomName}`, {
+    logger.info(`Creating new event source for ${roomName}`);
+    eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${roomName}`, {
       withCredentials: true,
     });
 
-    eventSrc.addEventListener("message", onMessage);
-    eventSrc.addEventListener("error", onError);
+    eventSrcRef.current.addEventListener("message", onMessage);
+    eventSrcRef.current.addEventListener("error", onError);
 
     function onMessage(message: MessageEvent) {
       const msg = JSON.parse(message.data);
@@ -91,13 +90,13 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     return () => {
-      console.log(
-        `%c+++ Cleaning up event source for ${roomName}`,
-        "background-color: maroon; color: white"
-      );
-      eventSrc.removeEventListener("message", onMessage);
-      eventSrc.removeEventListener("error", onError);
-      eventSrc.close();
+      logger.warn(`Cleaning up event source for ${roomName}`);
+      if (!eventSrcRef.current) {
+        return logger.warn("eventSrcRef is null");
+      }
+      eventSrcRef.current.removeEventListener("message", onMessage);
+      eventSrcRef.current.removeEventListener("error", onError);
+      eventSrcRef.current.close();
     };
   }, [roomName]);
 

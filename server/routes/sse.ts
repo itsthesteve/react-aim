@@ -30,6 +30,9 @@ router.get("/channel", async ({ request, response }) => {
   db.close();
 });
 
+/**
+ * Server Sent Events endpoint ƒor getting messages
+ */
 router.get("/events", async (ctx) => {
   const roomId = ctx.request.url.searchParams.get("room");
   if (!roomId) {
@@ -39,19 +42,22 @@ router.get("/events", async (ctx) => {
   }
 
   const target = await ctx.sendEvents();
+
   target.dispatchMessage(INITIAL_WELCOME);
 
   const db = await Deno.openKv("./data/react-chat.sqlite");
   const username = (await ctx.cookies.get("__rcsession")) as string;
 
   // Store the last seen message and make sure it sticks
-  const seen = await db.get<string>(["last_seen", username, roomId], { consistency: "strong" });
-  console.log("!! Filtering", seen);
+  const seen = await db.get<string>(["last_seen", username, roomId]);
+  // console.log("!! Filtering", seen);
 
   for await (const [lastEntry] of db.watch([["last_message_id", roomId]])) {
     const lastId = lastEntry.value as string;
     if (!lastId) {
-      return;
+      // Not entirely sure why this happens, I think if you switch between rooms
+      // too quickly the keys aren't quite ready or something.
+      return console.warn("Warn: No last_message value");
     }
 
     const newMessages = await Array.fromAsync(
@@ -63,7 +69,7 @@ router.get("/events", async (ctx) => {
 
     // Update the last seen to get only fresh messages
     await db.set(["last_seen", username, roomId], lastId);
-    console.log("!! Setting last seen", lastId);
+    // console.log("!! Setting last seen", lastId);
 
     newMessages
       .map((m) => {
@@ -75,6 +81,8 @@ router.get("/events", async (ctx) => {
       .forEach((payload) => target.dispatchMessage(payload));
   }
 
+  // We never get here for... reasons?
+  console.log("!! SSE Closed");
   db.close();
 });
 

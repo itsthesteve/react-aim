@@ -4,6 +4,7 @@ import { useLoaderData } from "react-router-dom";
 import { useAuthContext } from "../../../context/auth/hook";
 import { MessageData } from "../../../context/messages/context";
 import { useMessages } from "../../../context/messages/hook";
+import logger from "../../../logger";
 
 export default function MessagesList() {
   const { user } = useAuthContext();
@@ -16,8 +17,9 @@ export default function MessagesList() {
   // SSE endpoint is going to work
   // NOTE: I'm leaving this for now until I do more testing. Seems to work with the latest changes
   useEffect(() => {
-    load().then((messages) => setMessages((prev: MessageData[]) => [...prev, ...messages]));
-  }, []);
+    logger.info("MessageList()", roomName);
+    load().then((messages) => setMessages(messages));
+  }, [roomName, load]);
 
   useLayoutEffect(() => {
     messagesWrapper.current?.scrollTo({ top: messagesWrapper.current.scrollHeight });
