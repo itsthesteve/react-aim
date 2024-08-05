@@ -1,8 +1,8 @@
 const logger = {
-  info: (...args) => {
+  info: (...args: string[]) => {
     console.log(`%c ${args}`, "background: lightgreen; color:black");
   },
-  warn: (...args) => {
+  warn: (...args: string[]) => {
     console.log(`%c ${args}`, "background: maroon; color:white");
   },
 };
