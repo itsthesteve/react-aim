@@ -30,7 +30,6 @@ type Props = {
 export const MessagesProvider = ({ children }: Props) => {
   const roomName = useLoaderData();
   const listeners = useRef<Record<string, CallableFunction>>({});
-  console.log("render", roomName);
 
   const subscribe = (channel: string, fn: CallableFunction) => {
     listeners.current[channel] = fn;
@@ -71,7 +70,10 @@ export const MessagesProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    console.log("+++ Creating new event source for", roomName);
+    console.log(
+      `%c+++ Creating new event source for ${roomName}`,
+      "background-color: lightgreen; color: black"
+    );
     const eventSrc = new EventSource(`http://localhost:9000/events?room=${roomName}`, {
       withCredentials: true,
     });
@@ -89,7 +91,10 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     return () => {
-      console.log("Cleaning up existing EventSource");
+      console.log(
+        `%c+++ Cleaning up event source for ${roomName}`,
+        "background-color: maroon; color: white"
+      );
       eventSrc.removeEventListener("message", onMessage);
       eventSrc.removeEventListener("error", onError);
       eventSrc.close();
