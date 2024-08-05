@@ -66,7 +66,7 @@ export default function UserList() {
                   <summary>Your rooms ({rooms.user.length})</summary>
                   <ul>
                     {rooms.user.map((room) => (
-                      <li key={room.id}>
+                      <li className={roomName === room.name ? "font-bold" : ""} key={room.id}>
                         <Link to={`/chat?room=${room.name}`}>{room.name}</Link>
                       </li>
                     ))}
