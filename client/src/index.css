@@ -29,3 +29,7 @@ details > summary::marker, /* Latest Chrome, Edge, Firefox */
 details > summary::-webkit-details-marker /* Safari */ {
   display: none;
 }
+
+.title-bar {
+  user-select: none;
+}

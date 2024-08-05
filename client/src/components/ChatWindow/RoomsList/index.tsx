@@ -67,7 +67,9 @@ export default function UserList() {
                   <summary>Your rooms ({rooms.user.length})</summary>
                   <ul>
                     {rooms.user.map((room) => (
-                      <li key={room.id}>{room.name}</li>
+                      <li key={room.id}>
+                        <a href="#">{room.name}</a>
+                      </li>
                     ))}
                   </ul>
                 </details>
