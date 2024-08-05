@@ -25,7 +25,7 @@ try {
 
 router
   .use(authRoutes)
-  .use(sseRoutes)
+  .use(sseRoutes.routes(), sseRoutes.allowedMethods())
   .use(msgRoutes)
   .use(roomRoutes)
   .get("/test", async (context) => {

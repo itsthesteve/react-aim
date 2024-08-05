@@ -1,6 +1,5 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { MessageData } from "../data/models.ts";
-import { INITIAL_WELCOME } from "../data/system-messages.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
 
 const router = new Router();
@@ -42,11 +41,10 @@ router.get("/events", async (ctx) => {
   }
 
   const target = await ctx.sendEvents();
-
-  target.dispatchMessage(INITIAL_WELCOME);
-
   const db = await Deno.openKv("./data/react-chat.sqlite");
-  const username = (await ctx.cookies.get("__rcsession")) as string;
+
+  // Set in auth middlware
+  const { username } = ctx.state;
 
   // Store the last seen message and make sure it sticks
   const seen = await db.get<string>(["last_seen", username, roomId]);
@@ -86,4 +84,4 @@ router.get("/events", async (ctx) => {
   db.close();
 });
 
-export default router.routes();
+export default router;

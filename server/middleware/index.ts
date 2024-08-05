@@ -27,6 +27,8 @@ export const AuthMiddleware = async (ctx: Context, next: Next) => {
     return;
   }
 
+  ctx.state = { username };
+
   db.close();
   await next();
 };

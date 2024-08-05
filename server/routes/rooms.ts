@@ -79,4 +79,38 @@ router.post("/rooms", async ({ request, response, cookies }) => {
   db.close();
 });
 
+/**
+ * Simple setter to see who is in a certain room
+ */
+router.post("/presence", async (ctx) => {
+  const { username, room, present } = await ctx.request.body.json();
+  let ok = false;
+  try {
+    const db = await Deno.openKv("./data/react-chat.sqlite");
+    await db.set(["room_presence", room, username], present);
+    db.close();
+    ok = true;
+  } catch (e) {
+    console.warn("Error saving presence: ", e);
+  } finally {
+    ctx.response.body = { ok };
+  }
+});
+
+router.get("/presence", async (ctx) => {
+  const roomName = ctx.request.url.searchParams.get("room");
+  if (!roomName) {
+    ctx.response.status = 400;
+    ctx.response.body = { ok: false, reason: "NOROOMNAME" };
+    return;
+  }
+
+  const target = await ctx.sendEvents();
+  const db = await Deno.openKv("./data/react-chat.sqlite");
+
+  for await (const [ping] of db.watch([["room_presence", roomName]])) {
+    console.log("Ping", ping);
+  }
+});
+
 export default router.routes();

@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { useLoaderData } from "react-router-dom";
 import logger from "../../logger";
+import { useAuthContext } from "../auth/hook";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -29,8 +30,9 @@ type Props = {
 };
 
 export const MessagesProvider = ({ children }: Props) => {
-  const eventSrcRef = useRef<EventSource>();
+  const { user } = useAuthContext();
   const roomName = useLoaderData();
+  const eventSrcRef = useRef<EventSource>();
   const listeners = useRef<Record<string, CallableFunction>>({});
 
   const subscribe = (channel: string, fn: CallableFunction) => {
@@ -71,11 +73,30 @@ export const MessagesProvider = ({ children }: Props) => {
     return await response.json();
   }, [roomName]);
 
+  const setPresence = async (username: string, present: boolean) => {
+    if (!user) return;
+    // "Join" a room, not super worried about the results at this point
+    return fetch("http://localhost:9000/presence", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ username, room: roomName, present }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).catch(console.warn);
+  };
+
   useEffect(() => {
+    if (!user || !roomName) {
+      return console.warn("Not ready yet.");
+    }
+
     logger.info(`Creating new event source for ${roomName}`);
     eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${roomName}`, {
       withCredentials: true,
     });
+
+    setPresence(user.username, true);
 
     eventSrcRef.current.addEventListener("message", onMessage);
     eventSrcRef.current.addEventListener("error", onError);
@@ -94,11 +115,12 @@ export const MessagesProvider = ({ children }: Props) => {
       if (!eventSrcRef.current) {
         return logger.warn("eventSrcRef is null");
       }
+      setPresence(user.username, false);
       eventSrcRef.current.removeEventListener("message", onMessage);
       eventSrcRef.current.removeEventListener("error", onError);
       eventSrcRef.current.close();
     };
-  }, [roomName]);
+  }, [roomName, user]);
 
   return (
     <>
