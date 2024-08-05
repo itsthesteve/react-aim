@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useEffect, useRef } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useRevalidator, useRouteLoaderData } from "react-router-dom";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -30,6 +30,7 @@ type Props = {
 export const MessagesProvider = ({ children }: Props) => {
   const roomName = useLoaderData();
   const listeners = useRef<Record<string, CallableFunction>>({});
+  console.log("render", roomName);
 
   const subscribe = (channel: string, fn: CallableFunction) => {
     listeners.current[channel] = fn;
@@ -84,14 +85,13 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     function onError(e: Event) {
-      console.error("!!!", e);
+      console.error("!!! EventSource error", e);
     }
 
     return () => {
-      console.warn("Removing event source");
+      console.log("Cleaning up existing EventSource");
       eventSrc.removeEventListener("message", onMessage);
       eventSrc.removeEventListener("error", onError);
-      console.log("closing connection");
       eventSrc.close();
     };
   }, [roomName]);

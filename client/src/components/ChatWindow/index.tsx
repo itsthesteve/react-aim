@@ -1,8 +1,14 @@
+import { LoaderFunctionArgs } from "react-router-dom";
+import { MessagesProvider } from "../../context/messages/context";
 import ChatRoute from "../../routes/chat";
-import { DEFAULT_ROOM, ROOM_LOCALSTORAGE_KEY } from "../../types/room";
+import { DEFAULT_ROOM } from "../../types/room";
 
 export function ChatWindow() {
-  return <ChatRoute />;
+  return (
+    <MessagesProvider>
+      <ChatRoute />
+    </MessagesProvider>
+  );
 }
 
 /**
@@ -10,19 +16,19 @@ export function ChatWindow() {
  * This is passed (currently) to the MessageProvider in order to update the fetch calls based on
  * which room the user is in.
  */
-export function chatRouteLoader() {
-  const cachedRoom = localStorage.getItem(ROOM_LOCALSTORAGE_KEY);
-  if (cachedRoom) {
-    return cachedRoom;
-  }
+export function chatRouteLoader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const requestedRoom = url.searchParams.get("room");
 
-  const search = new URLSearchParams(document.location.search);
-  const room = search.get("room") ?? DEFAULT_ROOM;
-
-  // Check to make sure its valid in case someone mucks with it, redirect to default otherwise.
-  if (!/^[a-z0-9]+$/i.test(room)) {
+  if (!requestedRoom) {
     return DEFAULT_ROOM;
   }
 
-  return room;
+  // // Check to make sure its valid in case someone mucks with it, redirect to default otherwise.
+  if (!/^[a-z0-9]+$/i.test(requestedRoom)) {
+    console.warn("Invalid room name, redirecting.");
+    return DEFAULT_ROOM;
+  }
+
+  return requestedRoom;
 }
