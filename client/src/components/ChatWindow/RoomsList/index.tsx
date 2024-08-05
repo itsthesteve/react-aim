@@ -55,14 +55,14 @@ export default function UserList() {
                   <ul>
                     {rooms.global.map((room) => (
                       <li className={roomName === room.name ? "font-bold" : ""} key={room.id}>
-                        {room.name}
+                        <Link to="/chat">{room.name}</Link>
                       </li>
                     ))}
                   </ul>
                 </details>
               </li>
               <li>
-                <details>
+                <details open>
                   <summary>Your rooms ({rooms.user.length})</summary>
                   <ul>
                     {rooms.user.map((room) => (
@@ -89,9 +89,9 @@ export default function UserList() {
           </article>
         </section>
         <footer className="py-1 mb-2">
-          <a className="boxed-link" href="/create-room">
+          <Link className="boxed-link" to="/create-room">
             Create room
-          </a>
+          </Link>
         </footer>
       </aside>
     </>

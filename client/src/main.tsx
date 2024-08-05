@@ -18,6 +18,16 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/chat",
+            // shouldRevalidate: ({ currentUrl, nextUrl }) => {
+            //   console.log({
+            //     current: currentUrl.searchParams.get("room"),
+            //     next: nextUrl.searchParams.get("room"),
+            //   });
+
+            //   const cond = currentUrl.searchParams.get("room") !== nextUrl.searchParams.get("room");
+            //   console.warn("!! shouldRevalidate", cond);
+            //   return cond;
+            // },
             async lazy() {
               const { chatRouteLoader, ChatWindow } = await import("./components/ChatWindow");
               return {
