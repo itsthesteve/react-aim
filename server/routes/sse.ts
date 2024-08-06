@@ -43,6 +43,8 @@ router.get("/events", async (ctx) => {
   }
 
   const target = await ctx.sendEvents();
+
+  // Provided by AuthProvider
   const { username } = ctx.state;
 
   const db = await Deno.openKv(DENO_KV_PATH);
