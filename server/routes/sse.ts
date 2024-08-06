@@ -1,5 +1,5 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { MessageData } from "../data/models.ts";
+import { DENO_KV_PATH, MessageData } from "../data/models.ts";
 import { INITIAL_WELCOME } from "../data/system-messages.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
 
@@ -19,7 +19,7 @@ router.get("/channel", async ({ request, response }) => {
     return;
   }
 
-  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const db = await Deno.openKv(DENO_KV_PATH);
   const entries = db.list({ prefix: ["message", roomId] });
   const result = [];
   for await (const entry of entries) {
@@ -45,7 +45,7 @@ router.get("/events", async (ctx) => {
 
   target.dispatchMessage(INITIAL_WELCOME);
 
-  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const db = await Deno.openKv(DENO_KV_PATH);
   const username = (await ctx.cookies.get("__rcsession")) as string;
 
   // Store the last seen message and make sure it sticks

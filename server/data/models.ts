@@ -1,3 +1,5 @@
+import "jsr:@std/dotenv/load";
+
 // == Chat Messages ==
 // Same as client/src/context/messages
 export interface MessageData {
@@ -29,3 +31,5 @@ export interface AuthCredentials {
 
 // Env driven
 export const DEFAULT_ROOM = Deno.env.get("DEFAULT_ROOM") ?? "abc";
+export const DENO_KV_PATH = Deno.env.get("DENO_KV_PATH") ?? "./data/react-chat.sqlite";
+console.log("!!! KV_LOCATION=", DENO_KV_PATH);

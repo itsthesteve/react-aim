@@ -1,5 +1,6 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { JsonResponseMiddleware } from "../middleware/index.ts";
+import { DENO_KV_PATH } from "../data/models.ts";
 
 const router = new Router();
 
@@ -17,7 +18,7 @@ router.post("/msg", async ({ request, response }) => {
     return;
   }
 
-  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const db = await Deno.openKv(DENO_KV_PATH);
   try {
     const body = await request.body.json();
     console.log("Saving message:", body);
