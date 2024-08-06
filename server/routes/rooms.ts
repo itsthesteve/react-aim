@@ -1,11 +1,9 @@
-import { Context, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
 import { ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
-import { STATUS_CODE } from "jsr:@oak/commons@0.11/status";
-import { Status } from "https://deno.land/x/oak@v16.1.0/deps.ts";
 
 const router = new Router();
 
@@ -101,11 +99,14 @@ router.post("/rooms", async ({ request, response, state }) => {
 router.post("/online", async ({ request, state, response }) => {
   const { room, present } = await request.body.json();
 
-  // console.log("-- Setting", state.username, present, "in", room);
-  await db.set(["online", room, state.username], {
-    username: state.username,
-    present,
-  });
+  console.log("-- Setting", state.username, present, "in", room);
+  await db
+    .atomic()
+    .set(["online", room, state.username], {
+      username: state.username,
+      present,
+    })
+    .commit();
 
   response.body = { ok: true };
 });
