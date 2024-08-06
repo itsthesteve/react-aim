@@ -7,6 +7,7 @@ export default function CreateRoomWindow() {
   const [roomName, setRoomName] = useState<string>();
   const [isPublic, setIsPublic] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>();
+  const [isErr, setIsErr] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const { user } = useAuthContext();
@@ -18,24 +19,24 @@ export default function CreateRoomWindow() {
 
   const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:9000/rooms", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({ room: roomName, isPublic }),
-      });
-      const res = await response.json();
-      console.log(res);
+    const response = await fetch("http://localhost:9000/rooms", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ room: roomName, isPublic }),
+    });
 
-      // TODO?: Set a faux XP progress bar
-      setSubmitted(true);
-      setTimeout(() => {
-        navigate(`/chat?room=${res.roomValue.name}`, { replace: true });
-      }, 3000);
-    } catch (e) {
+    const res = await response.json();
+    if (!res.ok) {
       console.warn("Unable to create room", e);
       setSubmitted(false);
+      setIsErr(true);
+      return;
     }
+
+    setSubmitted(true);
+    setTimeout(() => {
+      navigate(`/chat?room=${res.roomValue.name}`, { replace: true });
+    }, 3000);
   };
 
   const changePublicMode: FormEventHandler<HTMLInputElement> = (e) => {
@@ -44,7 +45,7 @@ export default function CreateRoomWindow() {
 
   return (
     <>
-      <div className="window">
+      <div className="window" style={{ maxWidth: "min-content" }}>
         <div className="title-bar">
           <div className="title-bar-text">Create room</div>
           <div className="title-bar-controls">
@@ -66,6 +67,11 @@ export default function CreateRoomWindow() {
                     name="roomName"
                     placeholder={`i.e. xX${user.username}SlayerXx`}
                   />
+                  {isErr && (
+                    <div className="py-1 text-red-700">
+                      Unable to create room. Try another name.
+                    </div>
+                  )}
                 </label>
                 <div className="p-2">
                   <input onChange={changePublicMode} type="checkbox" id="isPublic" />
