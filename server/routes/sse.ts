@@ -1,7 +1,7 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { DENO_KV_PATH, MessageData } from "../data/models.ts";
+import { MessageData } from "../data/models.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
-import { ServerSentEvent } from "https://deno.land/x/oak@v16.1.0/deps.ts";
+import { db } from "../data/index.ts";
 
 const router = new Router();
 
@@ -19,7 +19,6 @@ router.get("/channel", async ({ request, response }) => {
     return;
   }
 
-  const db = await Deno.openKv(DENO_KV_PATH);
   const entries = db.list({ prefix: ["message", roomId] });
   const result = [];
   for await (const entry of entries) {
@@ -27,7 +26,6 @@ router.get("/channel", async ({ request, response }) => {
   }
 
   response.body = result;
-  db.close();
 });
 
 /**
@@ -46,8 +44,6 @@ router.get("/events", async (ctx) => {
   // Provided by AuthProvider
   const { username } = ctx.state;
 
-  const db = await Deno.openKv(DENO_KV_PATH);
-
   const stream = db.watch([["last_message_id", roomName]]);
   for await (const [lastEntry] of stream) {
     const lastId = lastEntry.value as string;
@@ -60,6 +56,7 @@ router.get("/events", async (ctx) => {
 
     // Get the last seen message
     const seen = await db.get<string>(["last_seen", username, roomName]);
+    console.log(seen);
     const newMessages = await Array.fromAsync(
       db.list({
         start: ["message", roomName, seen.value || "", ""],

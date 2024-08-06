@@ -1,6 +1,6 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { JsonResponseMiddleware } from "../middleware/index.ts";
-import { DENO_KV_PATH } from "../data/models.ts";
+import { db } from "../data/index.ts";
 
 const router = new Router();
 
@@ -19,19 +19,14 @@ router.post("/msg", async ({ request, response }) => {
   }
 
   try {
-    const db = await Deno.openKv(DENO_KV_PATH);
     const body = await request.body.json();
 
-    const saveMsgResult = await Promise.all([
-      db.set(["message", roomId, body.data.id], body.data),
-      db.set(["last_message_id", roomId], body.data.id),
-    ]);
-
+    await db.set(["message", roomId, body.data.id], body.data);
+    const saveMsgResult = await db.atomic().set(["last_message_id", roomId], body.data.id).commit();
     console.log({ saveMsgResult });
 
     response.status = 201;
     response.body = { result: "OK" };
-    db.close();
   } catch (e) {
     console.warn("Error saving", e);
 

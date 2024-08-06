@@ -1,8 +1,9 @@
 import { getCookies, setCookie } from "https://deno.land/std@0.224.0/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { AuthCredentials, DENO_KV_PATH, UserRow } from "../data/models.ts";
+import { AuthCredentials, UserRow } from "../data/models.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
+import { db } from "../data/index.ts";
 
 const router = new Router({
   prefix: "/auth",
@@ -19,7 +20,6 @@ const AUTH_COOKIE_NAME = "__rcsession";
 router.post("/login", async ({ response, request }) => {
   const { username, password } = await request.body.json();
 
-  const db = await Deno.openKv(DENO_KV_PATH);
   const existingUser = await db.get<string>(["users", username]);
 
   if (!existingUser.value) {
@@ -49,8 +49,6 @@ router.post("/login", async ({ response, request }) => {
   });
 
   response.body = { ok: true };
-
-  db.close();
 });
 
 /**
@@ -66,7 +64,6 @@ router.post("/create", async ({ request, response }) => {
     return;
   }
 
-  const db = await Deno.openKv(DENO_KV_PATH);
   const userRow = await db.get<UserRow>(["users", username]);
 
   // If the user exists, let them know. Maybe just 400 to prevent iteration attacks?
@@ -90,7 +87,6 @@ router.post("/create", async ({ request, response }) => {
 
   response.status = 500;
   response.body = { ok: true, reason: "Error creating user" };
-  db.close();
 });
 
 /**
@@ -110,13 +106,11 @@ router.get("/", async ({ request, response }) => {
     return;
   }
 
-  const db = await Deno.openKv(DENO_KV_PATH);
   const all = db.list({ prefix: ["users"] });
   for await (const r of all) {
     console.log("user:", r);
   }
   response.body = { ok: true };
-  db.close();
 });
 
 /**
@@ -127,9 +121,7 @@ router.get("/me", AuthMiddleware, async ({ request, response }) => {
   const cookieUsername = cookies[AUTH_COOKIE_NAME];
 
   // Ensure the user exists
-  const db = await Deno.openKv(DENO_KV_PATH);
   const user = await db.get(["users", cookieUsername]);
-  db.close();
   if (!user.value) {
     response.status = 403;
     response.body = { ok: false, reason: "NOUSER" };

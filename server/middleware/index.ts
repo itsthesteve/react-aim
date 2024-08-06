@@ -1,5 +1,5 @@
 import { Context, Next } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { DENO_KV_PATH } from "../data/models.ts";
+import { db } from "../data/index.ts";
 
 // Serve response as JSON
 export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
@@ -17,19 +17,15 @@ export const AuthMiddleware = async (ctx: Context, next: Next) => {
     return;
   }
 
-  const db = await Deno.openKv(DENO_KV_PATH);
-
   // Make sure the user exists
   const user = await db.get(["users", username]);
   if (!user) {
     ctx.response.status = 403;
     ctx.response.body = { ok: false, reason: "NOUSER" };
-    db.close();
     return;
   }
 
   ctx.state = { username };
 
-  db.close();
   await next();
 };
