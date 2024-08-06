@@ -1,37 +1,34 @@
-import ChatInput from "../../components/ChatWindow/ChatInput";
-import MessagesList from "../../components/ChatWindow/MessagesList";
-import UserList from "../../components/ChatWindow/RoomsList";
-import { useAuthContext } from "../../context/auth/hook";
-import styles from "./app.module.css";
+import { LoaderFunctionArgs } from "react-router-dom";
+import { MessagesProvider } from "../../context/messages/context";
+import { DEFAULT_ROOM } from "../../types/room";
+import ChatWindow from "../../components/ChatWindow";
 
-export default function ChatRoute() {
-  const { logout } = useAuthContext();
-
+export function ChatRoute() {
   return (
-    <div className={`window ${styles.windowContainer}`}>
-      <div className="title-bar">
-        <div className="title-bar-text">React Chat | XP Edition</div>
-        <div className="title-bar-controls">
-          <button aria-label="Help" onClick={() => alert("todo")}></button>
-          <button aria-label="Close" onClick={logout}></button>
-        </div>
-      </div>
-      <div
-        className={`window-body my-0 grid ${styles.content}`}
-        style={{ background: "rgb(236, 233, 216)" }}>
-        <div className={styles.chatContainer}>
-          <MessagesList />
-          <ChatInput />
-          <UserList />
-        </div>
-      </div>
-      <div className="status-bar mx-0">
-        <div className="flex">
-          <p className="status-bar-field px-2">Current channel: Active</p>
-          <p className="status-bar-field pr-2">4 members</p>
-          <p className="status-bar-field pr-2">CPU Usage: 14%</p>
-        </div>
-      </div>
-    </div>
+    <MessagesProvider>
+      <ChatWindow />
+    </MessagesProvider>
   );
+}
+
+/**
+ * Get's the last room the user was in, or the global default of DEFAULT_ROOM
+ * This is passed (currently) to the MessageProvider in order to update the fetch calls based on
+ * which room the user is in.
+ */
+export function chatRouteLoader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const requestedRoom = url.searchParams.get("room");
+
+  if (!requestedRoom) {
+    return DEFAULT_ROOM;
+  }
+
+  // // Check to make sure its valid in case someone mucks with it, redirect to default otherwise.
+  if (!/^[a-z0-9]+$/i.test(requestedRoom)) {
+    console.warn("Invalid room name, redirecting.");
+    return DEFAULT_ROOM;
+  }
+
+  return requestedRoom;
 }

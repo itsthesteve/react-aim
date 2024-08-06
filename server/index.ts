@@ -48,3 +48,5 @@ app.use(router.allowedMethods());
 app.use(router.routes());
 
 await app.listen({ port: 9000 });
+
+console.log("Server shutdown");

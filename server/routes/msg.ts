@@ -21,9 +21,9 @@ router.post("/msg", async ({ request, response }) => {
   try {
     const body = await request.body.json();
 
-    await db.set(["message", roomId, body.data.id], body.data);
-    const saveMsgResult = await db.atomic().set(["last_message_id", roomId], body.data.id).commit();
-    console.log({ saveMsgResult });
+    const msgSaveRes = await db.set(["message", roomId, body.data.id], body.data);
+    const lastMsgRes = await db.atomic().set(["last_message_id", roomId], body.data.id).commit();
+    console.log({ msgSaveRes, lastMsgRes });
 
     response.status = 201;
     response.body = { result: "OK" };

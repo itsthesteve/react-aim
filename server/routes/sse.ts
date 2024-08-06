@@ -2,6 +2,7 @@ import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
 import { db } from "../data/index.ts";
+import { ServerSentEvent } from "jsr:@oak/commons@0.11/server_sent_event";
 
 const router = new Router();
 
@@ -50,13 +51,16 @@ router.get("/events", async (ctx) => {
     if (!lastId) {
       // This only seems to happen on a fresh room creation. No idea why.
       console.warn("Warn: No last_message value");
-      target.dispatchComment("No messages yet");
+      target.dispatchEvent(
+        new ServerSentEvent("info", {
+          data: "No messages yet",
+        })
+      );
       return;
     }
 
     // Get the last seen message
     const seen = await db.get<string>(["last_seen", username, roomName]);
-    console.log(seen);
     const newMessages = await Array.fromAsync(
       db.list({
         start: ["message", roomName, seen.value || "", ""],

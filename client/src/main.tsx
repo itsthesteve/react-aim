@@ -19,10 +19,10 @@ const router = createBrowserRouter([
           {
             path: "/chat",
             async lazy() {
-              const { chatRouteLoader, ChatWindow } = await import("./components/ChatWindow");
+              const { chatRouteLoader, ChatRoute } = await import("./routes/chat");
               return {
                 loader: chatRouteLoader,
-                Component: ChatWindow,
+                Component: ChatRoute,
               };
             },
           },
