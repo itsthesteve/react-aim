@@ -1,6 +1,7 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import { ChatRoom } from "../../client/src/types/room.ts";
 
 const router = new Router();
 
@@ -24,17 +25,24 @@ router.get("/rooms", async ({ response, cookies }) => {
     globalRooms.push(room.value);
   }
 
-  response.body = { ok: true, userRooms, globalRooms };
+  const publicRoomRows = await Array.fromAsync(db.list<ChatRoom>({ prefix: ["rooms"] }));
+  const publicRooms = publicRoomRows
+    // Filter out rooms that are either global or created by the current user
+    .filter((room) => !["__admin__", username].includes(room.value.createdBy))
+    .filter((room) => !!room.value.public)
+    .map((obj) => obj.value);
+
+  response.body = { ok: true, userRooms, globalRooms, publicRooms };
 });
 
 /**
  * Create a new room. Requires a session cookie and a "room" property in the post body
  */
-router.post("/rooms", async ({ request, response, cookies }) => {
+router.post("/rooms", async ({ request, response, state }) => {
   // Middleware catches this, so we can be sure (?) the cookie exists here
-  const username = (await cookies.get("__rcsession")) as string;
+  const { username } = state;
 
-  const { room: roomName } = await request.body.json();
+  const { room: roomName, isPublic } = await request.body.json();
 
   // Needs a "room" property in the request body
   if (!roomName) {
@@ -51,11 +59,12 @@ router.post("/rooms", async ({ request, response, cookies }) => {
   }
 
   const db = await Deno.openKv("./data/react-chat.sqlite");
+  const KV_ROOM_KEY = ["rooms", username, roomName];
 
   console.log("User", username, "wants to create room", roomName);
 
   // Check to see if the room exists
-  const { value: existingRoom } = await db.get(["rooms", username, roomName]);
+  const { value: existingRoom } = await db.get(KV_ROOM_KEY);
   if (existingRoom) {
     response.status = 400;
     response.body = { ok: false };
@@ -69,9 +78,10 @@ router.post("/rooms", async ({ request, response, cookies }) => {
     name: roomName,
     createdBy: username,
     createdAt: Date.now(),
+    public: isPublic,
   };
 
-  await db.set(["rooms", username, roomName], roomValue);
+  await db.set(KV_ROOM_KEY, roomValue);
   console.log(username, "created room:", roomName);
 
   response.body = { ok: true, roomValue };

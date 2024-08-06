@@ -1,10 +1,11 @@
+import { FormEventHandler, useState } from "react";
 import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { useAuthContext } from "../../context/auth/hook";
-import { FormEventHandler, useState } from "react";
 import { ChatRoom } from "../../types/room";
 
 export default function CreateRoomWindow() {
   const [roomName, setRoomName] = useState<string>();
+  const [isPublic, setIsPublic] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>();
 
   const navigate = useNavigate();
@@ -22,12 +23,15 @@ export default function CreateRoomWindow() {
       const response = await fetch("http://localhost:9000/rooms", {
         method: "POST",
         credentials: "include",
-        body: JSON.stringify({ room: roomName }),
+        body: JSON.stringify({ room: roomName, isPublic }),
       });
       const res = await response.json();
       console.log(res);
 
+      // Refresh the list of rooms immediately
       revalidator.revalidate();
+
+      // TODO?: Set a faux XP progress bar
       setSubmitted(true);
       setTimeout(() => {
         navigate(`/chat?room=${res.roomValue.name}`);
@@ -36,6 +40,10 @@ export default function CreateRoomWindow() {
       console.warn("Unable to create room", e);
       setSubmitted(false);
     }
+  };
+
+  const changePublicMode: FormEventHandler<HTMLInputElement> = (e) => {
+    setIsPublic(e.currentTarget.checked);
   };
 
   return (
@@ -54,14 +62,28 @@ export default function CreateRoomWindow() {
           </header>
           <form className="w-full py-4" onSubmit={onSubmit}>
             {!submitted ? (
-              <label htmlFor="roomName" className="px-2 flex flex-col gap-1 items-stretch">
-                <span>Room name</span>
-                <input
-                  onChange={(e) => setRoomName(e.target.value)}
-                  name="roomName"
-                  placeholder={`i.e. ${user.username}'s Hideout`}
-                />
-              </label>
+              <>
+                <label htmlFor="roomName" className="px-2 flex flex-col gap-1 items-stretch">
+                  <span>Room name</span>
+                  <input
+                    onChange={(e) => setRoomName(e.target.value)}
+                    name="roomName"
+                    placeholder={`i.e. xX${user.username}SlayerXx`}
+                  />
+                </label>
+                <div className="p-2">
+                  <input onChange={changePublicMode} type="checkbox" id="isPublic" />
+                  <label htmlFor="isPublic">Public</label>
+
+                  {isPublic && (
+                    <>
+                      <div className="pt-2 break-words max-w-40">
+                        Note: Public rooms can be joined by <em>anyone</em>.
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
             ) : (
               <>
                 <div className="text-center">
