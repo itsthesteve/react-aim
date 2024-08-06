@@ -1,8 +1,6 @@
-import { Router, ServerSentEvent } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { DENO_KV_PATH, MessageData } from "../data/models.ts";
-import { INITIAL_WELCOME } from "../data/system-messages.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
-import { cloneState } from "https://deno.land/x/oak@v16.1.0/utils/clone_state.ts";
 
 const router = new Router();
 
