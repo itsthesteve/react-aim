@@ -1,9 +1,10 @@
-import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Context, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
 import { ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import { STATUS_CODE } from "jsr:@oak/commons@0.11/status";
 
 const router = new Router();
 
@@ -94,6 +95,47 @@ router.post("/rooms", async ({ request, response, state }) => {
   console.log(username, "created room:", roomName);
 
   response.body = { ok: true, roomValue };
+});
+
+router.post("/presence", async ({ request, state, response }) => {
+  const { room, present } = await request.body.json();
+  const PKEY = ["presence", room];
+
+  if (!(await db.get(PKEY))) {
+    await db.set(PKEY, 1);
+  }
+
+  const current = await db.get(PKEY);
+
+  await db.set(PKEY, (current.value as number) + (present ? 1 : -1));
+
+  response.body = { ok: true };
+});
+
+router.get("/presence", async (ctx) => {
+  const room = ctx.request.url.searchParams.get("room");
+  if (!room) {
+    ctx.response.status = 400;
+    ctx.response.body = { ok: false, reason: "NOROOM" };
+    return;
+  }
+
+  console.log(await db.get(["presence", room]));
+
+  const target = await ctx.sendEvents();
+
+  const stream = db.watch([["presence", room]]);
+  for await (const [entry] of stream) {
+    const entries = db.list({ prefix: ["presence", room] });
+    const result = [];
+    for await (const entry of entries) {
+      // console.log({ entry });
+      result.push(entry.value);
+    }
+
+    target.dispatchMessage({ room, total: result.length });
+  }
+  // const members = await Array.fromAsync(db.list({ prefix: ["presence", room] }));
 });
 
 export default router.routes();

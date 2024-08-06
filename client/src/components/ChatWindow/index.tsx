@@ -1,11 +1,17 @@
+import { useLoaderData } from "react-router-dom";
 import ChatInput from "../../components/ChatWindow/ChatInput";
 import MessagesList from "../../components/ChatWindow/MessagesList";
 import UserList from "../../components/ChatWindow/RoomsList";
 import { useAuthContext } from "../../context/auth/hook";
 import styles from "./styles.module.css";
+import useUserCount from "./useUserCount";
 
 export default function ChatWindow() {
   const { logout } = useAuthContext();
+  const roomName = useLoaderData() as string;
+  const userCount = useUserCount(roomName);
+
+  console.log(userCount);
 
   return (
     <div className={`window ${styles.windowContainer}`}>
@@ -27,7 +33,7 @@ export default function ChatWindow() {
       </div>
       <div className="status-bar mx-0">
         <div className="flex">
-          <p className="status-bar-field px-2">Current channel: Active</p>
+          <p className="status-bar-field px-2">Current channel: {roomName}</p>
           <p className="status-bar-field pr-2">4 members</p>
           <p className="status-bar-field pr-2">CPU Usage: 14%</p>
         </div>
