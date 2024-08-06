@@ -2,12 +2,39 @@ import { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import { ChatRoom } from "../../../types/room";
 
+interface RoomListItemProps {
+  /* Name of the room the chat window is currently servicing */
+  currentRoom: string;
+
+  /* The room object in the current iteration */
+  listedRoom: ChatRoom;
+
+  /* Prevents rendering of the global icon, redundant for "global" rooms */
+  skipGlobalIcon?: boolean;
+}
+
+/**
+ * Helper component for rendering each of the type of rooms in the list
+ */
+const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemProps) => {
+  return (
+    <li
+      title={listedRoom.public ? "Public" : "Private"}
+      className={`flex items-center gap-1 ${currentRoom === listedRoom.name ? "font-bold" : ""}`}
+      key={listedRoom.id}>
+      <Link to={`/chat?room=${listedRoom.name}`}>{listedRoom.name}</Link>
+      {!skipGlobalIcon && listedRoom.public && <img src="/public.png" width="12" height="12" />}
+    </li>
+  );
+};
+
 export default function UserList() {
   const roomName = useLoaderData() as string;
   const [visibleTab, setVisibleTab] = useState(0);
-  const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[] }>({
+  const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({
     user: [],
     global: [],
+    public: [],
   });
 
   useEffect(() => {
@@ -16,10 +43,11 @@ export default function UserList() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then(({ userRooms, globalRooms }) => {
+      .then(({ userRooms, globalRooms, publicRooms }) => {
         setRooms({
           user: userRooms,
           global: globalRooms,
+          public: publicRooms,
         });
       });
   }, []);
@@ -66,9 +94,22 @@ export default function UserList() {
                   <summary>Your rooms ({rooms.user.length})</summary>
                   <ul>
                     {rooms.user.map((room) => (
-                      <li className={roomName === room.name ? "font-bold" : ""} key={room.id}>
-                        <Link to={`/chat?room=${room.name}`}>{room.name}</Link>
-                      </li>
+                      <RoomListItem key={room.id} currentRoom={roomName} listedRoom={room} />
+                    ))}
+                  </ul>
+                </details>
+              </li>
+              <li>
+                <details>
+                  <summary>Public rooms ({rooms.public.length})</summary>
+                  <ul>
+                    {rooms.public.map((room) => (
+                      <RoomListItem
+                        skipGlobalIcon={true}
+                        key={room.id}
+                        currentRoom={roomName}
+                        listedRoom={room}
+                      />
                     ))}
                   </ul>
                 </details>

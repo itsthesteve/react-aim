@@ -16,6 +16,7 @@ try {
     id: "0001",
     name: DEFAULT_ROOM,
     createdBy: "__admin__",
+    public: true,
     createdAt: Date.now(),
   });
   db.close();
