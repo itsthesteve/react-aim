@@ -8,7 +8,7 @@ import logger from "../../../logger";
 
 export default function MessagesList() {
   const { user } = useAuthContext();
-  const roomName = useLoaderData();
+  const roomName = useLoaderData() as string;
   const { subscribe, load } = useMessages();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const messagesWrapper = useRef<HTMLElement>(null);
