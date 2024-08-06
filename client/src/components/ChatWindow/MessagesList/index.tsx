@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import styles from "./styles.module.css";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import { useAuthContext } from "../../../context/auth/hook";
 import { MessageData } from "../../../context/messages/context";
 import { useMessages } from "../../../context/messages/hook";
-import logger from "../../../logger";
+import styles from "./styles.module.css";
 
 export default function MessagesList() {
   const { user } = useAuthContext();
@@ -17,7 +16,6 @@ export default function MessagesList() {
   // SSE endpoint is going to work
   // NOTE: I'm leaving this for now until I do more testing. Seems to work with the latest changes
   useEffect(() => {
-    logger.info("MessageList()", roomName);
     load().then((messages) => setMessages(messages));
   }, [roomName, load]);
 

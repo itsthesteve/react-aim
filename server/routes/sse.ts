@@ -1,7 +1,7 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
-import { AuthMiddleware } from "../middleware/index.ts";
+import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router();
 
@@ -10,7 +10,7 @@ router.use(AuthMiddleware);
 /**
  * Get's all the messages for the channel based on the roomId search param at once.
  */
-router.get("/channel", async ({ request, response }) => {
+router.get("/channel", JsonResponseMiddleware, async ({ request, response }) => {
   // Ensure there's a room parameter
   const roomId = request.url.searchParams.get("room");
   if (!roomId) {

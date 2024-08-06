@@ -1,11 +1,11 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { JsonResponseMiddleware } from "../middleware/index.ts";
+import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 import { db } from "../data/index.ts";
 import { Message } from "../data/models.ts";
 
 const router = new Router();
 
-router.use(JsonResponseMiddleware);
+router.use(AuthMiddleware).use(JsonResponseMiddleware);
 
 /**
  * Receieves a message payload from the chat window and saves to the KV
