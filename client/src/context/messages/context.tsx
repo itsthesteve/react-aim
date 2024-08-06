@@ -79,6 +79,10 @@ export const MessagesProvider = ({ children }: Props) => {
 
     eventSrcRef.current.addEventListener("message", onMessage);
     eventSrcRef.current.addEventListener("error", onError);
+    window.addEventListener("beforeunload", () => {
+      console.log("Closing SSE");
+      eventSrcRef.current?.close();
+    });
 
     function onMessage(message: MessageEvent) {
       const msg = JSON.parse(message.data);
@@ -86,7 +90,7 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     function onError(e: Event) {
-      console.error("!!! EventSource error", e);
+      console.warn("!!! EventSource error", e);
     }
 
     return () => {

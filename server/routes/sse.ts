@@ -1,7 +1,8 @@
-import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Router, ServerSentEvent } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { DENO_KV_PATH, MessageData } from "../data/models.ts";
 import { INITIAL_WELCOME } from "../data/system-messages.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
+import { cloneState } from "https://deno.land/x/oak@v16.1.0/utils/clone_state.ts";
 
 const router = new Router();
 
@@ -42,24 +43,24 @@ router.get("/events", async (ctx) => {
   }
 
   const target = await ctx.sendEvents();
-
-  target.dispatchMessage(INITIAL_WELCOME);
+  const { username } = ctx.state;
 
   const db = await Deno.openKv(DENO_KV_PATH);
-  const username = (await ctx.cookies.get("__rcsession")) as string;
 
-  // Store the last seen message and make sure it sticks
-  const seen = await db.get<string>(["last_seen", username, roomId]);
-  // console.log("!! Filtering", seen);
-
-  for await (const [lastEntry] of db.watch([["last_message_id", roomId]])) {
+  const stream = db.watch([["last_message_id", roomId]]);
+  for await (const [lastEntry] of stream) {
     const lastId = lastEntry.value as string;
     if (!lastId) {
-      // Not entirely sure why this happens, I think if you switch between rooms
-      // too quickly the keys aren't quite ready or something.
-      return console.warn("Warn: No last_message value");
+      // This only seems to happen on a fresh room creation. No idea why.
+      console.warn("Warn: No last_message value");
+
+      ctx.response.status = 500;
+      ctx.response.body = { ok: false, reason: "No last message" };
+      return;
     }
 
+    // Get the last seen message
+    const seen = await db.get<string>(["last_seen", username, roomId]);
     const newMessages = await Array.fromAsync(
       db.list({
         start: ["message", roomId, seen.value || "", ""],
@@ -69,7 +70,6 @@ router.get("/events", async (ctx) => {
 
     // Update the last seen to get only fresh messages
     await db.set(["last_seen", username, roomId], lastId);
-    // console.log("!! Setting last seen", lastId);
 
     newMessages
       .map((m) => {
@@ -80,7 +80,6 @@ router.get("/events", async (ctx) => {
       })
       .forEach((payload) => target.dispatchMessage(payload));
   }
-
   // We never get here for... reasons?
   console.log("!! SSE Closed");
   db.close();

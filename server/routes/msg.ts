@@ -18,28 +18,26 @@ router.post("/msg", async ({ request, response }) => {
     return;
   }
 
-  const db = await Deno.openKv(DENO_KV_PATH);
   try {
+    const db = await Deno.openKv(DENO_KV_PATH);
     const body = await request.body.json();
-    console.log("Saving message:", body);
 
-    const result = await db.set(["message", roomId, body.data.id], body.data);
-    await db.set(["last_message_id", roomId], body.data.id, {
-      expireIn: 3_600_000, // one hour
-    });
+    const saveMsgResult = await Promise.all([
+      db.set(["message", roomId, body.data.id], body.data),
+      db.set(["last_message_id", roomId], body.data.id),
+    ]);
 
-    console.log("Result saving:", result);
+    console.log({ saveMsgResult });
 
     response.status = 201;
     response.body = { result: "OK" };
+    db.close();
   } catch (e) {
     console.warn("Error saving", e);
 
     response.status = 400;
     response.body = { result: ":(" };
   }
-
-  db.close();
 });
 
 export default router.routes();
