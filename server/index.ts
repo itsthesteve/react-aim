@@ -4,14 +4,14 @@ import authRoutes from "./routes/auth.ts";
 import msgRoutes from "./routes/msg.ts";
 import roomRoutes from "./routes/rooms.ts";
 import sseRoutes from "./routes/sse.ts";
-import { DEFAULT_ROOM } from "./data/models.ts";
+import { DEFAULT_ROOM, DENO_KV_PATH } from "./data/models.ts";
 
 const router = new Router();
 
 // Initial set up
 // - Create the global default store. Based on the value of DEFAULT_ROOM
 try {
-  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const db = await Deno.openKv(DENO_KV_PATH);
   await db.set(["rooms", "__admin__", DEFAULT_ROOM], {
     id: "0001",
     name: DEFAULT_ROOM,
@@ -29,8 +29,8 @@ router
   .use(sseRoutes)
   .use(msgRoutes)
   .use(roomRoutes)
-  .get("/test", async (context) => {
-    const db = await Deno.openKv("./data/react-chat.sqlite");
+  .get("/test", async () => {
+    const db = await Deno.openKv(DENO_KV_PATH);
 
     const rooms = await db.get(["rooms", "someRoomName"]);
     console.log(rooms.value);

@@ -1,4 +1,5 @@
 import { Context, Next } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { DENO_KV_PATH } from "../data/models.ts";
 
 // Serve response as JSON
 export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
@@ -16,7 +17,7 @@ export const AuthMiddleware = async (ctx: Context, next: Next) => {
     return;
   }
 
-  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const db = await Deno.openKv(DENO_KV_PATH);
 
   // Make sure the user exists
   const user = await db.get(["users", username]);

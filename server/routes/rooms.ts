@@ -2,6 +2,7 @@ import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 import { ChatRoom } from "../../client/src/types/room.ts";
+import { DENO_KV_PATH } from "../data/models.ts";
 
 const router = new Router();
 
@@ -11,7 +12,7 @@ router.get("/rooms", async ({ response, cookies }) => {
   // Middleware catches this, so we can be sure (?) the cookie exists here
   const username = (await cookies.get("__rcsession")) as string;
 
-  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const db = await Deno.openKv(DENO_KV_PATH);
   const userRoomRows = db.list({ prefix: ["rooms", username] });
   const globalRoomsRows = db.list({ prefix: ["rooms", "__admin__"] });
 
@@ -58,7 +59,7 @@ router.post("/rooms", async ({ request, response, state }) => {
     return;
   }
 
-  const db = await Deno.openKv("./data/react-chat.sqlite");
+  const db = await Deno.openKv(DENO_KV_PATH);
   const KV_ROOM_KEY = ["rooms", username, roomName];
 
   console.log("User", username, "wants to create room", roomName);
