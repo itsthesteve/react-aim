@@ -1,5 +1,5 @@
 import { FormEventHandler, useState } from "react";
-import { useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/auth/hook";
 import { ChatRoom } from "../../types/room";
 
@@ -10,7 +10,6 @@ export default function CreateRoomWindow() {
 
   const navigate = useNavigate();
   const { user } = useAuthContext();
-  const revalidator = useRevalidator();
   const rooms = useLoaderData() as ChatRoom[];
 
   if (!user) {
@@ -28,13 +27,10 @@ export default function CreateRoomWindow() {
       const res = await response.json();
       console.log(res);
 
-      // Refresh the list of rooms immediately
-      revalidator.revalidate();
-
       // TODO?: Set a faux XP progress bar
       setSubmitted(true);
       setTimeout(() => {
-        navigate(`/chat?room=${res.roomValue.name}`);
+        navigate(`/chat?room=${res.roomValue.name}`, { replace: true });
       }, 3000);
     } catch (e) {
       console.warn("Unable to create room", e);
@@ -83,6 +79,19 @@ export default function CreateRoomWindow() {
                     </>
                   )}
                 </div>
+                <section className="mx-2 mt-4 p-">
+                  <header>Your rooms</header>
+                  <ul className="p-0 m-0 list-none bg-white mt-2 h-24 overflow-auto">
+                    {rooms.map((room) => (
+                      <li className="px-2 py-1" key={room.id}>
+                        {room.name}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+                <footer className="mt-4 text-center">
+                  <button>Create room</button>
+                </footer>
               </>
             ) : (
               <>
@@ -91,19 +100,6 @@ export default function CreateRoomWindow() {
                 </div>
               </>
             )}
-            <section className="mx-2 mt-4 p-">
-              <header>Your rooms</header>
-              <ul className="p-0 m-0 list-none bg-white mt-2 h-24 overflow-auto">
-                {rooms.map((room) => (
-                  <li className="px-2 py-1" key={room.id}>
-                    {room.name}
-                  </li>
-                ))}
-              </ul>
-            </section>
-            <footer className="mt-4 text-center">
-              <button>Create room</button>
-            </footer>
           </form>
         </div>
       </div>

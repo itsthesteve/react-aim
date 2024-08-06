@@ -1,6 +1,7 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { DENO_KV_PATH, MessageData } from "../data/models.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
+import { ServerSentEvent } from "https://deno.land/x/oak@v16.1.0/deps.ts";
 
 const router = new Router();
 
@@ -33,8 +34,8 @@ router.get("/channel", async ({ request, response }) => {
  * Server Sent Events endpoint ƒor getting messages
  */
 router.get("/events", async (ctx) => {
-  const roomId = ctx.request.url.searchParams.get("room");
-  if (!roomId) {
+  const roomName = ctx.request.url.searchParams.get("room");
+  if (!roomName) {
     ctx.response.status = 400;
     ctx.response.body = { ok: false, reason: "NOROOMID" };
     return;
@@ -47,29 +48,27 @@ router.get("/events", async (ctx) => {
 
   const db = await Deno.openKv(DENO_KV_PATH);
 
-  const stream = db.watch([["last_message_id", roomId]]);
+  const stream = db.watch([["last_message_id", roomName]]);
   for await (const [lastEntry] of stream) {
     const lastId = lastEntry.value as string;
     if (!lastId) {
       // This only seems to happen on a fresh room creation. No idea why.
       console.warn("Warn: No last_message value");
-
-      ctx.response.status = 500;
-      ctx.response.body = { ok: false, reason: "No last message" };
+      target.dispatchComment("No messages yet");
       return;
     }
 
     // Get the last seen message
-    const seen = await db.get<string>(["last_seen", username, roomId]);
+    const seen = await db.get<string>(["last_seen", username, roomName]);
     const newMessages = await Array.fromAsync(
       db.list({
-        start: ["message", roomId, seen.value || "", ""],
-        end: ["message", roomId, lastId, ""],
+        start: ["message", roomName, seen.value || "", ""],
+        end: ["message", roomName, lastId, ""],
       })
     );
 
     // Update the last seen to get only fresh messages
-    await db.set(["last_seen", username, roomId], lastId);
+    await db.set(["last_seen", username, roomName], lastId);
 
     newMessages
       .map((m) => {
@@ -82,7 +81,6 @@ router.get("/events", async (ctx) => {
   }
   // We never get here for... reasons?
   console.log("!! SSE Closed");
-  db.close();
 });
 
 export default router.routes();

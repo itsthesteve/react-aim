@@ -43,6 +43,7 @@ export const MessagesProvider = ({ children }: Props) => {
 
   const sendMessage = async (message: Message) => {
     try {
+      console.log("sending message to", roomName);
       const response = await fetch(`http://localhost:9000/msg?room=${roomName}`, {
         method: "POST",
         credentials: "include",
@@ -77,11 +78,12 @@ export const MessagesProvider = ({ children }: Props) => {
       withCredentials: true,
     });
 
-    eventSrcRef.current.addEventListener("message", onMessage);
-    eventSrcRef.current.addEventListener("error", onError);
+    const evt = eventSrcRef.current;
+    evt.addEventListener("message", onMessage);
+    evt.addEventListener("error", onError);
     window.addEventListener("beforeunload", () => {
-      console.log("Closing SSE");
-      eventSrcRef.current?.close();
+      evt.close();
+      console.log("Closing SSE", eventSrcRef.current?.readyState === EventSource.CLOSED);
     });
 
     function onMessage(message: MessageEvent) {
@@ -95,12 +97,12 @@ export const MessagesProvider = ({ children }: Props) => {
 
     return () => {
       logger.warn(`Cleaning up event source for ${roomName}`);
-      if (!eventSrcRef.current) {
+      if (!evt) {
         return logger.warn("eventSrcRef is null");
       }
-      eventSrcRef.current.removeEventListener("message", onMessage);
-      eventSrcRef.current.removeEventListener("error", onError);
-      eventSrcRef.current.close();
+      evt.removeEventListener("message", onMessage);
+      evt.removeEventListener("error", onError);
+      evt.close();
     };
   }, [roomName]);
 

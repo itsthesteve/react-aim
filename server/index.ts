@@ -29,13 +29,7 @@ router
   .use(sseRoutes)
   .use(msgRoutes)
   .use(roomRoutes)
-  .get("/test", async () => {
-    const db = await Deno.openKv(DENO_KV_PATH);
-
-    const rooms = await db.get(["rooms", "someRoomName"]);
-    console.log(rooms.value);
-    db.close();
-  });
+  .get("/test", async () => {});
 
 const app = new Application();
 app.use(
