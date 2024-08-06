@@ -1,8 +1,9 @@
-import { Context, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
-import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 import { ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
+import { MessageData } from "../data/models.ts";
+import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router();
 
@@ -79,7 +80,16 @@ router.post("/rooms", async ({ request, response, state }) => {
     public: isPublic,
   };
 
-  await db.atomic().set(KV_ROOM_KEY, roomValue).set(["message", roomName], "__initial__").commit();
+  const msgId = uuid.v1.generate();
+  await db
+    .atomic()
+    .set(KV_ROOM_KEY, roomValue)
+    .set(["message", roomName, msgId], {
+      id: msgId,
+      owner: "__system__",
+      payload: "Welcome to " + roomName,
+    } as MessageData)
+    .commit();
 
   console.log(username, "created room:", roomName);
 

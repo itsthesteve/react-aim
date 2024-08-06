@@ -1,6 +1,7 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { JsonResponseMiddleware } from "../middleware/index.ts";
 import { db } from "../data/index.ts";
+import { Message } from "../data/models.ts";
 
 const router = new Router();
 
@@ -19,13 +20,10 @@ router.post("/msg", async ({ request, response }) => {
   }
 
   try {
-    const body = await request.body.json();
+    const body: Message = await request.body.json();
 
     await db.set(["message", roomName, body.data.id], body.data);
     await db.set(["last_message_id", roomName], body.data.id);
-
-    const last = await db.get(["last_message_id", roomName], body.data.id);
-    console.log("Posted last:", last.key, last.value);
 
     response.status = 201;
     response.body = { result: "OK" };
