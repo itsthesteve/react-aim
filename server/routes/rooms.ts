@@ -1,4 +1,4 @@
-import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Context, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 import { ChatRoom } from "../../client/src/types/room.ts";

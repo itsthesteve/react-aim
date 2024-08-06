@@ -11,8 +11,8 @@ router.use(JsonResponseMiddleware);
  * store with the keys "message" and the channel ID.
  */
 router.post("/msg", async ({ request, response }) => {
-  const roomId = request.url.searchParams.get("room");
-  if (!roomId) {
+  const roomName = request.url.searchParams.get("room");
+  if (!roomName) {
     response.status = 400;
     response.body = { ok: false, reason: "NOROOMID" };
     return;
@@ -21,9 +21,11 @@ router.post("/msg", async ({ request, response }) => {
   try {
     const body = await request.body.json();
 
-    const msgSaveRes = await db.set(["message", roomId, body.data.id], body.data);
-    const lastMsgRes = await db.atomic().set(["last_message_id", roomId], body.data.id).commit();
-    console.log({ msgSaveRes, lastMsgRes });
+    await db.set(["message", roomName, body.data.id], body.data);
+    await db.set(["last_message_id", roomName], body.data.id);
+
+    const last = await db.get(["last_message_id", roomName], body.data.id);
+    console.log("Posted last:", last.key, last.value);
 
     response.status = 201;
     response.body = { result: "OK" };

@@ -12,14 +12,14 @@ export interface MessageData {
 
 // Message payload
 export interface Message {
-  channel: string;
+  room: string;
   data: MessageData;
 }
 
 // React context interface
 export type MessageContextType = {
-  subscribe: (channel: string, fn: CallableFunction) => void;
-  unsubscribe: (channel: string) => void;
+  subscribe: (room: string, fn: CallableFunction) => void;
+  unsubscribe: (room: string) => void;
   sendMessage: (message: Message) => void;
   load: () => Promise<MessageData[]>;
 };
@@ -33,12 +33,12 @@ export const MessagesProvider = ({ children }: Props) => {
   const roomName = useLoaderData();
   const listeners = useRef<Record<string, CallableFunction>>({});
 
-  const subscribe = (channel: string, fn: CallableFunction) => {
-    listeners.current[channel] = fn;
+  const subscribe = (room: string, fn: CallableFunction) => {
+    listeners.current[room] = fn;
   };
 
-  const unsubscribe = (channel: string) => {
-    delete listeners.current[channel];
+  const unsubscribe = (room: string) => {
+    delete listeners.current[room];
   };
 
   const sendMessage = async (message: Message) => {
@@ -88,7 +88,7 @@ export const MessagesProvider = ({ children }: Props) => {
 
     function onMessage(message: MessageEvent) {
       const msg = JSON.parse(message.data);
-      listeners.current[msg.channel]?.(msg.data);
+      listeners.current[msg.room]?.(msg.data);
     }
 
     function onError(e: Event) {

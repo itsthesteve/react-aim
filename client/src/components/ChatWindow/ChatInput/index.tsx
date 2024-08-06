@@ -26,7 +26,7 @@ export default function ChatInput() {
     }
 
     sendMessage({
-      channel: roomName as string,
+      room: roomName as string,
       data: {
         id: "msg-" + Date.now(),
         owner: user!.username,

@@ -56,7 +56,7 @@ router.get("/events", async (ctx) => {
           data: "No messages yet",
         })
       );
-      return;
+      break;
     }
 
     // Get the last seen message
@@ -74,7 +74,7 @@ router.get("/events", async (ctx) => {
     newMessages
       .map((m) => {
         return {
-          channel: m.key[1] as string,
+          room: m.key[1] as string,
           data: m.value as MessageData,
         };
       })

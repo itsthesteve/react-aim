@@ -2,7 +2,7 @@ import { DEFAULT_ROOM, Message } from "./models.ts";
 
 // Sent when a new socket connection is created
 const INITIAL_WELCOME: Message = {
-  channel: DEFAULT_ROOM,
+  room: DEFAULT_ROOM,
   data: {
     id: "admin" + Date.now(),
     owner: "Admin",

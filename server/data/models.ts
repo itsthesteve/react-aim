@@ -7,7 +7,7 @@ export interface MessageData {
 }
 
 export interface Message {
-  channel: string;
+  room: string;
   data: MessageData;
 }
 
