@@ -5,9 +5,9 @@ export default function useUserCount(roomName: string) {
   const [userCount, setUserCount] = useState(0);
   const evtRef = useRef<EventSource>();
 
-  const setPresence = useCallback(
+  const setOnline = useCallback(
     (present: boolean) => {
-      return fetch("http://localhost:9000/presence", {
+      return fetch("http://localhost:9000/online", {
         method: "POST",
         credentials: "include",
         body: JSON.stringify({
@@ -23,33 +23,35 @@ export default function useUserCount(roomName: string) {
   );
 
   useEffect(() => {
-    evtRef.current = new EventSource(`http://localhost:9000/presence?room=${roomName}`, {
-      withCredentials: true,
-    });
+    setOnline(true)
+      .then(() => {
+        evtRef.current = new EventSource(`http://localhost:9000/online?room=${roomName}`, {
+          withCredentials: true,
+        });
 
-    evtRef.current.addEventListener("message", onMessage);
-    evtRef.current.addEventListener("error", onError);
+        evtRef.current.addEventListener("message", onMessage);
+        evtRef.current.addEventListener("error", onError);
+      })
+      .catch(logger.warn);
 
     function onMessage(message: MessageEvent) {
       const data = JSON.parse(message.data);
-      console.log("presence:", data);
+      setUserCount(data.length);
     }
 
     function onError(e: Event) {
-      console.warn("!!! EventSource error", e);
+      console.log("!!! EventSource error", e);
     }
-
-    setPresence(true).catch(logger.warn);
     return () => {
-      setPresence(false)
+      setOnline(false)
         .then(() => {
-          console.log("Cleaning up");
           evtRef.current?.removeEventListener("message", onMessage);
           evtRef.current?.removeEventListener("error", onError);
           evtRef.current?.close();
         })
         .catch(logger.warn);
-      // leave
     };
-  }, [roomName, setPresence]);
+  }, [roomName, setOnline]);
+
+  return userCount;
 }

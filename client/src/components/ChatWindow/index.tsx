@@ -9,9 +9,7 @@ import useUserCount from "./useUserCount";
 export default function ChatWindow() {
   const { logout } = useAuthContext();
   const roomName = useLoaderData() as string;
-  const userCount = useUserCount(roomName);
-
-  console.log(userCount);
+  const online = useUserCount(roomName);
 
   return (
     <div className={`window ${styles.windowContainer}`}>
@@ -34,7 +32,7 @@ export default function ChatWindow() {
       <div className="status-bar mx-0">
         <div className="flex">
           <p className="status-bar-field px-2">Current channel: {roomName}</p>
-          <p className="status-bar-field pr-2">4 members</p>
+          <p className="status-bar-field pr-2">{online} member(s) online</p>
           <p className="status-bar-field pr-2">CPU Usage: 14%</p>
         </div>
       </div>

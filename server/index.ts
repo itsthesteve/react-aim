@@ -41,7 +41,6 @@ app.use(
   oakCors({
     credentials: true,
     origin: /http:\/\/localhost:[\d]{4}/i,
-    methods: ["GET", "POST"],
   })
 );
 app.use(router.allowedMethods());
