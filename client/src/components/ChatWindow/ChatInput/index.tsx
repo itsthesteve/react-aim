@@ -2,14 +2,14 @@ import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
 import styles from "./styles.module.css";
 import { useLoaderData } from "react-router-dom";
 import { useAuthContext } from "../../../context/auth/hook";
-import { useMessages } from "../../../context/messages/hook";
+import { useMessagesContext } from "../../../context/messages/hook";
 import KeyboardSpan from "../../KeyboardSpan";
 import { ChatLoaderType } from "../../../routes/chat";
 
-export default function ChatInput({ disabled }: { disabled: boolean }) {
+export default function ChatInput() {
   const { user } = useAuthContext();
   const { room } = useLoaderData() as ChatLoaderType;
-  const { sendMessage } = useMessages();
+  const { sendMessage, loading: disabled } = useMessagesContext();
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 

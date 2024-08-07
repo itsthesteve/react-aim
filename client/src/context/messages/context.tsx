@@ -24,6 +24,7 @@ export type MessageContextType = {
   unsubscribe: (room: string) => void;
   sendMessage: (message: Message) => void;
   load: () => Promise<MessageData[]>;
+  loading: boolean;
 };
 
 type Props = {
@@ -34,6 +35,25 @@ export const MessagesProvider = ({ children }: Props) => {
   const eventSrcRef = useRef<EventSource>();
   const { room } = useLoaderData() as ChatLoaderType;
   const listeners = useRef<Record<string, CallableFunction>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(() => true);
+    fetch("http://localhost:9000/online", {
+      method: "POST",
+      credentials: "include",
+      signal: controller.signal,
+      body: JSON.stringify({ room }),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then(() => setLoading(() => false))
+      .catch(console.warn);
+
+    return () => {
+      controller.abort("New room chosen");
+    };
+  }, [room]);
 
   const subscribe = (room: string, fn: CallableFunction) => {
     listeners.current[room] = fn;
@@ -112,7 +132,7 @@ export const MessagesProvider = ({ children }: Props) => {
 
   return (
     <>
-      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load }}>
+      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load, loading }}>
         {children}
       </MessagesContext.Provider>
     </>

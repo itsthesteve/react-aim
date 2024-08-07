@@ -1,35 +1,17 @@
-import { useEffect, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import ChatInput from "../../components/ChatWindow/ChatInput";
 import MessagesList from "../../components/ChatWindow/MessagesList";
 import UserList from "../../components/ChatWindow/RoomsList";
 import { useAuthContext } from "../../context/auth/hook";
+import { useMessagesContext } from "../../context/messages/hook";
 import { ChatLoaderType } from "../../routes/chat";
 import styles from "./styles.module.css";
 
 export default function ChatWindow() {
   const { logout } = useAuthContext();
+  const { loading } = useMessagesContext();
   const { room } = useLoaderData() as ChatLoaderType;
-  const [loading, setLoading] = useState(true);
   const online = [];
-
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(() => true);
-    fetch("http://localhost:9000/online", {
-      method: "POST",
-      credentials: "include",
-      signal: controller.signal,
-      body: JSON.stringify({ room }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then(() => setLoading(() => false))
-      .catch(console.warn);
-
-    return () => {
-      controller.abort("New room chosen");
-    };
-  }, [room]);
 
   return (
     <>
@@ -46,7 +28,7 @@ export default function ChatWindow() {
           style={{ background: "rgb(236, 233, 216)" }}>
           <div className={styles.chatContainer}>
             <MessagesList />
-            <ChatInput disabled={loading} />
+            <ChatInput />
             <UserList online={online} />
           </div>
         </div>
