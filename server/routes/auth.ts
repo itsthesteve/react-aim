@@ -1,9 +1,9 @@
-import { getCookies, setCookie } from "https://deno.land/std@0.224.0/http/cookie.ts";
+import { getCookies } from "https://deno.land/std@0.224.0/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
-import { Cookies, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { AuthCredentials, UserRow } from "../data/models.ts";
-import { AuthMiddleware } from "../middleware/index.ts";
+import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
+import { AuthCredentials, DEFAULT_ROOM, UserRow } from "../data/models.ts";
+import { AuthMiddleware } from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/auth",
@@ -11,6 +11,13 @@ const router = new Router({
 
 // TODO: Move this to a shared location
 const AUTH_COOKIE_NAME = "__rcsession";
+const AUTH_PRESENCE_COOKIE = "__rcpresence";
+const COOKIE_OPTIONS = {
+  path: "/",
+  secure: false,
+  httpOnly: true,
+  maxAge: 31536000,
+};
 
 /**
  * Login
@@ -37,12 +44,12 @@ router.post("/login", async ({ response, request, cookies }) => {
   }
 
   // All good, set cookie and return ok
-  await cookies.set(AUTH_COOKIE_NAME, username, {
-    path: "/",
-    secure: false,
-    httpOnly: true,
-    maxAge: 31536000,
-  });
+  await cookies.set(AUTH_COOKIE_NAME, username, COOKIE_OPTIONS);
+
+  const presenceCookie = await cookies.get(AUTH_PRESENCE_COOKIE);
+  if (!presenceCookie) {
+    await cookies.set(AUTH_PRESENCE_COOKIE, DEFAULT_ROOM, COOKIE_OPTIONS);
+  }
 
   response.body = { ok: true };
 });
