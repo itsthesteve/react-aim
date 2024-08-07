@@ -6,7 +6,7 @@ import { useMessages } from "../../../context/messages/hook";
 import KeyboardSpan from "../../KeyboardSpan";
 import { ChatLoaderType } from "../../../routes/chat";
 
-export default function ChatInput() {
+export default function ChatInput({ disabled }: { disabled: boolean }) {
   const { user } = useAuthContext();
   const { room } = useLoaderData() as ChatLoaderType;
   const { sendMessage } = useMessages();
@@ -54,6 +54,7 @@ export default function ChatInput() {
       <div className="py-2 mx-2 flex gap-2">
         <div className="field-row-stacked grow">
           <textarea
+            disabled={disabled}
             autoFocus
             ref={textAreaRef}
             className={styles.textarea}
@@ -63,7 +64,7 @@ export default function ChatInput() {
         </div>
         <button
           onClick={submit}
-          disabled={!message.length}
+          disabled={!message.length || disabled}
           className={`${styles.sendButton} p-0 m-0 border-0 bg-none flex flex-col gap-2 w-16 items-center justify-center`}>
           <img src="/aimguy.png" width="32" height="32"></img>
           <KeyboardSpan listener={() => sendListener()}>Send</KeyboardSpan>

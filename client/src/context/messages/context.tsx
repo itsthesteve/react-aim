@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useCallback, useEffect, useRef } from "react";
+import { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import logger from "../../logger";
 import { ChatLoaderType } from "../../routes/chat";
@@ -79,7 +79,6 @@ export const MessagesProvider = ({ children }: Props) => {
   }, [room]);
 
   useEffect(() => {
-    logger.info(`Creating new event source for ${room}`);
     eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${room}`, {
       withCredentials: true,
     });
@@ -102,7 +101,6 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     return () => {
-      logger.warn(`Cleaning up event source for ${room}`);
       if (!evt) {
         return logger.warn("eventSrcRef is null");
       }

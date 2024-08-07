@@ -109,7 +109,7 @@ router.post("/online", async ({ request, state, response, cookies }) => {
 
   await cookies.set("__rcpresence", body.room, {
     path: "/",
-    secure: false,
+    secure: false, // TODO: Change this, safari doesn't like secure on localhost
     httpOnly: true,
     maxAge: 900_000, // 15 min
   });

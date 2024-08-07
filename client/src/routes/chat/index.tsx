@@ -2,7 +2,6 @@ import { LoaderFunctionArgs } from "react-router-dom";
 import ChatWindow from "../../components/ChatWindow";
 import { MessagesProvider } from "../../context/messages/context";
 import { DEFAULT_ROOM } from "../../types/room";
-import logger from "../../logger";
 
 export function ChatRoute() {
   console.log("ChatRoute()");
@@ -14,7 +13,6 @@ export function ChatRoute() {
 }
 
 export type ChatLoaderType = {
-  controller: AbortController;
   room: string;
 };
 
@@ -32,16 +30,6 @@ export async function chatRouteLoader({ request }: LoaderFunctionArgs) {
     console.warn("Invalid room name, redirecting.");
     throw new Response("Invalid room name", { status: 400 });
   }
-
-  console.log("Loder resolved");
-
-  await fetch("http://localhost:9000/online", {
-    method: "POST",
-    credentials: "include",
-    signal: request.signal,
-    body: JSON.stringify({ room }),
-    headers: { "Content-Type": "application/json" },
-  });
 
   return {
     room,
