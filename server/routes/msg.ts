@@ -11,13 +11,22 @@ router.use(AuthMiddleware).use(JsonResponseMiddleware);
  * Receieves a message payload from the chat window and saves to the KV
  * store with the keys "message" and the channel ID.
  */
-router.post("/msg", async ({ request, response }) => {
-  const roomName = request.url.searchParams.get("room");
+router.post("/msg", async ({ request, response, cookies }) => {
+  const requestRoom = request.url.searchParams.get("room");
+  const roomName = await cookies.get("__rcpresence");
   if (!roomName) {
     response.status = 400;
-    response.body = { ok: false, reason: "NOROOMID" };
+    response.body = { ok: false, reason: "NOPRESENCE" };
     return;
   }
+
+  if (requestRoom !== roomName) {
+    response.status = 401;
+    response.body = { ok: false, reason: "CONFLICTINGPRESENCE" };
+    return;
+  }
+
+  console.log("Passed:", requestRoom, roomName);
 
   try {
     const body: Message = await request.body.json();

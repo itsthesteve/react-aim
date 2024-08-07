@@ -100,10 +100,26 @@ router.post("/rooms", async ({ request, response, state }) => {
 /**
  * Set the online flag for the given room
  */
-router.post("/online", async ({ request, state, response }) => {
-  response.status = 304;
+router.post("/online", async ({ request, state, response, cookies }) => {
+  const body = await request.body.json();
+  if (!body?.room) {
+    response.status = 400;
+    return;
+  }
+
+  await cookies.set("__rcpresence", body.room, {
+    path: "/",
+    secure: false,
+    httpOnly: true,
+    maxAge: 900_000, // 15 min
+  });
+
+  response.status = 200;
+  response.body = { ok: true };
 });
 
-router.get("/online", async (ctx) => {});
+router.get("/online", async (ctx) => {
+  ctx.response.status = 200;
+});
 
 export default router.routes();

@@ -7,7 +7,6 @@ export default function useUserCount(roomName: string) {
 
   const setOnline = useCallback(
     (present: boolean) => {
-      console.log("!!! setOnline()", roomName, present);
       return fetch("http://localhost:9000/online", {
         method: "POST",
         credentials: "include",

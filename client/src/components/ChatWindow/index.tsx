@@ -3,13 +3,14 @@ import ChatInput from "../../components/ChatWindow/ChatInput";
 import MessagesList from "../../components/ChatWindow/MessagesList";
 import UserList from "../../components/ChatWindow/RoomsList";
 import { useAuthContext } from "../../context/auth/hook";
+import { ChatLoaderType } from "../../routes/chat";
 import styles from "./styles.module.css";
 import useUserCount from "./useUserCount";
 
 export default function ChatWindow() {
   const { logout } = useAuthContext();
-  const roomName = useLoaderData() as string;
-  const online = useUserCount(roomName);
+  const { room } = useLoaderData() as ChatLoaderType;
+  const online = useUserCount(room);
 
   return (
     <div className={`window ${styles.windowContainer}`}>
@@ -31,7 +32,7 @@ export default function ChatWindow() {
       </div>
       <div className="status-bar mx-0">
         <div className="flex">
-          <p className="status-bar-field px-2">Current channel: {roomName}</p>
+          <p className="status-bar-field px-2">Current channel: {room}</p>
           <p className="status-bar-field pr-2">{online?.length} member(s) online</p>
           <p className="status-bar-field pr-2">CPU Usage: 14%</p>
         </div>
