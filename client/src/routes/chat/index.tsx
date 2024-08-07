@@ -5,6 +5,7 @@ import { DEFAULT_ROOM } from "../../types/room";
 import logger from "../../logger";
 
 export function ChatRoute() {
+  console.log("ChatRoute()");
   return (
     <MessagesProvider>
       <ChatWindow />
@@ -40,7 +41,7 @@ export async function chatRouteLoader({ request }: LoaderFunctionArgs) {
     headers: { "Content-Type": "application/json" },
   }).catch(logger.warn);
 
-  console.log("Done setting cookie");
+  console.log("Loder resolved");
 
   return {
     room,
