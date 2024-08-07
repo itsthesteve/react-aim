@@ -33,15 +33,15 @@ export async function chatRouteLoader({ request }: LoaderFunctionArgs) {
     throw new Response("Invalid room name", { status: 400 });
   }
 
+  console.log("Loder resolved");
+
   await fetch("http://localhost:9000/online", {
     method: "POST",
     credentials: "include",
     signal: request.signal,
     body: JSON.stringify({ room }),
     headers: { "Content-Type": "application/json" },
-  }).catch(logger.warn);
-
-  console.log("Loder resolved");
+  });
 
   return {
     room,

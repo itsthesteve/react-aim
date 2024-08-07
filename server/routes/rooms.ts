@@ -119,7 +119,8 @@ router.post("/online", async ({ request, state, response, cookies }) => {
 });
 
 router.get("/online", async (ctx) => {
-  ctx.response.status = 200;
+  const target = await ctx.sendEvents();
+  target.dispatchMessage({ connected: true });
 });
 
 export default router.routes();
