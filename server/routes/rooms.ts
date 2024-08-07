@@ -109,7 +109,7 @@ router.post("/online", async ({ request, state, response, cookies }) => {
 
   await cookies.set("__rcpresence", body.room, {
     path: "/",
-    secure: false,
+    secure: false, // TODO: Change this, safari doesn't like secure on localhost
     httpOnly: true,
     maxAge: 900_000, // 15 min
   });
@@ -119,7 +119,8 @@ router.post("/online", async ({ request, state, response, cookies }) => {
 });
 
 router.get("/online", async (ctx) => {
-  ctx.response.status = 200;
+  const target = await ctx.sendEvents();
+  target.dispatchMessage({ connected: true });
 });
 
 export default router.routes();

@@ -15,4 +15,10 @@
   border-top: 2px solid #808080;
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
+  transition: background-color 50ms ease-in-out;
+
+  &[disabled] {
+    pointer-events: none;
+    background-color: rgba(0 0 0/0.05);
+  }
 }

@@ -128,11 +128,11 @@ export default function UserList({ online }: { online: any[] }) {
             </p>
             <hr className="mb-0" />
             <ul className="h-full m-0 p-0 list-none overflow-auto">
-              {online.map((user) => (
+              {/* {online.map((user) => (
                 <li key={user.username} className="px-2 py-1 hover:bg-slate-200">
                   {JSON.stringify(user)}
                 </li>
-              ))}
+              ))} */}
             </ul>
           </article>
         </section>

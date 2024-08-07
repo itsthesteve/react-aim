@@ -1,7 +1,8 @@
-import { createContext, ReactNode, useCallback, useEffect, useRef } from "react";
+import { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import logger from "../../logger";
 import { ChatLoaderType } from "../../routes/chat";
+import { MessageError } from "./errors";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -23,6 +24,7 @@ export type MessageContextType = {
   unsubscribe: (room: string) => void;
   sendMessage: (message: Message) => void;
   load: () => Promise<MessageData[]>;
+  loading: boolean;
 };
 
 type Props = {
@@ -33,6 +35,25 @@ export const MessagesProvider = ({ children }: Props) => {
   const eventSrcRef = useRef<EventSource>();
   const { room } = useLoaderData() as ChatLoaderType;
   const listeners = useRef<Record<string, CallableFunction>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(() => true);
+    fetch("http://localhost:9000/online", {
+      method: "POST",
+      credentials: "include",
+      signal: controller.signal,
+      body: JSON.stringify({ room }),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then(() => setLoading(() => false))
+      .catch(console.warn);
+
+    return () => {
+      controller.abort("New room chosen");
+    };
+  }, [room]);
 
   const subscribe = (room: string, fn: CallableFunction) => {
     listeners.current[room] = fn;
@@ -42,22 +63,26 @@ export const MessagesProvider = ({ children }: Props) => {
     delete listeners.current[room];
   };
 
+  /**
+   * @throws {MessageError}
+   */
   const sendMessage = async (message: Message) => {
-    try {
-      console.log("sending message to", room);
-      const response = await fetch(`http://localhost:9000/msg?room=${room}`, {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify(message),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    const response = await fetch(`http://localhost:9000/msg?room=${room}`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify(message),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      console.log(await response.json());
-    } catch (e) {
-      console.warn("Error posting message", e);
+    const result = await response.json();
+    if (!response.ok) {
+      logger.warn("Unable to send message:", result);
+      throw new MessageError(result.reason);
     }
+
+    console.log("Message posted:", result);
   };
 
   /**
@@ -74,7 +99,6 @@ export const MessagesProvider = ({ children }: Props) => {
   }, [room]);
 
   useEffect(() => {
-    logger.info(`Creating new event source for ${room}`);
     eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${room}`, {
       withCredentials: true,
     });
@@ -97,7 +121,6 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     return () => {
-      logger.warn(`Cleaning up event source for ${room}`);
       if (!evt) {
         return logger.warn("eventSrcRef is null");
       }
@@ -109,7 +132,7 @@ export const MessagesProvider = ({ children }: Props) => {
 
   return (
     <>
-      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load }}>
+      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load, loading }}>
         {children}
       </MessagesContext.Provider>
     </>

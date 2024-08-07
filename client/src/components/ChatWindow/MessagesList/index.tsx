@@ -2,14 +2,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import { useAuthContext } from "../../../context/auth/hook";
 import { MessageData } from "../../../context/messages/context";
-import { useMessages } from "../../../context/messages/hook";
+import { useMessagesContext } from "../../../context/messages/hook";
 import { ChatLoaderType } from "../../../routes/chat";
 import styles from "./styles.module.css";
 
 export default function MessagesList() {
   const { user } = useAuthContext();
   const { room } = useLoaderData() as ChatLoaderType;
-  const { subscribe, load } = useMessages();
+  const { subscribe, load } = useMessagesContext();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const messagesWrapper = useRef<HTMLElement>(null);
 
