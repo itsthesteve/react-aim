@@ -2,6 +2,7 @@ import { createContext, ReactNode, useCallback, useEffect, useRef } from "react"
 import { useLoaderData } from "react-router-dom";
 import logger from "../../logger";
 import { ChatLoaderType } from "../../routes/chat";
+import { MessageError } from "./errors";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -42,22 +43,26 @@ export const MessagesProvider = ({ children }: Props) => {
     delete listeners.current[room];
   };
 
+  /**
+   * @throws {MessageError}
+   */
   const sendMessage = async (message: Message) => {
-    try {
-      console.log("sending message to", room);
-      const response = await fetch(`http://localhost:9000/msg?room=${room}`, {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify(message),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    const response = await fetch(`http://localhost:9000/msg?room=${room}`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify(message),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      console.log(await response.json());
-    } catch (e) {
-      console.warn("Error posting message", e);
+    const result = await response.json();
+    if (!response.ok) {
+      logger.warn("Unable to send message:", result);
+      throw new MessageError(result.reason);
     }
+
+    console.log("Message posted:", result);
   };
 
   /**
