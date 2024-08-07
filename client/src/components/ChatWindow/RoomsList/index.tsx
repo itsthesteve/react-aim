@@ -28,7 +28,8 @@ const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemP
   );
 };
 
-export default function UserList() {
+export default function UserList({ online }: { online: any[] }) {
+  console.log("UserList", online);
   const roomName = useLoaderData() as string;
   const [visibleTab, setVisibleTab] = useState(0);
   const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({
@@ -125,7 +126,11 @@ export default function UserList() {
             </p>
             <hr className="mb-0" />
             <ul className="h-full m-0 p-0 list-none overflow-auto">
-              <li className="px-2 py-1 hover:bg-slate-200">userdata</li>
+              {online.map((user) => (
+                <li key={user.username} className="px-2 py-1 hover:bg-slate-200">
+                  {JSON.stringify(user)}
+                </li>
+              ))}
             </ul>
           </article>
         </section>

@@ -4,6 +4,7 @@ import { ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import { STATUS_CODE } from "jsr:@oak/commons@0.11/status";
 
 const router = new Router();
 
@@ -96,43 +97,13 @@ router.post("/rooms", async ({ request, response, state }) => {
   response.body = { ok: true, roomValue };
 });
 
+/**
+ * Set the online flag for the given room
+ */
 router.post("/online", async ({ request, state, response }) => {
-  const { room, present } = await request.body.json();
-
-  console.log("-- Setting", state.username, present, "in", room);
-  await db
-    .atomic()
-    .set(["online", room, state.username], {
-      username: state.username,
-      present,
-    })
-    .commit();
-
-  response.body = { ok: true };
+  response.status = 304;
 });
 
-router.get("/online", async (ctx) => {
-  const room = ctx.request.url.searchParams.get("room");
-  if (!room) {
-    ctx.response.status = 400;
-    ctx.response.body = { ok: false, reason: "NOROOM" };
-    return;
-  }
-
-  const target = await ctx.sendEvents();
-  const stream = db.watch([["online", room]]);
-
-  for await (const [entry] of stream) {
-    const result = [];
-    const onlineList = await Array.fromAsync(db.list({ prefix: ["online", room] }));
-    for (const user of onlineList) {
-      result.push(user.value);
-    }
-
-    const present = result.filter((r) => r.present === true);
-    console.log("Presence", present);
-    target.dispatchMessage(present);
-  }
-});
+router.get("/online", async (ctx) => {});
 
 export default router.routes();

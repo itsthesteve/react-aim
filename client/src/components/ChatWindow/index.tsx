@@ -26,13 +26,13 @@ export default function ChatWindow() {
         <div className={styles.chatContainer}>
           <MessagesList />
           <ChatInput />
-          <UserList />
+          <UserList online={online} />
         </div>
       </div>
       <div className="status-bar mx-0">
         <div className="flex">
           <p className="status-bar-field px-2">Current channel: {roomName}</p>
-          <p className="status-bar-field pr-2">{online} member(s) online</p>
+          <p className="status-bar-field pr-2">{online?.length} member(s) online</p>
           <p className="status-bar-field pr-2">CPU Usage: 14%</p>
         </div>
       </div>

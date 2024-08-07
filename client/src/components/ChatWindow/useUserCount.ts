@@ -2,11 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import logger from "../../logger";
 
 export default function useUserCount(roomName: string) {
-  const [userCount, setUserCount] = useState(0);
+  const [users, setUsers] = useState([]);
   const evtRef = useRef<EventSource>();
 
   const setOnline = useCallback(
     (present: boolean) => {
+      console.log("!!! setOnline()", roomName, present);
       return fetch("http://localhost:9000/online", {
         method: "POST",
         credentials: "include",
@@ -36,7 +37,7 @@ export default function useUserCount(roomName: string) {
 
     function onMessage(message: MessageEvent) {
       const data = JSON.parse(message.data);
-      setUserCount(data.length);
+      setUsers(data);
     }
 
     function onError(e: Event) {
@@ -53,5 +54,5 @@ export default function useUserCount(roomName: string) {
     };
   }, [roomName, setOnline]);
 
-  return userCount;
+  return users;
 }

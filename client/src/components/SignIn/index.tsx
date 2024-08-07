@@ -24,7 +24,7 @@ export function SignIn() {
   const usernameFromSignup = new URLSearchParams(window.location.search).get("username") || "";
 
   const randSleep = (step: number) => {
-    const rand = 500 + Math.round(Math.random() * 3000);
+    const rand = 500 + Math.round(Math.random() * 1000);
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         setStep(() => step);
