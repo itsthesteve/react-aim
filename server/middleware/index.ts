@@ -10,10 +10,17 @@ export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
 // Expect a valid user
 export const AuthMiddleware = async (ctx: Context, next: Next) => {
   const username = await ctx.cookies.get("__rcsession");
+  const currentRoom = await ctx.cookies.get("__rcpresence");
 
   if (!username) {
     ctx.response.status = 403;
     ctx.response.body = { ok: false, reason: "NOUSERCOOKIE" };
+    return;
+  }
+
+  if (!currentRoom) {
+    ctx.response.status = 403;
+    ctx.response.body = { ok: false, reason: "NOPRESENCE" };
     return;
   }
 
@@ -25,7 +32,7 @@ export const AuthMiddleware = async (ctx: Context, next: Next) => {
     return;
   }
 
-  ctx.state = { username };
+  ctx.state = { username, currentRoom };
 
   await next();
 };

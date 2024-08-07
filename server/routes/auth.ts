@@ -1,6 +1,6 @@
 import { getCookies, setCookie } from "https://deno.land/std@0.224.0/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
-import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Cookies, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { AuthCredentials, UserRow } from "../data/models.ts";
 import { AuthMiddleware } from "../middleware/index.ts";
 import { db } from "../data/index.ts";
@@ -17,7 +17,7 @@ const AUTH_COOKIE_NAME = "__rcsession";
  * Requires username, password and password verfication in
  * the request body
  */
-router.post("/login", async ({ response, request }) => {
+router.post("/login", async ({ response, request, cookies }) => {
   const { username, password } = await request.body.json();
 
   const existingUser = await db.get<string>(["users", username]);
@@ -37,11 +37,7 @@ router.post("/login", async ({ response, request }) => {
   }
 
   // All good, set cookie and return ok
-  // TODO: Safari doesn't set the cookie when set to {secure: false}. Investigate and update
-  // based on .env for dev/prod
-  setCookie(response.headers, {
-    name: AUTH_COOKIE_NAME,
-    value: username,
+  await cookies.set(AUTH_COOKIE_NAME, username, {
     path: "/",
     secure: false,
     httpOnly: true,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
+import { ChatLoaderType } from "../../../routes/chat";
 import { ChatRoom } from "../../../types/room";
 
 interface RoomListItemProps {
@@ -28,8 +29,8 @@ const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemP
   );
 };
 
-export default function UserList() {
-  const roomName = useLoaderData() as string;
+export default function UserList({ online }: { online: any[] }) {
+  const { room } = useLoaderData() as ChatLoaderType;
   const [visibleTab, setVisibleTab] = useState(0);
   const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({
     user: [],
@@ -81,9 +82,11 @@ export default function UserList() {
                 <details open>
                   <summary>Global ({rooms.global.length})</summary>
                   <ul>
-                    {rooms.global.map((room) => (
-                      <li className={roomName === room.name ? "font-bold" : ""} key={room.id}>
-                        <Link to="/chat">{room.name}</Link>
+                    {rooms.global.map((globalRoom) => (
+                      <li
+                        className={globalRoom.name === room ? "font-bold" : ""}
+                        key={globalRoom.id}>
+                        <Link to="/chat">{globalRoom.name}</Link>
                       </li>
                     ))}
                   </ul>
@@ -93,8 +96,8 @@ export default function UserList() {
                 <details open>
                   <summary>Your rooms ({rooms.user.length})</summary>
                   <ul>
-                    {rooms.user.map((room) => (
-                      <RoomListItem key={room.id} currentRoom={roomName} listedRoom={room} />
+                    {rooms.user.map((userRoom) => (
+                      <RoomListItem key={userRoom.id} currentRoom={room} listedRoom={userRoom} />
                     ))}
                   </ul>
                 </details>
@@ -103,12 +106,12 @@ export default function UserList() {
                 <details>
                   <summary>Public rooms ({rooms.public.length})</summary>
                   <ul>
-                    {rooms.public.map((room) => (
+                    {rooms.public.map((publicRoom) => (
                       <RoomListItem
                         skipGlobalIcon={true}
-                        key={room.id}
-                        currentRoom={roomName}
-                        listedRoom={room}
+                        key={publicRoom.id}
+                        currentRoom={room}
+                        listedRoom={publicRoom}
                       />
                     ))}
                   </ul>
@@ -121,11 +124,15 @@ export default function UserList() {
             id="tab-B"
             className={`grow p-0 overflow-hidden flex-col ${visibleTab === 1 ? "flex" : "hidden"}`}>
             <p className="px-2 m-0 mt-2 text-center">
-              Members of <strong>{roomName}</strong>
+              Members of <strong>{room}</strong>
             </p>
             <hr className="mb-0" />
             <ul className="h-full m-0 p-0 list-none overflow-auto">
-              <li className="px-2 py-1 hover:bg-slate-200">userdata</li>
+              {online.map((user) => (
+                <li key={user.username} className="px-2 py-1 hover:bg-slate-200">
+                  {JSON.stringify(user)}
+                </li>
+              ))}
             </ul>
           </article>
         </section>

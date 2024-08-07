@@ -3,11 +3,12 @@ import { useLoaderData } from "react-router-dom";
 import { useAuthContext } from "../../../context/auth/hook";
 import { MessageData } from "../../../context/messages/context";
 import { useMessages } from "../../../context/messages/hook";
+import { ChatLoaderType } from "../../../routes/chat";
 import styles from "./styles.module.css";
 
 export default function MessagesList() {
   const { user } = useAuthContext();
-  const roomName = useLoaderData() as string;
+  const { room } = useLoaderData() as ChatLoaderType;
   const { subscribe, load } = useMessages();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const messagesWrapper = useRef<HTMLElement>(null);
@@ -17,13 +18,13 @@ export default function MessagesList() {
   // NOTE: I'm leaving this for now until I do more testing. Seems to work with the latest changes
   useEffect(() => {
     load().then((messages) => setMessages(messages));
-  }, [roomName, load]);
+  }, [room, load]);
 
   useLayoutEffect(() => {
     messagesWrapper.current?.scrollTo({ top: messagesWrapper.current.scrollHeight });
   }, [messages.length]);
 
-  subscribe(roomName as string, (data: MessageData) => {
+  subscribe(room as string, (data: MessageData) => {
     if (messages.find((pm) => pm.id === data.id)) {
       return console.warn("Duplicate message sent. Skipping.", data);
     }

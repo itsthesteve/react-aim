@@ -4,6 +4,7 @@ import { ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import { STATUS_CODE } from "jsr:@oak/commons@0.11/status";
 
 const router = new Router();
 
@@ -94,6 +95,31 @@ router.post("/rooms", async ({ request, response, state }) => {
   console.log(username, "created room:", roomName);
 
   response.body = { ok: true, roomValue };
+});
+
+/**
+ * Set the online flag for the given room
+ */
+router.post("/online", async ({ request, state, response, cookies }) => {
+  const body = await request.body.json();
+  if (!body?.room) {
+    response.status = 400;
+    return;
+  }
+
+  await cookies.set("__rcpresence", body.room, {
+    path: "/",
+    secure: false,
+    httpOnly: true,
+    maxAge: 900_000, // 15 min
+  });
+
+  response.status = 200;
+  response.body = { ok: true };
+});
+
+router.get("/online", async (ctx) => {
+  ctx.response.status = 200;
 });
 
 export default router.routes();

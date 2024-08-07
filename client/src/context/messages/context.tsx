@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { useLoaderData } from "react-router-dom";
 import logger from "../../logger";
+import { ChatLoaderType } from "../../routes/chat";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
@@ -30,7 +31,7 @@ type Props = {
 
 export const MessagesProvider = ({ children }: Props) => {
   const eventSrcRef = useRef<EventSource>();
-  const roomName = useLoaderData();
+  const { room } = useLoaderData() as ChatLoaderType;
   const listeners = useRef<Record<string, CallableFunction>>({});
 
   const subscribe = (room: string, fn: CallableFunction) => {
@@ -43,8 +44,8 @@ export const MessagesProvider = ({ children }: Props) => {
 
   const sendMessage = async (message: Message) => {
     try {
-      console.log("sending message to", roomName);
-      const response = await fetch(`http://localhost:9000/msg?room=${roomName}`, {
+      console.log("sending message to", room);
+      const response = await fetch(`http://localhost:9000/msg?room=${room}`, {
         method: "POST",
         credentials: "include",
         body: JSON.stringify(message),
@@ -64,17 +65,17 @@ export const MessagesProvider = ({ children }: Props) => {
    * The roomName is retrieved from the chatLoader function set in the router.
    */
   const load = useCallback(async () => {
-    const response = await fetch(`http://localhost:9000/channel?room=${roomName}`, {
+    const response = await fetch(`http://localhost:9000/channel?room=${room}`, {
       method: "GET",
       credentials: "include",
     });
 
     return await response.json();
-  }, [roomName]);
+  }, [room]);
 
   useEffect(() => {
-    logger.info(`Creating new event source for ${roomName}`);
-    eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${roomName}`, {
+    logger.info(`Creating new event source for ${room}`);
+    eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${room}`, {
       withCredentials: true,
     });
 
@@ -96,7 +97,7 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     return () => {
-      logger.warn(`Cleaning up event source for ${roomName}`);
+      logger.warn(`Cleaning up event source for ${room}`);
       if (!evt) {
         return logger.warn("eventSrcRef is null");
       }
@@ -104,7 +105,7 @@ export const MessagesProvider = ({ children }: Props) => {
       evt.removeEventListener("error", onError);
       evt.close();
     };
-  }, [roomName]);
+  }, [room]);
 
   return (
     <>
