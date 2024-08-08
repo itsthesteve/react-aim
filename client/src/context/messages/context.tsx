@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { createContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import logger from "../../logger";
 import { ChatLoaderType } from "../../routes/chat";
@@ -23,8 +23,7 @@ export type MessageContextType = {
   subscribe: (room: string, fn: CallableFunction) => void;
   unsubscribe: (room: string) => void;
   sendMessage: (message: Message) => void;
-  load: () => Promise<MessageData[]>;
-  loading: boolean;
+  getMessages: () => Promise<MessageData[]>;
 };
 
 type Props = {
@@ -32,37 +31,10 @@ type Props = {
 };
 
 export const MessagesProvider = ({ children }: Props) => {
-  const eventSrcRef = useRef<EventSource>();
   const navigate = useNavigate();
   const { room } = useLoaderData() as ChatLoaderType;
+  const eventSrcRef = useRef<EventSource>();
   const listeners = useRef<Record<string, CallableFunction>>({});
-  const [loading, setLoading] = useState(true);
-
-  // Make sure we're allowed in the requested room. If not, redirect to /chat?room=abc
-  // TODO: This still allows a brief render. Move this to another protected route or... something.
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(() => true);
-    fetch(`http://localhost:9000/getRoom`, {
-      method: "POST",
-      credentials: "include",
-      signal: controller.signal,
-      body: JSON.stringify({ room }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => {
-        console.log({ res });
-        if (!res.ok) {
-          logger.warn("Ooopsie");
-          navigate("/chat?room=abc");
-        }
-      })
-      .finally(() => setLoading(false));
-
-    return () => {
-      controller.abort("New room chosen");
-    };
-  }, [room, navigate]);
 
   useEffect(() => {
     eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${room}`, {
@@ -130,7 +102,7 @@ export const MessagesProvider = ({ children }: Props) => {
    * Retrieve all messages for the channel.
    * The roomName is retrieved from the chatLoader function set in the router.
    */
-  const load = useCallback(async () => {
+  const getMessages = useCallback(async () => {
     const response = await fetch(`http://localhost:9000/channel?room=${room}`, {
       method: "GET",
       credentials: "include",
@@ -143,11 +115,11 @@ export const MessagesProvider = ({ children }: Props) => {
     }
 
     return await response.json();
-  }, [room]);
+  }, [room, navigate]);
 
   return (
     <>
-      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, load, loading }}>
+      <MessagesContext.Provider value={{ subscribe, unsubscribe, sendMessage, getMessages }}>
         {children}
       </MessagesContext.Provider>
     </>

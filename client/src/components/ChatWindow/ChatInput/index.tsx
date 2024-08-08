@@ -9,7 +9,7 @@ import { ChatLoaderType } from "../../../routes/chat";
 export default function ChatInput() {
   const { user } = useAuthContext();
   const { room } = useLoaderData() as ChatLoaderType;
-  const { sendMessage, loading: disabled } = useMessagesContext();
+  const { sendMessage } = useMessagesContext();
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -54,7 +54,6 @@ export default function ChatInput() {
       <div className="py-2 mx-2 flex gap-2">
         <div className="field-row-stacked grow">
           <textarea
-            disabled={disabled}
             autoFocus
             ref={textAreaRef}
             className={styles.textarea}
@@ -64,7 +63,7 @@ export default function ChatInput() {
         </div>
         <button
           onClick={submit}
-          disabled={!message.length || disabled}
+          disabled={!message.length}
           className={`${styles.sendButton} p-0 m-0 border-0 bg-none flex flex-col gap-2 w-16 items-center justify-center`}>
           <img src="/aimguy.png" width="32" height="32"></img>
           <KeyboardSpan listener={() => sendListener()}>Send</KeyboardSpan>
