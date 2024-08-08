@@ -4,43 +4,12 @@ import { ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import { canAccess } from "../utils/room.ts";
 
 const router = new Router();
 const AUTH_PRESENCE_COOKIE = "__rcpresence";
 
 router.use(AuthMiddleware).use(JsonResponseMiddleware);
-
-// router.get("/room", async ({ request, response, state }) => {
-//   const requestedRoom = request.url.searchParams.get("room");
-//   if (!requestedRoom) {
-//     response.status = 404;
-//     response.body = { ok: false };
-//     return;
-//   }
-
-//   const rows = await Array.fromAsync(db.list<ChatRoom>({ prefix: ["rooms"] }));
-//   const target = rows.find((row) => {
-//     return row.key[2] === requestedRoom;
-//   });
-
-//   console.log(target?.value, state.username);
-
-//   if (!target?.value) {
-//     response.status = 404;
-//     response.body = { res: false };
-//     return;
-//   }
-
-//   const { isPublic, createdBy } = target.value;
-//   if (createdBy === state.username || isPublic) {
-//     response.status = 200;
-//     response.body = { ok: true };
-//     return;
-//   }
-
-//   response.status = 404;
-//   response.body = { res: false };
-// });
 
 router.get("/rooms", async ({ response, cookies }) => {
   // Middleware catches this, so we can be sure (?) the cookie exists here
@@ -149,25 +118,9 @@ router.post("/getRoom", async ({ request, response, cookies, state }) => {
     return;
   }
 
-  // Grab all rooms and search for the room in the store key. Might need to refactor this at some
-  // point to narrow down the query size as the rooms are created via [rooms, user, roomname]
-  const rows = await Array.fromAsync(db.list<ChatRoom>({ prefix: ["rooms"] }));
-  const target = rows.find((row) => {
-    // Key is ["room", "username", roomName]
-    return row.key[2] === room;
-  });
-
-  // The room flat out doesn't exist
-  if (!target) {
-    console.warn(`Room ${room} doesn't exist.`);
-    response.status = 404;
-    response.body = { ok: false, reason: "NOROOM" };
-    return;
-  }
-
-  // The room isn't public or not created by the current user, but don't tell them that.
-  if (!target.value.isPublic && target.value.createdBy !== state.username) {
-    console.warn(`Room ${room} is not public and ${state.username} didn't create it.`);
+  const exists = await canAccess(room, state.username);
+  if (!exists) {
+    console.warn(`Room ${room} doesn't exist or is not public.`);
     response.status = 404;
     response.body = { ok: false, reason: "NOROOM" };
     return;

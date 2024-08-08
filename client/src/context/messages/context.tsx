@@ -39,6 +39,7 @@ export const MessagesProvider = ({ children }: Props) => {
   const [loading, setLoading] = useState(true);
 
   // Make sure we're allowed in the requested room. If not, redirect to /chat?room=abc
+  // TODO: This still allows a brief render. Move this to another protected route or... something.
   useEffect(() => {
     const controller = new AbortController();
     setLoading(() => true);
