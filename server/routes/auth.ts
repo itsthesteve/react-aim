@@ -46,10 +46,8 @@ router.post("/login", async ({ response, request, cookies }) => {
   // All good, set cookie and return ok
   await cookies.set(AUTH_COOKIE_NAME, username, COOKIE_OPTIONS);
 
-  const presenceCookie = await cookies.get(AUTH_PRESENCE_COOKIE);
-  if (!presenceCookie) {
-    await cookies.set(AUTH_PRESENCE_COOKIE, DEFAULT_ROOM, COOKIE_OPTIONS);
-  }
+  // Set the default presence room to the default room
+  await cookies.set(AUTH_PRESENCE_COOKIE, DEFAULT_ROOM, COOKIE_OPTIONS);
 
   response.body = { ok: true };
 });

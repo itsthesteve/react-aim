@@ -5,5 +5,5 @@ export interface ChatRoom {
   name: string;
   createdBy: string;
   createdAt: number;
-  public: boolean;
+  isPublic: boolean;
 }

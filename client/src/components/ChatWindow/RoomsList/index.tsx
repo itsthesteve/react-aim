@@ -20,11 +20,11 @@ interface RoomListItemProps {
 const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemProps) => {
   return (
     <li
-      title={listedRoom.public ? "Public" : "Private"}
+      title={listedRoom.isPublic ? "Public" : "Private"}
       className={`flex items-center gap-1 ${currentRoom === listedRoom.name ? "font-bold" : ""}`}
       key={listedRoom.id}>
       <Link to={`/chat?room=${listedRoom.name}`}>{listedRoom.name}</Link>
-      {!skipGlobalIcon && listedRoom.public && <img src="/public.png" width="12" height="12" />}
+      {!skipGlobalIcon && listedRoom.isPublic && <img src="/public.png" width="12" height="12" />}
     </li>
   );
 };

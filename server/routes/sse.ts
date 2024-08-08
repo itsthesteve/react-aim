@@ -2,6 +2,7 @@ import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import { canAccess } from "../utils/room.ts";
 
 const router = new Router();
 
@@ -10,16 +11,24 @@ router.use(AuthMiddleware);
 /**
  * Get's all the messages for the channel based on the roomId search param at once.
  */
-router.get("/channel", JsonResponseMiddleware, async ({ request, response }) => {
+router.get("/channel", JsonResponseMiddleware, async ({ request, response, state }) => {
   // Ensure there's a room parameter
-  const roomId = request.url.searchParams.get("room");
-  if (!roomId) {
+  const room = request.url.searchParams.get("room");
+  if (!room) {
     response.status = 400;
     response.body = { ok: false, reason: "NOROOMID" };
     return;
   }
 
-  const entries = db.list({ prefix: ["message", roomId] });
+  // Check the room exists/is public
+  const exists = await canAccess(room, state.username);
+  if (!exists) {
+    response.status = 404;
+    response.body = { ok: false, reason: "NOROOM" };
+    return;
+  }
+
+  const entries = db.list({ prefix: ["message", room] });
   const result = [];
   for await (const entry of entries) {
     result.push(entry.value);
