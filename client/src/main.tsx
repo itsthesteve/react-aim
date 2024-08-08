@@ -2,7 +2,7 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./context/auth/context";
 import "./index.css";
-import ProtectedRoutes from "./routes/protected";
+import AuthenticatedRoutes from "./routes/authenticated";
 
 const router = createBrowserRouter([
   {
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        element: <ProtectedRoutes />,
+        element: <AuthenticatedRoutes />,
         children: [
           {
             path: "/chat",

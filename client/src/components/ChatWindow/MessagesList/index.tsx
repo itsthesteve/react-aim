@@ -9,7 +9,7 @@ import styles from "./styles.module.css";
 export default function MessagesList() {
   const { user } = useAuthContext();
   const { room } = useLoaderData() as ChatLoaderType;
-  const { subscribe, load } = useMessagesContext();
+  const { subscribe, getMessages } = useMessagesContext();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const messagesWrapper = useRef<HTMLElement>(null);
 
@@ -17,8 +17,8 @@ export default function MessagesList() {
   // SSE endpoint is going to work
   // NOTE: I'm leaving this for now until I do more testing. Seems to work with the latest changes
   useEffect(() => {
-    load().then((messages) => setMessages(messages));
-  }, [room, load]);
+    getMessages().then((messages) => setMessages(messages));
+  }, [room, getMessages]);
 
   useLayoutEffect(() => {
     messagesWrapper.current?.scrollTo({ top: messagesWrapper.current.scrollHeight });
