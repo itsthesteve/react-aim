@@ -6,6 +6,7 @@ import roomRoutes from "./routes/rooms.ts";
 import sseRoutes from "./routes/sse.ts";
 import { DEFAULT_ROOM } from "./data/models.ts";
 import { db } from "./data/index.ts";
+import { ChatRoom } from "../client/src/types/room.ts";
 
 const router = new Router();
 
@@ -16,9 +17,9 @@ try {
     id: "0001",
     name: DEFAULT_ROOM,
     createdBy: "__admin__",
-    public: true,
+    isPublic: true,
     createdAt: Date.now(),
-  });
+  } as ChatRoom);
 } catch (e) {
   console.warn("Error setting up", e);
 }

@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import logger from "../../logger";
 import { ChatLoaderType } from "../../routes/chat";
 import { MessageError } from "./errors";
@@ -33,25 +33,66 @@ type Props = {
 
 export const MessagesProvider = ({ children }: Props) => {
   const eventSrcRef = useRef<EventSource>();
+  const navigate = useNavigate();
   const { room } = useLoaderData() as ChatLoaderType;
   const listeners = useRef<Record<string, CallableFunction>>({});
   const [loading, setLoading] = useState(true);
 
+  // Make sure we're allowed in the requested room. If not, redirect to /chat?room=abc
+  // TODO: This still allows a brief render. Move this to another protected route or... something.
   useEffect(() => {
     const controller = new AbortController();
     setLoading(() => true);
-    fetch("http://localhost:9000/online", {
+    fetch(`http://localhost:9000/getRoom`, {
       method: "POST",
       credentials: "include",
       signal: controller.signal,
       body: JSON.stringify({ room }),
       headers: { "Content-Type": "application/json" },
     })
-      .then(() => setLoading(() => false))
-      .catch(console.warn);
+      .then((res) => {
+        console.log({ res });
+        if (!res.ok) {
+          logger.warn("Ooopsie");
+          navigate("/chat?room=abc");
+        }
+      })
+      .finally(() => setLoading(false));
 
     return () => {
       controller.abort("New room chosen");
+    };
+  }, [room, navigate]);
+
+  useEffect(() => {
+    eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${room}`, {
+      withCredentials: true,
+    });
+
+    const evt = eventSrcRef.current;
+    evt.addEventListener("message", onMessage);
+    evt.addEventListener("error", onError);
+    window.addEventListener("beforeunload", () => {
+      evt.close();
+      console.log("Closing SSE", eventSrcRef.current?.readyState === EventSource.CLOSED);
+    });
+
+    function onMessage(message: MessageEvent) {
+      const msg = JSON.parse(message.data);
+      listeners.current[msg.room]?.(msg.data);
+    }
+
+    function onError(e: Event) {
+      console.warn("!!! EventSource error", e);
+    }
+
+    return () => {
+      if (!evt) {
+        return logger.warn("eventSrcRef is null");
+      }
+      evt.removeEventListener("message", onMessage);
+      evt.removeEventListener("error", onError);
+      evt.close();
     };
   }, [room]);
 
@@ -95,39 +136,13 @@ export const MessagesProvider = ({ children }: Props) => {
       credentials: "include",
     });
 
+    if (!response.ok) {
+      console.warn("Unable to get channel messages", response);
+      // TODO: Navigate to 404
+      navigate("/404", { replace: true });
+    }
+
     return await response.json();
-  }, [room]);
-
-  useEffect(() => {
-    eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${room}`, {
-      withCredentials: true,
-    });
-
-    const evt = eventSrcRef.current;
-    evt.addEventListener("message", onMessage);
-    evt.addEventListener("error", onError);
-    window.addEventListener("beforeunload", () => {
-      evt.close();
-      console.log("Closing SSE", eventSrcRef.current?.readyState === EventSource.CLOSED);
-    });
-
-    function onMessage(message: MessageEvent) {
-      const msg = JSON.parse(message.data);
-      listeners.current[msg.room]?.(msg.data);
-    }
-
-    function onError(e: Event) {
-      console.warn("!!! EventSource error", e);
-    }
-
-    return () => {
-      if (!evt) {
-        return logger.warn("eventSrcRef is null");
-      }
-      evt.removeEventListener("message", onMessage);
-      evt.removeEventListener("error", onError);
-      evt.close();
-    };
   }, [room]);
 
   return (

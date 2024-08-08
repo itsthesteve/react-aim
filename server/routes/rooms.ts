@@ -4,9 +4,10 @@ import { ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
-import { STATUS_CODE } from "jsr:@oak/commons@0.11/status";
+import { canAccess } from "../utils/room.ts";
 
 const router = new Router();
+const AUTH_PRESENCE_COOKIE = "__rcpresence";
 
 router.use(AuthMiddleware).use(JsonResponseMiddleware);
 
@@ -31,7 +32,7 @@ router.get("/rooms", async ({ response, cookies }) => {
   const publicRooms = publicRoomRows
     // Filter out rooms that are either global or created by the current user
     .filter((room) => !["__admin__", username].includes(room.value.createdBy))
-    .filter((room) => !!room.value.public)
+    .filter((room) => !!room.value.isPublic)
     .map((obj) => obj.value);
 
   response.body = { ok: true, userRooms, globalRooms, publicRooms };
@@ -40,7 +41,7 @@ router.get("/rooms", async ({ response, cookies }) => {
 /**
  * Create a new room. Requires a session cookie and a "room" property in the post body
  */
-router.post("/rooms", async ({ request, response, state }) => {
+router.post("/rooms", async ({ request, response, cookies, state }) => {
   // Middleware catches this, so we can be sure (?) the cookie exists here
   const { username } = state;
 
@@ -78,7 +79,7 @@ router.post("/rooms", async ({ request, response, state }) => {
     name: roomName,
     createdBy: username,
     createdAt: Date.now(),
-    public: isPublic,
+    isPublic,
   };
 
   const msgId = uuid.v1.generate();
@@ -94,24 +95,43 @@ router.post("/rooms", async ({ request, response, state }) => {
 
   console.log(username, "created room:", roomName);
 
+  await cookies.set(AUTH_PRESENCE_COOKIE, roomName, {
+    path: "/",
+    secure: false,
+    httpOnly: true,
+    maxAge: 31536000,
+  });
+
   response.body = { ok: true, roomValue };
 });
 
 /**
  * Set the online flag for the given room
  */
-router.post("/online", async ({ request, state, response, cookies }) => {
-  const body = await request.body.json();
-  if (!body?.room) {
+router.post("/getRoom", async ({ request, response, cookies, state }) => {
+  const { room } = await request.body.json();
+
+  // Dunno what you're looking for...
+  if (!room) {
+    response.body = { ok: false, reason: "NOROOM" };
     response.status = 400;
     return;
   }
 
-  await cookies.set("__rcpresence", body.room, {
+  const exists = await canAccess(room, state.username);
+  if (!exists) {
+    console.warn(`Room ${room} doesn't exist or is not public.`);
+    response.status = 404;
+    response.body = { ok: false, reason: "NOROOM" };
+    return;
+  }
+
+  // ...otherwise, everything's good. Set the cookie and allow passage.
+  await cookies.set(AUTH_PRESENCE_COOKIE, room, {
     path: "/",
-    secure: false, // TODO: Change this, safari doesn't like secure on localhost
+    secure: false,
     httpOnly: true,
-    maxAge: 900_000, // 15 min
+    maxAge: 31536000,
   });
 
   response.status = 200;
