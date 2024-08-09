@@ -1,16 +1,18 @@
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
-import { AuthProvider } from "./context/auth/context";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import App from "./components/App";
 import "./index.css";
 import AuthenticatedRoutes from "./routes/authenticated";
+import { Provider } from "react-redux";
+import { store } from "./store";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <Provider store={store}>
+        <App />
+      </Provider>
     ),
     children: [
       {

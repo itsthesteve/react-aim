@@ -1,6 +1,5 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMe } from "./fns";
 
 export interface User {
   username: string;
@@ -39,22 +38,22 @@ export const AuthProvider = ({ children }: Props) => {
 
   // Make a quick call to make sure the user is still logged in, returns
   // a User object. Just call once on initialization.
-  useEffect(() => {
-    setLoading(true);
-    const controller = new AbortController();
+  // useEffect(() => {
+  //   setLoading(true);
+  //   const controller = new AbortController();
 
-    getMe(controller)
-      .then((user) => {
-        if (!user) {
-          return console.warn("No user");
-        }
+  //   getMe(controller)
+  //     .then((user) => {
+  //       if (!user) {
+  //         return console.warn("No user");
+  //       }
 
-        setUser(user);
-      })
-      .finally(() => setLoading(false));
+  //       setUser(user);
+  //     })
+  //     .finally(() => setLoading(false));
 
-    return () => controller.abort("Provider render");
-  }, []);
+  //   return () => controller.abort("Provider render");
+  // }, []);
 
   const login = async (creds: AuthCredentials): Promise<User> => {
     const res = await fetch("http://localhost:9000/auth/login", {

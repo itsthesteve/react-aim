@@ -1,8 +1,12 @@
-import { ChangeEventHandler, FormEventHandler, useEffect, useState } from "react";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { ChangeEventHandler, FormEventHandler, useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../../context/auth/hook";
-import styles from "./signin.module.css";
+import { AppDispatch, RootState } from "../../store";
+import { AuthState } from "../../store/auth";
+import { signInAction } from "../../store/auth/sign-in";
 import { DEFAULT_ROOM } from "../../types/room";
+import styles from "./signin.module.css";
 
 const processingSteps = [
   { step: 1, text: "Connecting..." },
@@ -11,27 +15,39 @@ const processingSteps = [
 ];
 
 export function SignIn() {
-  const { login } = useAuthContext();
   const navigate = useNavigate();
+  const dispatch = useDispatch() as AppDispatch;
   // TODO: reduce number of useStates
   const [creds, setCreds] = useState({ username: "", password: "" });
   const [step, setStep] = useState<number>(0);
   const [submitted, setSubmitted] = useState<boolean>(false);
-  const [err, setErr] = useState<string>("");
+
+  const { error } = useSelector<RootState, AuthState>((state) => state.auth);
+
+  useEffect(() => {
+    if (error) {
+      setSubmitted(false);
+      setStep(0);
+    }
+  }, [error]);
 
   // After signing up, the form redirects here with the username in the search params
   // as a prefill for the username field to log in.
   const usernameFromSignup = new URLSearchParams(window.location.search).get("username") || "";
 
-  const randSleep = (step: number) => {
+  const randSleep = useCallback(() => {
+    let timeout: NodeJS.Timeout;
     const rand = 500 + Math.round(Math.random() * 1000);
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        setStep(() => step);
-        resolve();
-      }, rand);
-    });
-  };
+    return (step: number) => {
+      if (timeout) clearTimeout(timeout);
+      return new Promise<void>((resolve) => {
+        timeout = setTimeout(() => {
+          setStep(() => step);
+          resolve();
+        }, rand);
+      });
+    };
+  }, []);
 
   useEffect(() => {
     // Be sure the state is set correctly if the username is in the search params
@@ -49,23 +65,24 @@ export function SignIn() {
 
   const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
+
+    const sleepFor = randSleep();
+
     setSubmitted(true);
-    await randSleep(0);
-    await randSleep(1);
 
-    try {
-      await login(creds);
-    } catch (e) {
-      console.warn("Unable to login", e);
+    await sleepFor(0);
+    await sleepFor(1);
+    const d = await dispatch(signInAction(creds));
+
+    const result = unwrapResult(d);
+
+    if (result?.username) {
+      await sleepFor(2);
+      navigate("/chat?room=" + DEFAULT_ROOM, { replace: true });
+    } else {
+      console.warn("Bad request", result);
       setSubmitted(() => false);
-      setErr("Incorrect login credentials");
-      return;
     }
-
-    await randSleep(2);
-    // Navigate to the global default room by default
-    // In the future, this value can be retrieved and set dynamically
-    navigate("/chat?room=" + DEFAULT_ROOM, { replace: true });
   };
 
   return (
@@ -118,9 +135,9 @@ export function SignIn() {
                 </div>
 
                 <footer>
-                  {err && (
+                  {error && (
                     <>
-                      <p className="text-red-700">{err}</p>
+                      <p className="text-red-700">{error}</p>
                     </>
                   )}
                   <button type="submit">Sign on</button>

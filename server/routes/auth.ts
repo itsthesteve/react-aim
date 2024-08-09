@@ -1,4 +1,3 @@
-import { getCookies } from "https://deno.land/std@0.224.0/http/cookie.ts";
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
@@ -31,7 +30,7 @@ router.post("/login", async ({ response, request, cookies }) => {
 
   if (!existingUser.value) {
     response.status = 401;
-    response.body = { ok: false, reason: "NOTFOUND" };
+    response.body = { ok: false, reason: "NOUSER" };
     return;
   }
 
@@ -49,7 +48,7 @@ router.post("/login", async ({ response, request, cookies }) => {
   // Set the default presence room to the default room
   await cookies.set(AUTH_PRESENCE_COOKIE, DEFAULT_ROOM, COOKIE_OPTIONS);
 
-  response.body = { ok: true };
+  response.body = { ok: true, user: { username } };
 });
 
 /**
@@ -117,9 +116,14 @@ router.get("/", async ({ request, response }) => {
 /**
  * Verifies the user is logged in via the http cookie
  */
-router.get("/me", AuthMiddleware, async ({ request, response }) => {
-  const cookies = getCookies(request.headers);
-  const cookieUsername = cookies[AUTH_COOKIE_NAME];
+router.get("/me", AuthMiddleware, async ({ request, response, cookies }) => {
+  const cookieUsername = await cookies.get(AUTH_COOKIE_NAME);
+
+  if (!cookieUsername) {
+    response.status = 403;
+    response.body = { ok: false, reason: "NOSESSION" };
+    return;
+  }
 
   // Ensure the user exists
   const user = await db.get(["users", cookieUsername]);
@@ -131,7 +135,7 @@ router.get("/me", AuthMiddleware, async ({ request, response }) => {
 
   if (cookieUsername) {
     response.status = 200;
-    response.body = { ok: true, user: { username: cookies[AUTH_COOKIE_NAME] } };
+    response.body = { ok: true, user: { username: cookieUsername } };
     return;
   }
 
