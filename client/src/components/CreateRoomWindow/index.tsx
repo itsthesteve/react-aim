@@ -1,6 +1,6 @@
 import { FormEventHandler, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { useAuthContext } from "../../context/auth/hook";
+import { getAuthState } from "../../store/auth";
 import { ChatRoom } from "../../types/room";
 
 export default function CreateRoomWindow() {
@@ -10,7 +10,7 @@ export default function CreateRoomWindow() {
   const [isErr, setIsErr] = useState<boolean>(false);
 
   const navigate = useNavigate();
-  const { user } = useAuthContext();
+  const { user } = getAuthState();
   const rooms = useLoaderData() as ChatRoom[];
 
   if (!user) {

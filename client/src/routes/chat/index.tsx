@@ -18,7 +18,6 @@ export function ChatRoute() {
   useEffect(() => {
     const controller = new AbortController();
     isAuthorized(room, controller.signal).then((authorized) => {
-      console.log("Is authorized?", authorized);
       setAuthing({ loading: false, authorized });
     });
 
@@ -46,9 +45,8 @@ export type ChatLoaderType = {
 };
 
 /**
- * Get the requested room or fallback to the default, passing that to an endpoint that sets
- * an HTTP cookie. This cookie is checked before messages are allowed to prevent spamming the
- * /msg endpoint with just a search param to post messages.
+ * Get the requested room or fallback to the default
+ * TODO: Might not need this, or do more. Currently it's kinda worthless.
  */
 export async function chatRouteLoader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

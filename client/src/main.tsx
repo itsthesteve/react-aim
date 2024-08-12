@@ -1,6 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import App from "./components/App";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import "./index.css";
 import AuthenticatedRoutes from "./routes/authenticated";
 import { Provider } from "react-redux";
@@ -11,7 +10,7 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <Provider store={store}>
-        <App />
+        <Outlet />
       </Provider>
     ),
     children: [

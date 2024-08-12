@@ -1,15 +1,13 @@
 import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 import { useLoaderData } from "react-router-dom";
 import { useMessagesContext } from "../../../context/messages/hook";
 import { ChatLoaderType } from "../../../routes/chat";
-import { RootState } from "../../../store";
-import { AuthState } from "../../../store/auth";
+import { getAuthState } from "../../../store/auth";
 import KeyboardSpan from "../../KeyboardSpan";
 import styles from "./styles.module.css";
 
 export default function ChatInput() {
-  const { user } = useSelector<RootState, AuthState>((state) => state.auth);
+  const { user } = getAuthState();
 
   const { room } = useLoaderData() as ChatLoaderType;
   const { sendMessage } = useMessagesContext();

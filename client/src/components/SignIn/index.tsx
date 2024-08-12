@@ -1,9 +1,9 @@
 import { unwrapResult } from "@reduxjs/toolkit";
 import { ChangeEventHandler, FormEventHandler, useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { AppDispatch, RootState } from "../../store";
-import { AuthState } from "../../store/auth";
+import { AppDispatch } from "../../store";
+import { getAuthState } from "../../store/auth";
 import { signInAction } from "../../store/auth/sign-in";
 import { DEFAULT_ROOM } from "../../types/room";
 import styles from "./signin.module.css";
@@ -22,7 +22,7 @@ export function SignIn() {
   const [step, setStep] = useState<number>(0);
   const [submitted, setSubmitted] = useState<boolean>(false);
 
-  const { error } = useSelector<RootState, AuthState>((state) => state.auth);
+  const { error } = getAuthState();
 
   useEffect(() => {
     if (error) {

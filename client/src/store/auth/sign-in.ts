@@ -42,6 +42,6 @@ export const signInExtras = (builder: ActionReducerMapBuilder<AuthState>) => {
   builder.addCase(signInAction.rejected, (state, { payload }) => {
     console.log(payload);
     state.loading = false;
-    state.error = payload;
+    state.error = payload as string;
   });
 };

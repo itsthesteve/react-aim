@@ -2,11 +2,13 @@ import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
 import { AuthCredentials, DEFAULT_ROOM, UserRow } from "../data/models.ts";
-import { AuthMiddleware } from "../middleware/index.ts";
+import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/auth",
 });
+
+router.use(JsonResponseMiddleware);
 
 // TODO: Move this to a shared location
 const AUTH_COOKIE_NAME = "__rcsession";
@@ -116,7 +118,7 @@ router.get("/", async ({ request, response }) => {
 /**
  * Verifies the user is logged in via the http cookie
  */
-router.get("/me", AuthMiddleware, async ({ request, response, cookies }) => {
+router.get("/me", AuthMiddleware, async ({ response, cookies }) => {
   const cookieUsername = await cookies.get(AUTH_COOKIE_NAME);
 
   if (!cookieUsername) {

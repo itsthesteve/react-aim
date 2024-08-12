@@ -1,9 +1,21 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
-import { useAuthContext } from "../../context/auth/hook";
 import { useNavigate } from "react-router-dom";
+import { SignUpAuthCredentials } from "../../store/auth";
+
+const signUp = async (creds: SignUpAuthCredentials) => {
+  const res = await fetch("http://localhost:9000/auth/create", {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify(creds),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.ok;
+};
 
 export function SignUp() {
-  const { signUp } = useAuthContext();
   const navigate = useNavigate();
   const [creds, setCreds] = useState({ username: "", password: "", verifyPassword: "" });
 
@@ -22,7 +34,7 @@ export function SignUp() {
     const success = await signUp(creds);
 
     if (success) {
-      navigate("/?username=" + creds.username);
+      navigate(`/?username=${creds.username}`);
     }
   };
 

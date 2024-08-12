@@ -43,6 +43,6 @@ export const getMeExtras = (builder: ActionReducerMapBuilder<AuthState>) => {
   builder.addCase(getMeAction.rejected, (state, { payload }) => {
     state.loading = false;
     state.user = null;
-    state.error = payload;
+    state.error = payload as string;
   });
 };

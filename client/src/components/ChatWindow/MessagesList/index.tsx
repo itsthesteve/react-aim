@@ -1,16 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 import { useLoaderData } from "react-router-dom";
 import { MessageData } from "../../../context/messages/context";
 import { useMessagesContext } from "../../../context/messages/hook";
 import { ChatLoaderType } from "../../../routes/chat";
 import styles from "./styles.module.css";
 
-import { RootState } from "../../../store";
-import { AuthState } from "../../../store/auth";
+import { getAuthState } from "../../../store/auth";
 
 export default function MessagesList() {
-  const { user } = useSelector<RootState, AuthState>((state) => state.auth);
+  const { user } = getAuthState();
   const { room } = useLoaderData() as ChatLoaderType;
   const { subscribe, getMessages } = useMessagesContext();
   const [messages, setMessages] = useState<MessageData[]>([]);
@@ -41,7 +39,7 @@ export default function MessagesList() {
       {messages.map((message) => {
         return (
           <p key={message.id} className="flex gap-1 items-start">
-            <span className={message.owner === user.username ? styles.me : styles.notMe}>
+            <span className={message.owner === user?.username ? styles.me : styles.notMe}>
               {message.owner}:
             </span>
             <span className="whitespace-pre">{message.payload}</span>

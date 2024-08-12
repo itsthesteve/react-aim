@@ -1,15 +1,23 @@
-import { useLoaderData } from "react-router-dom";
+import { useCallback } from "react";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import ChatInput from "../../components/ChatWindow/ChatInput";
 import MessagesList from "../../components/ChatWindow/MessagesList";
 import UserList from "../../components/ChatWindow/RoomsList";
-import { useAuthContext } from "../../context/auth/hook";
 import { ChatLoaderType } from "../../routes/chat";
 import styles from "./styles.module.css";
 
 export default function ChatWindow() {
-  const { logout } = useAuthContext();
+  const navigate = useNavigate();
   const { room } = useLoaderData() as ChatLoaderType;
-  const online = [];
+
+  const logout = useCallback(async () => {
+    await fetch("http://localhost:9000/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    navigate("/", { replace: true });
+  }, [navigate]);
 
   return (
     <div className={`window ${styles.windowContainer}`}>
@@ -26,7 +34,7 @@ export default function ChatWindow() {
         <div className={styles.chatContainer}>
           <MessagesList />
           <ChatInput />
-          <UserList online={online} />
+          <UserList />
         </div>
       </div>
       <div className="status-bar mx-0">

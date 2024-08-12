@@ -29,7 +29,7 @@ const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemP
   );
 };
 
-export default function UserList({ online }: { online: any[] }) {
+export default function UserList() {
   const { room } = useLoaderData() as ChatLoaderType;
   const [visibleTab, setVisibleTab] = useState(0);
   const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({

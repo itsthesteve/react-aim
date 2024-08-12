@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { signInExtras } from "./sign-in";
+import { useSelector } from "react-redux";
+import { RootState } from "..";
 import { getMeExtras } from "./get-me";
+import { signInExtras } from "./sign-in";
 
 export interface User {
   username: string;
@@ -43,5 +45,8 @@ export const authSlice = createSlice({
   },
 });
 
-// export const { signIn } = authSlice.actions;
 export default authSlice.reducer;
+
+// Shortcut to avoid typing all this when accessing the auth slice
+// eslint-disable-next-line
+export const getAuthState = () => useSelector<RootState, AuthState>((state) => state.auth);
