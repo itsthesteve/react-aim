@@ -1,12 +1,13 @@
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { Application, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { ChatRoom } from "../client/src/types/room.ts";
+import { db } from "./data/index.ts";
+import { DEFAULT_ROOM } from "./data/models.ts";
 import authRoutes from "./routes/auth.ts";
 import msgRoutes from "./routes/msg.ts";
 import roomRoutes from "./routes/rooms.ts";
 import sseRoutes from "./routes/sse.ts";
-import { DEFAULT_ROOM } from "./data/models.ts";
-import { db } from "./data/index.ts";
-import { ChatRoom } from "../client/src/types/room.ts";
+import debugRoutes from "./routes/debug.ts";
 
 const router = new Router();
 
@@ -24,18 +25,7 @@ try {
   console.warn("Error setting up", e);
 }
 
-router
-  .get("/test", async (ctx) => {
-    const items = db.list({ prefix: ["message", "room3"] });
-    for await (const item of items) {
-      console.log({ item });
-    }
-    ctx.response.body = { ok: true };
-  })
-  .use(authRoutes)
-  .use(sseRoutes)
-  .use(msgRoutes)
-  .use(roomRoutes);
+router.use(debugRoutes).use(authRoutes).use(sseRoutes).use(msgRoutes).use(roomRoutes);
 
 const app = new Application();
 app.use(
