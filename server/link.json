@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "https://deno.land/x/oak_rate_limit/mod.ts": "../../forks/oak-rate-limit"
+  }
+}
