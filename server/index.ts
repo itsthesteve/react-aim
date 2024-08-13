@@ -4,10 +4,10 @@ import { ChatRoom } from "../client/src/types/room.ts";
 import { db } from "./data/index.ts";
 import { DEFAULT_ROOM } from "./data/models.ts";
 import authRoutes from "./routes/auth.ts";
+import debugRoutes from "./routes/debug.ts";
 import msgRoutes from "./routes/msg.ts";
 import roomRoutes from "./routes/rooms.ts";
 import sseRoutes from "./routes/sse.ts";
-import debugRoutes from "./routes/debug.ts";
 
 const router = new Router();
 
@@ -25,7 +25,32 @@ try {
   console.warn("Error setting up", e);
 }
 
-router.use(debugRoutes).use(authRoutes).use(sseRoutes).use(msgRoutes).use(roomRoutes);
+router
+  // TODO: Add granular rate limiting?
+  // Deno doesn't like this, some version mismatch or something, but it
+  // works as of this writing.
+  // .use(
+  //   /**
+  //    * There's some conflict with versions in the lang server or something.
+  //    * This works as of this writing, but Deno's not happy.
+  //    * Same thing with the error on max(). It's defined as a function in the linked
+  //    * version, but going to source shows the old one.
+  //    */
+
+  //   /* @ts-ignore */
+  //   await RateLimiter({
+  //     windowMs: ONE_MINUTE, // Window for the requests that can be made in miliseconds.
+  //     max: () => 100, // Max requests within the predefined window.
+  //     headers: false,
+  //     message: "Slow down there cowboy...",
+  //     statusCode: 429,
+  //   })
+  // )
+  .use(msgRoutes)
+  .use(debugRoutes)
+  .use(authRoutes)
+  .use(sseRoutes)
+  .use(roomRoutes);
 
 const app = new Application();
 app.use(
@@ -34,6 +59,7 @@ app.use(
     origin: /http:\/\/localhost:[\d]{4}/i,
   })
 );
+
 app.use(router.allowedMethods());
 app.use(router.routes());
 
