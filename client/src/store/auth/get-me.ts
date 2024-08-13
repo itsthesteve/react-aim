@@ -16,7 +16,7 @@ export const getMeAction = createAsyncThunk(
       options.signal = signal;
     }
 
-    const response = await fetch("http://localhost:9000/auth/me", options);
+    const response = await fetch("/api/auth/me", options);
 
     if (!response.ok) {
       return null;

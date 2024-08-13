@@ -100,21 +100,6 @@ router.post("/logout", (ctx) => {
   ctx.response.status = 200;
 });
 
-// Debug
-router.get("/", async ({ request, response }) => {
-  if (request.ip !== "127.0.0.1") {
-    response.status = 403;
-    response.body = { ok: false };
-    return;
-  }
-
-  const all = db.list({ prefix: ["users"] });
-  for await (const r of all) {
-    console.log("user:", r);
-  }
-  response.body = { ok: true };
-});
-
 /**
  * Verifies the user is logged in via the http cookie
  */
