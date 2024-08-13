@@ -2,7 +2,11 @@ import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
 import { AuthCredentials, DEFAULT_ROOM, UserRow } from "../data/models.ts";
-import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import {
+  AuthMiddleware,
+  JsonResponseMiddleware,
+  RateLimitMiddleware,
+} from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/auth",
@@ -58,7 +62,7 @@ router.post("/login", async ({ response, request, cookies }) => {
  * Requires username, password, and verifyPassword in the body
  * Returns 200 and sets an HTTP cookie upon success and a 400 otherwise.
  */
-router.post("/create", async ({ request, response }) => {
+router.post("/create", await RateLimitMiddleware(), async ({ request, response }) => {
   const { username, password, verifyPassword } = (await request.body.json()) as AuthCredentials;
   if (password !== verifyPassword) {
     response.status = 400;
