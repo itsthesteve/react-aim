@@ -6,12 +6,47 @@ import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 import { canAccess } from "../utils/room.ts";
 
-const router = new Router();
+const router = new Router({
+  prefix: "/rooms",
+});
 const AUTH_PRESENCE_COOKIE = "__rcpresence";
 
 router.use(AuthMiddleware).use(JsonResponseMiddleware);
 
-router.get("/rooms", async ({ response, cookies }) => {
+/**
+ * Set the online flag for the given room
+ */
+router.get("/access", async ({ request, response, cookies, state }) => {
+  const { room } = await request.body.json();
+
+  // Dunno what you're looking for...
+  if (!room) {
+    response.body = { ok: false, reason: "NOROOM" };
+    response.status = 400;
+    return;
+  }
+
+  const exists = await canAccess(room, state.username);
+  if (!exists) {
+    console.warn(`Room ${room} doesn't exist or is not public.`);
+    response.status = 404;
+    response.body = { ok: false, reason: "NOROOM" };
+    return;
+  }
+
+  // ...otherwise, everything's good. Set the cookie and allow passage.
+  await cookies.set(AUTH_PRESENCE_COOKIE, room, {
+    path: "/",
+    secure: false,
+    httpOnly: true,
+    maxAge: 31536000,
+  });
+
+  response.status = 200;
+  response.body = { ok: true };
+});
+
+router.get("/", async ({ response, cookies }) => {
   // Middleware catches this, so we can be sure (?) the cookie exists here
   const username = (await cookies.get("__rcsession")) as string;
 
@@ -41,7 +76,7 @@ router.get("/rooms", async ({ response, cookies }) => {
 /**
  * Create a new room. Requires a session cookie and a "room" property in the post body
  */
-router.post("/rooms", async ({ request, response, cookies, state }) => {
+router.post("/", async ({ request, response, cookies, state }) => {
   // Middleware catches this, so we can be sure (?) the cookie exists here
   const { username } = state;
 
@@ -103,39 +138,6 @@ router.post("/rooms", async ({ request, response, cookies, state }) => {
   });
 
   response.body = { ok: true, roomValue };
-});
-
-/**
- * Set the online flag for the given room
- */
-router.post("/getRoom", async ({ request, response, cookies, state }) => {
-  const { room } = await request.body.json();
-
-  // Dunno what you're looking for...
-  if (!room) {
-    response.body = { ok: false, reason: "NOROOM" };
-    response.status = 400;
-    return;
-  }
-
-  const exists = await canAccess(room, state.username);
-  if (!exists) {
-    console.warn(`Room ${room} doesn't exist or is not public.`);
-    response.status = 404;
-    response.body = { ok: false, reason: "NOROOM" };
-    return;
-  }
-
-  // ...otherwise, everything's good. Set the cookie and allow passage.
-  await cookies.set(AUTH_PRESENCE_COOKIE, room, {
-    path: "/",
-    secure: false,
-    httpOnly: true,
-    maxAge: 31536000,
-  });
-
-  response.status = 200;
-  response.body = { ok: true };
 });
 
 router.get("/online", async (ctx) => {

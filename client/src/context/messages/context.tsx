@@ -80,7 +80,7 @@ export const MessagesProvider = ({ children }: Props) => {
    * @throws {MessageError}
    */
   const sendMessage = async (message: Message) => {
-    const response = await fetch(`http://localhost:9000/msg?room=${room}`, {
+    const response = await fetch(`/api/chat/message?room=${room}`, {
       method: "POST",
       credentials: "include",
       body: JSON.stringify(message),
@@ -103,7 +103,7 @@ export const MessagesProvider = ({ children }: Props) => {
    * The roomName is retrieved from the chatLoader function set in the router.
    */
   const getMessages = useCallback(async () => {
-    const response = await fetch(`http://localhost:9000/channel?room=${room}`, {
+    const response = await fetch(`/api/chat/?room=${room}`, {
       method: "GET",
       credentials: "include",
     });

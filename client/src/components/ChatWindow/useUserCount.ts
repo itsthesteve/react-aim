@@ -7,7 +7,7 @@ export default function useUserCount(roomName: string) {
 
   const setOnline = useCallback(
     (present: boolean) => {
-      return fetch("http://localhost:9000/online", {
+      return fetch("/api/rooms/online", {
         method: "POST",
         credentials: "include",
         body: JSON.stringify({
@@ -25,7 +25,7 @@ export default function useUserCount(roomName: string) {
   useEffect(() => {
     setOnline(true)
       .then(() => {
-        evtRef.current = new EventSource(`http://localhost:9000/online?room=${roomName}`, {
+        evtRef.current = new EventSource(`/api/roooms/online?room=${roomName}`, {
           withCredentials: true,
         });
 

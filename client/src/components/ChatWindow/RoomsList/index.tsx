@@ -39,7 +39,7 @@ export default function UserList() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:9000/rooms", {
+    fetch("/api/rooms", {
       method: "GET",
       credentials: "include",
     })

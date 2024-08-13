@@ -6,7 +6,7 @@ export function CreateRoom() {
 
 export async function createRoomLoader() {
   try {
-    const res = await fetch("http://localhost:9000/rooms", {
+    const res = await fetch("/api/rooms", {
       method: "GET",
       credentials: "include",
     });

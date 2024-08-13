@@ -19,7 +19,7 @@ export default function CreateRoomWindow() {
 
   const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:9000/rooms", {
+    const response = await fetch("/api/rooms", {
       method: "POST",
       credentials: "include",
       body: JSON.stringify({ room: roomName, isPublic }),
