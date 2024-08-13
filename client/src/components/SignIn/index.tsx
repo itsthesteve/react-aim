@@ -42,6 +42,8 @@ export function SignIn() {
       if (timeout) clearTimeout(timeout);
       return new Promise<void>((resolve) => {
         timeout = setTimeout(() => {
+          // FIXME: Subtle bug here, resolve is getting called before the setStep
+          // is finished, so in this case we never see step 3 when signing in
           setStep(() => step);
           resolve();
         }, rand);
@@ -76,11 +78,12 @@ export function SignIn() {
 
     const result = unwrapResult(d);
 
-    if (result?.username) {
+    if (result.username) {
       await sleepFor(2);
       navigate("/chat?room=" + DEFAULT_ROOM, { replace: true });
     } else {
       console.warn("Bad request", result);
+      setStep(0);
       setSubmitted(() => false);
     }
   };
@@ -137,7 +140,9 @@ export function SignIn() {
                 <footer>
                   {error && (
                     <>
-                      <p className="text-red-700">{error}</p>
+                      <p id="error-message" className="text-red-700">
+                        {error}
+                      </p>
                     </>
                   )}
                   <button type="submit">Sign on</button>
@@ -145,7 +150,7 @@ export function SignIn() {
               </form>
             </>
           ) : (
-            <div className="text-center py-2 flex flex-col gap-2">
+            <div data-step className="text-center py-2 flex flex-col gap-2">
               <span>{creds.username}</span>
               <span>{processingSteps[step]?.text}</span>
             </div>
