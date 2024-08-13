@@ -1,6 +1,5 @@
 #! /bin/bash
 
-for i in {1..30}; do
+for i in {1..1000}; do
   curl -I http://localhost:9000/debug/test;
-  sleep .5
 done

@@ -1,5 +1,4 @@
-import { Context, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { KeyValueStore, RateLimiter } from "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts";
+import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
 import { RateLimitMiddleware } from "../middleware/index.ts";
 
@@ -11,25 +10,8 @@ router.get(
   "/test",
   // @ts-ignore Deno doesn't like this due to a mismatch in Oak version
   await RateLimitMiddleware({
-    windowMs: 5000,
-    max: () => Promise.resolve(10),
-  }),
-  async ({ request, response }) => {
-    response.body = "test OK\n";
-  }
-);
-
-router.get(
-  "/test-2",
-  // @ts-ignore Deno doesn't like this due to a mismatch in Oak version
-  await RateLimiter({
-    store: new KeyValueStore(db),
-    withUrl: true,
-    windowMs: 1000, // Window for the requests that can be made in miliseconds.
-    max: (ctx: Context) => 1000, // Max requests within the predefined window.
-    headers: true, // Default true, it will add the headers X-RateLimit-Limit, X-RateLimit-Remaining.
-    message: "Too many requests, please try again later.",
-    statusCode: 429,
+    windowMs: 10000,
+    max: () => 100,
   }),
   async ({ request, response }) => {
     response.body = "test OK\n";
