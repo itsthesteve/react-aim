@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { SignUpAuthCredentials } from "../../store/auth";
 
 const signUp = async (creds: SignUpAuthCredentials) => {
-  const res = await fetch("http://localhost:9000/auth/create", {
+  const res = await fetch("/api/auth/create", {
     method: "POST",
     credentials: "include",
     body: JSON.stringify(creds),

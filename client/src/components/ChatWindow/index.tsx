@@ -11,7 +11,7 @@ export default function ChatWindow() {
   const { room } = useLoaderData() as ChatLoaderType;
 
   const logout = useCallback(async () => {
-    await fetch("http://localhost:9000/auth/logout", {
+    await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",
     });

@@ -5,7 +5,7 @@ export const signInAction = createAsyncThunk(
   "auth/login",
   async (creds: AuthCredentials, { rejectWithValue }) => {
     try {
-      const res = await fetch("http://localhost:9000/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         credentials: "include",
         body: JSON.stringify(creds),
