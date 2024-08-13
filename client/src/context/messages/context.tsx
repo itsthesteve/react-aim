@@ -37,7 +37,7 @@ export const MessagesProvider = ({ children }: Props) => {
   const listeners = useRef<Record<string, CallableFunction>>({});
 
   useEffect(() => {
-    eventSrcRef.current = new EventSource(`http://localhost:9000/events?room=${room}`, {
+    eventSrcRef.current = new EventSource(`/api/chat/messages?room=${room}`, {
       withCredentials: true,
     });
 

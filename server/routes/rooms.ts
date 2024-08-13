@@ -17,7 +17,7 @@ router.use(AuthMiddleware).use(JsonResponseMiddleware);
  * Set the online flag for the given room
  */
 router.get("/access", async ({ request, response, cookies, state }) => {
-  const { room } = await request.body.json();
+  const room = request.url.searchParams.get("room");
 
   // Dunno what you're looking for...
   if (!room) {

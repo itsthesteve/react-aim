@@ -42,7 +42,7 @@ router.get("/", JsonResponseMiddleware, async ({ request, response, state }) => 
 /**
  * Server Sent Events endpoint ƒor getting messages
  */
-router.get("/events", async (ctx) => {
+router.get("/messages", async (ctx) => {
   const roomName = ctx.request.url.searchParams.get("room");
   if (!roomName) {
     ctx.response.status = 400;
