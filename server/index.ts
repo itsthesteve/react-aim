@@ -8,7 +8,9 @@ import debugRoutes from "./routes/debug.ts";
 import roomRoutes from "./routes/rooms.ts";
 import chatRoutes from "./routes/chat.ts";
 
-const router = new Router();
+const router = new Router({
+  prefix: "/api",
+});
 
 // Initial set up
 // - Create the global default store. Based on the value of DEFAULT_ROOM
