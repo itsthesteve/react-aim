@@ -8,6 +8,6 @@ export const RATE_LIMIT_OPTS: Partial<RatelimitOptions> = {
   store: new KeyValueStore(db),
   withUrl: true,
   headers: true, // Default true, it will add the headers X-RateLimit-Limit, X-RateLimit-Remaining.
-  message: "Too many requests, please try again later.",
+  message: "Slow down there cowboy...",
   statusCode: 429,
 };

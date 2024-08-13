@@ -22,7 +22,7 @@ export interface Message {
 export type MessageContextType = {
   subscribe: (room: string, fn: CallableFunction) => void;
   unsubscribe: (room: string) => void;
-  sendMessage: (message: Message) => void;
+  sendMessage: (message: Message) => Promise<void>;
   getMessages: () => Promise<MessageData[]>;
 };
 
@@ -90,12 +90,13 @@ export const MessagesProvider = ({ children }: Props) => {
     });
 
     const result = await response.json();
+
     if (!response.ok) {
-      logger.warn("Unable to send message:", result);
-      throw new MessageError(result.reason);
+      throw new MessageError(result.error);
     }
 
     console.log("Message posted:", result);
+    return result;
   };
 
   /**

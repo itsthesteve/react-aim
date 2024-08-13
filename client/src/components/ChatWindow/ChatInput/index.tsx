@@ -5,12 +5,14 @@ import { ChatLoaderType } from "../../../routes/chat";
 import { getAuthState } from "../../../store/auth";
 import KeyboardSpan from "../../KeyboardSpan";
 import styles from "./styles.module.css";
+import { MessageError } from "../../../context/messages/errors";
 
 export default function ChatInput() {
   const { user } = getAuthState();
 
   const { room } = useLoaderData() as ChatLoaderType;
   const { sendMessage } = useMessagesContext();
+  const [err, setErr] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -34,6 +36,12 @@ export default function ChatInput() {
         owner: user!.username,
         payload: message,
       },
+    }).catch((e) => {
+      if (e instanceof MessageError) {
+        setErr(e.reason);
+      } else {
+        console.warn("Unknown error", e);
+      }
     });
 
     // shouldn't happen, way past first render here
@@ -61,6 +69,7 @@ export default function ChatInput() {
             onKeyDown={checkEnterKey}
             onChange={(e) => setMessage(() => e.target.value)}
             rows={5}></textarea>
+          {err && <small className="text-red-600">{err}</small>}
         </div>
         <button
           onClick={submit}
