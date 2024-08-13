@@ -5,9 +5,8 @@ import { db } from "./data/index.ts";
 import { DEFAULT_ROOM } from "./data/models.ts";
 import authRoutes from "./routes/auth.ts";
 import debugRoutes from "./routes/debug.ts";
-import msgRoutes from "./routes/msg.ts";
 import roomRoutes from "./routes/rooms.ts";
-import sseRoutes from "./routes/sse.ts";
+import chatRoutes from "./routes/chat.ts";
 
 const router = new Router();
 
@@ -46,10 +45,9 @@ router
   //     statusCode: 429,
   //   })
   // )
-  .use(msgRoutes)
   .use(debugRoutes)
   .use(authRoutes)
-  .use(sseRoutes)
+  .use(chatRoutes)
   .use(roomRoutes);
 
 const app = new Application();
