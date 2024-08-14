@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SignInPage } from "./pages/sign-up";
+import { SignInPage, STEP_TEXT } from "./pages/sign-up";
 
 test("has title", async ({ page }) => {
   await page.goto("./");
@@ -14,7 +14,7 @@ test("has title", async ({ page }) => {
   expect(windowTitle).toBe("Sign On");
 });
 
-test.only("cannot sign in", async ({ page }) => {
+test("cannot sign in", async ({ page }) => {
   const p = new SignInPage(page);
   await p.goto();
   await p.fillForm();
@@ -35,15 +35,17 @@ test("successful sign in", async ({ page }) => {
   await p.goto();
   await p.fillForm(true);
 
-  expect(p.stepper).toBeVisible();
-  expect(p.stepper).toContainText(/Connecting/);
-  const step2 = p.page.getByText("Verifying name and password...");
-  await step2.waitFor();
+  await p.waitForStep(0);
+  expect(await p.getStepLocator(0).textContent()).toBe(STEP_TEXT[0]);
 
-  // This won't happen due to a small bug in the component. See the FIXME note
+  await p.waitForStep(1);
+  expect(await p.getStepLocator(1).textContent()).toBe(STEP_TEXT[1]);
+
+  // This won't happen due to a small bug in the component.
+  // See the FIXME note in <SignUp />
   // const step3 = p.page.getByText("Starting services...");
   // await step3.waitFor();
 
-  expect(true).toBe(true);
   await p.page.waitForURL("http://localhost:5173/chat?room=abc");
+  expect(p.page.url()).toContain("/chat");
 });
