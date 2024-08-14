@@ -5,11 +5,11 @@ import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
 import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 import { canAccess } from "../utils/room.ts";
+import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 
 const router = new Router({
   prefix: "/rooms",
 });
-const AUTH_PRESENCE_COOKIE = "__rcpresence";
 
 router.use(AuthMiddleware).use(JsonResponseMiddleware);
 
@@ -46,11 +46,8 @@ router.get("/access", async ({ request, response, cookies, state }) => {
   response.body = { ok: true };
 });
 
-router.get("/", async ({ response, cookies }) => {
-  // Middleware catches this, so we can be sure (?) the cookie exists here
-  const username = (await cookies.get("__rcsession")) as string;
-
-  const userRoomRows = db.list({ prefix: ["rooms", username] });
+router.get("/", async ({ response, state }) => {
+  const userRoomRows = db.list({ prefix: ["rooms", state.username] });
   const globalRoomsRows = db.list({ prefix: ["rooms", "__admin__"] });
 
   const userRooms = [];
@@ -66,7 +63,7 @@ router.get("/", async ({ response, cookies }) => {
   const publicRoomRows = await Array.fromAsync(db.list<ChatRoom>({ prefix: ["rooms"] }));
   const publicRooms = publicRoomRows
     // Filter out rooms that are either global or created by the current user
-    .filter((room) => !["__admin__", username].includes(room.value.createdBy))
+    .filter((room) => !["__admin__", state.username].includes(room.value.createdBy))
     .filter((room) => !!room.value.isPublic)
     .map((obj) => obj.value);
 

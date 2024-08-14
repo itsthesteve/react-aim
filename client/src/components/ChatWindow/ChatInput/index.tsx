@@ -39,6 +39,11 @@ export default function ChatInput() {
     }).catch((e) => {
       if (e instanceof MessageError) {
         setErr(e.reason);
+
+        // Clear the error after a small delay
+        setTimeout(() => {
+          setErr("");
+        }, 5000);
       } else {
         console.warn("Unknown error", e);
       }
@@ -69,7 +74,7 @@ export default function ChatInput() {
             onKeyDown={checkEnterKey}
             onChange={(e) => setMessage(() => e.target.value)}
             rows={5}></textarea>
-          {err && <small className="text-red-600">{err}</small>}
+          {err && <small className="bg-red-600 text-white font-bold p-2">{err}</small>}
         </div>
         <button
           onClick={submit}

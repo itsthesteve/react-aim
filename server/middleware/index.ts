@@ -6,6 +6,8 @@ import {
 } from "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts";
 
 import { db, RATE_LIMIT_OPTS } from "../data/index.ts";
+import { AUTH_COOKIE_NAME } from "../cookies.ts";
+import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 
 // Serve response as JSON
 export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
@@ -15,8 +17,8 @@ export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
 
 // Expect a valid user
 export const AuthMiddleware = async (ctx: Context, next: Next) => {
-  const username = await ctx.cookies.get("__rcsession");
-  const currentRoom = await ctx.cookies.get("__rcpresence");
+  const username = await ctx.cookies.get(AUTH_COOKIE_NAME);
+  const currentRoom = await ctx.cookies.get(AUTH_PRESENCE_COOKIE);
 
   if (!username) {
     ctx.response.status = 403;

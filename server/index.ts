@@ -9,7 +9,6 @@ import debugRoutes from "./routes/debug.ts";
 import roomRoutes from "./routes/rooms.ts";
 
 const router = new Router();
-const ONE_MINUTE = 1000 * 60;
 
 // Initial set up
 // - Create the global default store. Based on the value of DEFAULT_ROOM

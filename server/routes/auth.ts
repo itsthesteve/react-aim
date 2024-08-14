@@ -2,6 +2,7 @@ import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
 import { AuthCredentials, DEFAULT_ROOM, UserRow } from "../data/models.ts";
+import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cookies.ts";
 import {
   AuthMiddleware,
   JsonResponseMiddleware,
@@ -13,16 +14,6 @@ const router = new Router({
 });
 
 router.use(JsonResponseMiddleware);
-
-// TODO: Move this to a shared location
-const AUTH_COOKIE_NAME = "__rcsession";
-const AUTH_PRESENCE_COOKIE = "__rcpresence";
-const COOKIE_OPTIONS = {
-  path: "/",
-  secure: false,
-  httpOnly: true,
-  maxAge: 31536000,
-};
 
 /**
  * Login

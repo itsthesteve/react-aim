@@ -7,6 +7,7 @@ import {
   RateLimitMiddleware,
 } from "../middleware/index.ts";
 import { canAccess } from "../utils/room.ts";
+import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 
 const router = new Router({
   prefix: "/chat",
@@ -98,7 +99,7 @@ router.get("/messages", async (ctx) => {
  */
 router.post("/", async ({ request, response, cookies }) => {
   const requestRoom = request.url.searchParams.get("room");
-  const roomName = await cookies.get("__rcpresence");
+  const roomName = await cookies.get(AUTH_PRESENCE_COOKIE);
   if (!roomName) {
     response.status = 400;
     response.body = { ok: false, reason: "NOPRESENCE" };
@@ -141,7 +142,7 @@ router.post(
   }),
   async ({ request, response, cookies }) => {
     const requestRoom = request.url.searchParams.get("room");
-    const roomName = await cookies.get("__rcpresence");
+    const roomName = await cookies.get(AUTH_PRESENCE_COOKIE);
     if (!roomName) {
       response.status = 400;
       response.body = { ok: false, reason: "NOPRESENCE" };
