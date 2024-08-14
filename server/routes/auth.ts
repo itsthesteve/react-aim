@@ -8,6 +8,7 @@ import {
   JsonResponseMiddleware,
   RateLimitMiddleware,
 } from "../middleware/index.ts";
+import { USERNAME_REGEX } from "../utils/validation.ts";
 
 const router = new Router({
   prefix: "/auth",
@@ -53,38 +54,75 @@ router.post("/login", async ({ response, request, cookies }) => {
  * Requires username, password, and verifyPassword in the body
  * Returns 200 and sets an HTTP cookie upon success and a 400 otherwise.
  */
-router.post("/create", await RateLimitMiddleware(), async ({ request, response }) => {
-  const { username, password, verifyPassword } = (await request.body.json()) as AuthCredentials;
-  if (password !== verifyPassword) {
-    response.status = 400;
-    response.body = { ok: false, reason: "Passwords don't match" };
-    return;
+router.post(
+  "/create",
+  /*await RateLimitMiddleware(),*/ async ({ request, response }) => {
+    let { username, password, verifyPassword } = (await request.body.json()) as AuthCredentials;
+    username = username.trim();
+
+    // Too short or long of a username
+    if (username.length < 3 || username.length > 32) {
+      response.status = 400;
+      response.body = { ok: false, reason: "Username must be between 3 and 32 characters." };
+      return;
+    }
+
+    // Invalid username
+    if (USERNAME_REGEX.test(username) === false) {
+      response.status = 400;
+      response.body = {
+        ok: false,
+        reason: "Username can only contain letters, numbers and _$*#@+/\\=",
+      };
+      return;
+    }
+
+    // No password supplied
+    if (!password || !verifyPassword) {
+      response.status = 400;
+      response.body = { ok: false, reason: "Password or password verification is empty" };
+      return;
+    }
+
+    // Password has bad length
+    if (password.length < 6 || password.length > 1024) {
+      response.status = 400;
+      response.body = { ok: false, reason: "Password needs to be between 8 and 1024 characters" };
+      return;
+    }
+
+    // Passwords don't match
+    if (password !== verifyPassword) {
+      response.status = 400;
+      response.body = { ok: false, reason: "Passwords don't match" };
+      return;
+    }
+
+    const userRow = await db.get<UserRow>(["users", username]);
+
+    // If the user exists, let them know. Maybe just 400 to prevent iteration attacks?
+    if (userRow.value !== null) {
+      response.status = 400;
+      response.body = { ok: false, reason: "Username is taken" };
+      return;
+    }
+
+    // Add seasoning and store the user
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const result = await db.set(["users", username], hashedPassword);
+    console.log("User created", result);
+    if (result.ok) {
+      response.status = 201;
+      response.body = { ok: true };
+      return;
+    }
+
+    response.status = 500;
+    response.body = { ok: true, reason: "Error creating user" };
   }
-
-  const userRow = await db.get<UserRow>(["users", username]);
-
-  // If the user exists, let them know. Maybe just 400 to prevent iteration attacks?
-  if (userRow.value !== null) {
-    response.status = 400;
-    response.body = { ok: false, reason: "Username is taken" };
-    return;
-  }
-
-  // Add seasoning and store the user
-  const salt = await bcrypt.genSalt();
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  const result = await db.set(["users", username], hashedPassword);
-  console.log("User created", result);
-  if (result.ok) {
-    response.status = 201;
-    response.body = { ok: true };
-    return;
-  }
-
-  response.status = 500;
-  response.body = { ok: true, reason: "Error creating user" };
-});
+);
 
 /**
  * Logout

@@ -12,12 +12,13 @@ const signUp = async (creds: SignUpAuthCredentials) => {
     },
   });
 
-  return res.ok;
+  return res;
 };
 
 export function SignUp() {
   const navigate = useNavigate();
   const [creds, setCreds] = useState({ username: "", password: "", verifyPassword: "" });
+  const [err, setErr] = useState("");
 
   const updateForm: ChangeEventHandler = (e) => {
     const target = e.target as HTMLInputElement;
@@ -31,11 +32,14 @@ export function SignUp() {
 
   const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
-    const success = await signUp(creds);
+    const res = await signUp(creds);
 
-    if (success) {
-      navigate(`/?username=${creds.username}`);
+    if (res.ok) {
+      return navigate(`/?username=${creds.username}`);
     }
+
+    const json = await res.json();
+    setErr(json.reason);
   };
 
   return (
@@ -52,24 +56,51 @@ export function SignUp() {
             <img className="self-end" src="/aimguy.png" width="112" height="122" />
             React Instant Messenger
           </header>
-          <form className="w-full py-4" onSubmit={onSubmit}>
+          <form noValidate className="w-full py-4" onSubmit={onSubmit}>
             <label htmlFor="username" className="px-2 flex flex-col gap-1 items-stretch">
               <span>Username</span>
-              <input name="username" onChange={(e) => updateForm(e)} />
+              <input
+                required
+                minLength={2}
+                maxLength={32}
+                pattern="[a-z0-9_$*#@+\/\\=]+"
+                name="username"
+                onChange={(e) => updateForm(e)}
+              />
             </label>
 
             <label htmlFor="password" className="px-2 flex flex-col gap-1 items-stretch mt-4">
               <span>Password</span>
-              <input name="password" type="password" onChange={(e) => updateForm(e)} />
+              <input
+                required
+                minLength={8}
+                maxLength={1024}
+                name="password"
+                type="password"
+                onChange={(e) => updateForm(e)}
+              />
             </label>
 
             <label htmlFor="verifyPassword" className="px-2 flex flex-col gap-1 items-stretch mt-4">
               <span>Verify password</span>
-              <input name="verifyPassword" type="password" onChange={(e) => updateForm(e)} />
+              <input
+                required
+                minLength={6}
+                maxLength={1024}
+                name="verifyPassword"
+                type="password"
+                onChange={(e) => updateForm(e)}
+              />
             </label>
 
+            {err && (
+              <div id="err-text" className="p-2 text-red-700">
+                {err}
+              </div>
+            )}
+
             <footer className="mt-4 text-center">
-              <button>Create account</button>
+              <button type="submit">Create account</button>
             </footer>
           </form>
         </div>

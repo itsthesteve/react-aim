@@ -1,47 +1,70 @@
 import { Locator, Page } from "@playwright/test";
 
-const USERNAME = "imauser";
-const BAD_PWD = "aaaaaaa";
-const GOOD_PWD = "123123";
-export const STEP_TEXT = [
-  "Connecting...",
-  "Verifying name and password...",
-  "Starting services...",
-];
-
-export class SignInPage {
+export class SignUpPage {
   readonly username: Locator;
   readonly password: Locator;
+  readonly passwordVerify: Locator;
   readonly submitBtn: Locator;
-  stepper: Locator;
-  errBlock: Locator;
+  readonly errBlock: Locator;
+  readonly form: Locator;
 
   constructor(readonly page: Page) {
     this.username = page.locator('input[name="username"]');
     this.password = page.locator('input[name="password"]');
+    this.passwordVerify = page.locator('input[name="verifyPassword"]');
     this.submitBtn = page.locator('button[type="submit"]');
+    this.form = page.locator("form");
   }
 
   async goto() {
-    await this.page.goto("./");
-    console.log(this.username);
+    await this.page.goto("./sign-up");
+    await this.form.waitFor();
+    return this.form;
   }
 
-  async fillForm(accurate: boolean = false) {
-    await this.username.fill(USERNAME);
-    await this.password.fill(accurate ? GOOD_PWD : BAD_PWD);
+  async fillForm({
+    username,
+    password,
+    verifyPassword,
+  }: {
+    username: string;
+    password: string;
+    verifyPassword: string;
+  }) {
+    await this.username.fill(username);
+    await this.password.fill(password);
+    await this.passwordVerify.fill(verifyPassword);
     await this.submitBtn.click();
-
-    this.stepper = this.page.locator("[data-step]");
-    await this.stepper.waitFor();
   }
 
-  async waitForStep(step: number) {
-    const el = this.getStepLocator(step);
-    return await el.waitFor();
-  }
-
-  getStepLocator(step: number) {
-    return this.page.getByText(STEP_TEXT[step]);
+  async getErrDiv() {
+    const div = this.page.locator("#err-text");
+    await div.waitFor();
+    return div;
   }
 }
+
+// Used in the test suite
+const goodUser = {
+  username: "imauser",
+  password: "123123",
+  verifyPassword: "123123",
+};
+
+const badUser_verify = {
+  ...goodUser,
+  verifyPassword: "abc123",
+};
+
+const badUser_username = {
+  ...goodUser,
+  username: "     a",
+};
+
+const badUser_password = {
+  ...goodUser,
+  password: "1",
+  verifyPassword: "1",
+};
+
+export const userCases = [goodUser, badUser_verify, badUser_username, badUser_password];

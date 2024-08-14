@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SignInPage, STEP_TEXT } from "./pages/sign-up";
+import { SignInPage, STEP_TEXT } from "./pages/sign-in";
 
 test("has title", async ({ page }) => {
   await page.goto("./");
