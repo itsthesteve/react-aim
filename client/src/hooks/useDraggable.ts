@@ -28,28 +28,25 @@ export function useDraggable<T extends HTMLElement | null>(ref: MutableRefObject
   const [state, setState] = useState<DragState>(initialState);
 
   const onMouseDown = useCallback(
-    (e: PointerEvent) => {
-      // Only listen to primary (left) clicks
-      if (e.button !== 0) {
+    (e: MouseEvent) => {
+      // Only listen to primary (left) clicks and when a .title-bar is clicked
+      if (e.button !== 0 || !(e.target as HTMLElement).classList.contains("title-bar")) {
         return;
       }
 
-      e.preventDefault();
       const { clientX, clientY } = e;
 
       const initialX = clientX - state.xOffset;
       const initialY = clientY - state.yOffset;
-      ref.current.classList.add("active");
 
       setState((prev) => ({ ...prev, initialX, initialY, pressed: true }));
     },
-    [ref, state.xOffset, state.yOffset]
+    [state.xOffset, state.yOffset]
   );
 
   const onMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!state.pressed) return;
-      e.preventDefault();
       const { clientX, clientY } = e;
 
       const currentX = clientX - state.initialX;
@@ -74,9 +71,7 @@ export function useDraggable<T extends HTMLElement | null>(ref: MutableRefObject
     const initialY = state.currentY;
 
     setState((prev) => ({ ...prev, initialX, initialY, pressed: false }));
-
-    ref.current.classList.remove("active");
-  }, [ref, state.currentX, state.currentY]);
+  }, [state.currentX, state.currentY]);
 
   useEffect(() => {
     const current = ref.current;
@@ -87,14 +82,14 @@ export function useDraggable<T extends HTMLElement | null>(ref: MutableRefObject
     const { width, height } = current.getBoundingClientRect();
     setState((prev) => ({ ...prev, width, height }));
 
-    current.addEventListener("mousedown", onMouseDown);
-    current.addEventListener("mousemove", onMouseMove);
-    current.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
 
     return () => {
-      current.removeEventListener("mousedown", onMouseDown);
-      current.removeEventListener("mousemove", onMouseMove);
-      current.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
     };
   }, [ref, onMouseDown, onMouseMove, onMouseUp]);
 
