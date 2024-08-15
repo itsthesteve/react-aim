@@ -1,14 +1,22 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import ChatInput from "../../components/ChatWindow/ChatInput";
 import MessagesList from "../../components/ChatWindow/MessagesList";
 import UserList from "../../components/ChatWindow/RoomsList";
 import { ChatLoaderType } from "../../routes/chat";
 import styles from "./styles.module.css";
+import { useDraggable } from "../../hooks/useDraggable";
 
 export default function ChatWindow() {
   const navigate = useNavigate();
+  const elRef = useRef<HTMLDivElement | null>(null);
   const { room } = useLoaderData() as ChatLoaderType;
+  const { x, y } = useDraggable(elRef);
+
+  useEffect(() => {
+    if (!elRef.current) return;
+    elRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  }, [x, y]);
 
   const logout = useCallback(async () => {
     await fetch("/api/auth/logout", {
@@ -20,7 +28,7 @@ export default function ChatWindow() {
   }, [navigate]);
 
   return (
-    <div className={`window ${styles.windowContainer}`}>
+    <div className={`window ${styles.windowContainer}`} ref={(el) => (elRef.current = el)}>
       <div className="title-bar">
         <div className="title-bar-text">React Chat | XP Edition</div>
         <div className="title-bar-controls">
