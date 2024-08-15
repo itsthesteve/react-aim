@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import { ChatLoaderType } from "../../../routes/chat";
 import { ChatRoom } from "../../../types/room";
@@ -29,7 +29,7 @@ const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemP
   );
 };
 
-export default function UserList() {
+function UserList() {
   const { room } = useLoaderData() as ChatLoaderType;
   const [visibleTab, setVisibleTab] = useState(0);
   const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({
@@ -145,3 +145,5 @@ export default function UserList() {
     </>
   );
 }
+
+export default memo(UserList);
