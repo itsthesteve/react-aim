@@ -1,5 +1,12 @@
 import { unwrapResult } from "@reduxjs/toolkit";
-import { ChangeEventHandler, FormEventHandler, useCallback, useEffect, useState } from "react";
+import {
+  ChangeEventHandler,
+  FormEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../store";
@@ -7,6 +14,7 @@ import { getAuthState } from "../../store/auth";
 import { signInAction } from "../../store/auth/sign-in";
 import { DEFAULT_ROOM } from "../../types/room";
 import styles from "./signin.module.css";
+import { useDraggable } from "../../hooks/useDraggable";
 
 const processingSteps = [
   { step: 1, text: "Connecting..." },
@@ -15,12 +23,19 @@ const processingSteps = [
 ];
 
 export function SignIn() {
+  const elRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch() as AppDispatch;
   // TODO: reduce number of useStates
   const [creds, setCreds] = useState({ username: "", password: "" });
   const [step, setStep] = useState<number>(0);
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const { x, y } = useDraggable(elRef);
+
+  useEffect(() => {
+    if (!elRef.current) return;
+    elRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  }, [x, y]);
 
   const { error } = getAuthState();
 
@@ -90,7 +105,7 @@ export function SignIn() {
 
   return (
     <>
-      <div className="window">
+      <div className="window" ref={(el) => (elRef.current = el)}>
         <div className="title-bar">
           <div className="title-bar-text">Sign On</div>
           <div className="title-bar-controls">
