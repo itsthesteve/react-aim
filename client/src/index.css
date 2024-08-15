@@ -13,7 +13,6 @@ body {
   place-items: center;
   font-size: 11px;
   font-family: Pixelated MS Sans Serif, Arial;
-  -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
 
@@ -23,6 +22,18 @@ body {
 }
 
 /* XP.css overrides */
+/* TODO: There's a lot of specific places this needs, can't be a blanket application
+.window,
+ul.tree-view,
+.status-bar-field {
+  -webkit-font-smoothing: none;
+}
+*/
+
+.title-bar {
+  -webkit-font-smoothing: antialiased;
+}
+
 details > summary {
   list-style: none;
 }
