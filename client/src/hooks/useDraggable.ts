@@ -1,6 +1,8 @@
 import { MutableRefObject, useCallback, useEffect, useState } from "react";
 
 export interface DragState {
+  elementX: number;
+  elementY: number;
   currentX: number;
   currentY: number;
   initialX: number;
@@ -13,6 +15,8 @@ export interface DragState {
 }
 
 const initialState: DragState = {
+  elementX: 0,
+  elementY: 0,
   currentX: 0,
   currentY: 0,
   initialX: 0,
@@ -26,6 +30,12 @@ const initialState: DragState = {
 
 export function useDraggable<T extends HTMLElement | null>(ref: MutableRefObject<T>) {
   const [state, setState] = useState<DragState>(initialState);
+
+  useEffect(() => {
+    if (!ref?.current) return;
+    const { offsetLeft, offsetTop } = ref.current;
+    setState((prev) => ({ ...prev, elementX: offsetLeft, elementY: offsetTop }));
+  }, [ref]);
 
   const onMouseDown = useCallback(
     (e: MouseEvent) => {
@@ -49,21 +59,42 @@ export function useDraggable<T extends HTMLElement | null>(ref: MutableRefObject
       if (!state.pressed) return;
       const { clientX, clientY } = e;
 
-      const currentX = clientX - state.initialX;
-      const currentY = clientY - state.initialY;
+      let currentX = clientX - state.initialX;
+      let currentY = clientY - state.initialY;
+      let xOffset = currentX;
+      let yOffset = currentY;
 
-      const xOffset = currentX;
-      const yOffset = currentY;
+      // At left edge
+      if (xOffset < -state.elementX) {
+        xOffset = currentX = -state.elementX;
+      }
+
+      // At right edge
+      if (xOffset > state.elementX) {
+        xOffset = currentX = state.elementX;
+      }
+
+      // At top edge
+      if (yOffset < -state.elementY) {
+        yOffset = currentY = -state.elementY;
+      }
+
+      // At bottom edge
+      if (yOffset > state.elementY) {
+        yOffset = currentY = state.elementY;
+      }
 
       setState((prev) => ({
         ...prev,
+        elementX: ref.current!.offsetLeft,
+        elementY: ref.current!.offsetTop,
         currentX,
         currentY,
         xOffset,
         yOffset,
       }));
     },
-    [state.initialX, state.initialY, state.pressed]
+    [ref, state.initialX, state.initialY, state.pressed, state.elementX, state.elementY]
   );
 
   const onMouseUp = useCallback(() => {
