@@ -1,11 +1,11 @@
 import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
 import { useLoaderData } from "react-router-dom";
-import { useMessagesContext } from "../../../context/messages/hook";
-import { ChatLoaderType } from "../../../routes/chat";
-import { getAuthState } from "../../../store/auth";
-import KeyboardSpan from "../../KeyboardSpan";
+import KeyboardSpan from "~/components/KeyboardSpan";
+import { MessageError } from "~/context/messages/errors";
+import { useMessagesContext } from "~/context/messages/hook";
+import { ChatLoaderType } from "~/routes/chat";
+import { getAuthState } from "~/store/auth";
 import styles from "./styles.module.css";
-import { MessageError } from "../../../context/messages/errors";
 
 export default function ChatInput() {
   const { user } = getAuthState();

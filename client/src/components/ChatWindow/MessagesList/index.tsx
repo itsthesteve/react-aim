@@ -1,11 +1,11 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router-dom";
-import { MessageData } from "../../../context/messages/context";
-import { useMessagesContext } from "../../../context/messages/hook";
-import { ChatLoaderType } from "../../../routes/chat";
+import { MessageData } from "~/context/messages/context";
+import { useMessagesContext } from "~/context/messages/hook";
+import { ChatLoaderType } from "~/routes/chat";
 import styles from "./styles.module.css";
 
-import { getAuthState } from "../../../store/auth";
+import { getAuthState } from "~/store/auth";
 
 function MessagesList() {
   const { user } = getAuthState();

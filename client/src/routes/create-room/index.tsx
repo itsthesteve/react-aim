@@ -1,4 +1,4 @@
-import CreateRoomWindow from "../../components/CreateRoomWindow";
+import CreateRoomWindow from "~/components/CreateRoomWindow";
 
 export function CreateRoom() {
   return <CreateRoomWindow />;

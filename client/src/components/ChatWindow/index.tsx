@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import ChatInput from "../../components/ChatWindow/ChatInput";
-import MessagesList from "../../components/ChatWindow/MessagesList";
-import UserList from "../../components/ChatWindow/RoomsList";
-import { ChatLoaderType } from "../../routes/chat";
+import ChatInput from "~/components/ChatWindow/ChatInput";
+import MessagesList from "~/components/ChatWindow/MessagesList";
+import UserList from "~/components/ChatWindow/RoomsList";
+import { useDraggable } from "~/hooks/useDraggable";
+import { ChatLoaderType } from "~/routes/chat";
 import styles from "./styles.module.css";
-import { useDraggable } from "../../hooks/useDraggable";
 
 export default function ChatWindow() {
   const navigate = useNavigate();

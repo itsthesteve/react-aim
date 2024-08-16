@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useCallback, useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import logger from "../../logger";
-import { ChatLoaderType } from "../../routes/chat";
+import logger from "~/logger";
+import { ChatLoaderType } from "~/routes/chat";
 import { MessageError } from "./errors";
 
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);

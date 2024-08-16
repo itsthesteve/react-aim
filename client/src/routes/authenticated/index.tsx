@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { getAuthState } from "../../store/auth";
+import { getAuthState } from "~/store/auth";
 
 export default function AuthenticatedRoute() {
   const { loading, user } = getAuthState();

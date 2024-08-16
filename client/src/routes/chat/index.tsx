@@ -1,9 +1,9 @@
 import { LoaderFunctionArgs, Navigate, useSearchParams } from "react-router-dom";
-import ChatWindow from "../../components/ChatWindow";
-import { MessagesProvider } from "../../context/messages/context";
-import { DEFAULT_ROOM } from "../../types/room";
+import ChatWindow from "~/components/ChatWindow";
+import { MessagesProvider } from "~/context/messages/context";
+import { DEFAULT_ROOM } from "~/types/room";
 import { useEffect, useState } from "react";
-import { isAuthorized } from "../../common";
+import { isAuthorized } from "~/common";
 
 export function ChatRoute() {
   const [authing, setAuthing] = useState({

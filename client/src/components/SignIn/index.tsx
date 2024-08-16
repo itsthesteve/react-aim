@@ -9,12 +9,12 @@ import {
 } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { AppDispatch } from "../../store";
-import { getAuthState } from "../../store/auth";
-import { signInAction } from "../../store/auth/sign-in";
-import { DEFAULT_ROOM } from "../../types/room";
+import { AppDispatch } from "~/store";
+import { getAuthState } from "~/store/auth";
+import { signInAction } from "~/store/auth/sign-in";
+import { DEFAULT_ROOM } from "~/types/room";
 import styles from "./signin.module.css";
-import { useDraggable } from "../../hooks/useDraggable";
+import { useDraggable } from "~/hooks/useDraggable";
 
 const processingSteps = [
   { step: 1, text: "Connecting..." },
