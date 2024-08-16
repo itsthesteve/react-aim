@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router-dom";
 import { MessageData } from "../../../context/messages/context";
 import { useMessagesContext } from "../../../context/messages/hook";
@@ -7,7 +7,7 @@ import styles from "./styles.module.css";
 
 import { getAuthState } from "../../../store/auth";
 
-export default function MessagesList() {
+function MessagesList() {
   const { user } = getAuthState();
   const { room } = useLoaderData() as ChatLoaderType;
   const { subscribe, getMessages } = useMessagesContext();
@@ -49,3 +49,5 @@ export default function MessagesList() {
     </section>
   );
 }
+
+export default memo(MessagesList);
