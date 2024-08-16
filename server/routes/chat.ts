@@ -1,5 +1,4 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 import { db } from "../data/index.ts";
 import { Message, MessageData } from "../data/models.ts";
 import {

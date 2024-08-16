@@ -39,9 +39,11 @@ function UserList() {
   });
 
   useEffect(() => {
+    const controller = new AbortController();
     fetch("/api/rooms", {
       method: "GET",
       credentials: "include",
+      signal: controller.signal,
     })
       .then((res) => res.json())
       .then(({ userRooms, globalRooms, publicRooms }) => {
@@ -51,6 +53,8 @@ function UserList() {
           public: publicRooms,
         });
       });
+
+    return () => controller.abort("Unmounted");
   }, []);
 
   return (

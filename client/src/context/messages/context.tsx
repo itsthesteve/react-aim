@@ -23,7 +23,7 @@ export type MessageContextType = {
   subscribe: (room: string, fn: CallableFunction) => void;
   unsubscribe: (room: string) => void;
   sendMessage: (message: Message) => Promise<void>;
-  getMessages: () => Promise<MessageData[]>;
+  getMessages: (signal: AbortSignal) => Promise<MessageData[]>;
 };
 
 type Props = {
@@ -33,6 +33,7 @@ type Props = {
 export const MessagesProvider = ({ children }: Props) => {
   const navigate = useNavigate();
   const { room } = useLoaderData() as ChatLoaderType;
+
   const eventSrcRef = useRef<EventSource>();
   const listeners = useRef<Record<string, CallableFunction>>({});
 
@@ -103,20 +104,24 @@ export const MessagesProvider = ({ children }: Props) => {
    * Retrieve all messages for the channel.
    * The roomName is retrieved from the chatLoader function set in the router.
    */
-  const getMessages = useCallback(async () => {
-    const response = await fetch(`/api/chat/?room=${room}`, {
-      method: "GET",
-      credentials: "include",
-    });
+  const getMessages = useCallback(
+    async (signal: AbortSignal) => {
+      const response = await fetch(`/api/chat/?room=${room}`, {
+        method: "GET",
+        credentials: "include",
+        signal,
+      });
 
-    if (!response.ok) {
-      console.warn("Unable to get channel messages", response);
-      // TODO: Navigate to 404
-      navigate("/404", { replace: true });
-    }
+      if (!response.ok) {
+        console.warn("Unable to get channel messages", response);
+        // TODO: Navigate to 404
+        navigate("/404", { replace: true });
+      }
 
-    return await response.json();
-  }, [room, navigate]);
+      return await response.json();
+    },
+    [room, navigate]
+  );
 
   return (
     <>
