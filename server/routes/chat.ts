@@ -1,41 +1,25 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 import { db } from "../data/index.ts";
 import { Message, MessageData } from "../data/models.ts";
 import {
   AuthMiddleware,
+  BouncerMiddleware,
   JsonResponseMiddleware,
   RateLimitMiddleware,
 } from "../middleware/index.ts";
-import { canAccess } from "../utils/room.ts";
-import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 
 const router = new Router({
   prefix: "/chat",
 });
 
-router.use(AuthMiddleware);
+router.use(AuthMiddleware).use(BouncerMiddleware);
 
 /**
  * Get's all the messages for the channel based on the roomId search param at once.
  */
-router.get("/", JsonResponseMiddleware, async ({ request, response, state }) => {
-  // Ensure there's a room parameter
-  const room = request.url.searchParams.get("room");
-  if (!room) {
-    response.status = 400;
-    response.body = { ok: false, reason: "NOROOMID" };
-    return;
-  }
-
-  // Check the room exists/is public
-  const exists = await canAccess(room, state.username);
-  if (!exists) {
-    response.status = 404;
-    response.body = { ok: false, reason: "NOROOM" };
-    return;
-  }
-
-  const entries = db.list({ prefix: ["message", room] });
+router.get("/", JsonResponseMiddleware, async ({ request, response, state, cookies }) => {
+  const entries = db.list({ prefix: ["message", state.currentRoom] });
   const result = [];
   for await (const entry of entries) {
     result.push(entry.value);
@@ -48,13 +32,7 @@ router.get("/", JsonResponseMiddleware, async ({ request, response, state }) => 
  * Server Sent Events endpoint ƒor getting messages
  */
 router.get("/messages", async (ctx) => {
-  const roomName = ctx.request.url.searchParams.get("room");
-  if (!roomName) {
-    ctx.response.status = 400;
-    ctx.response.body = { ok: false, reason: "NOROOMID" };
-    return;
-  }
-
+  const roomName = ctx.state.currentRoom;
   const target = await ctx.sendEvents();
 
   // Provided by AuthProvider
