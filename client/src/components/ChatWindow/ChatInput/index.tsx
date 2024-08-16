@@ -80,7 +80,7 @@ export default function ChatInput() {
           onClick={submit}
           disabled={!message.length}
           className={`${styles.sendButton} p-0 m-0 border-0 bg-none flex flex-col gap-2 w-16 items-center justify-center`}>
-          <img src="/aimguy.png" width="32" height="32"></img>
+          <img src="/aimguy-32.png" width="32" height="32"></img>
           <KeyboardSpan listener={() => sendListener()}>Send</KeyboardSpan>
         </button>
       </div>

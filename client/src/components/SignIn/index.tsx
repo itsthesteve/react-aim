@@ -116,7 +116,7 @@ export function SignIn() {
           className={`window-body grid ${styles.content}`}
           style={{ background: "rgb(236, 233, 216)" }}>
           <header className="bg-blue-700 aspect-square w-40 text-center font-sans font-bold flex flex-col text-white justify-between p-4">
-            <img className="self-end" src="/aimguy.png" width="112" height="122" />
+            <img className="self-end" src="/aimguy-256.png" width="112" height="122" />
             React Instant Messenger
           </header>
           {!submitted ? (

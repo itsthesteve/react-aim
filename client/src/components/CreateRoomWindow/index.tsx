@@ -54,7 +54,7 @@ export default function CreateRoomWindow() {
         </div>
         <div className="window-body grid place-items-center">
           <header className="bg-blue-700 w-40 aspect-square text-center font-sans font-bold flex flex-col text-white justify-between p-4">
-            <img className="self-end" src="/aimguy.png" width="112" height="122" />
+            <img className="self-end" src="/aimguy-256.png" width="112" height="122" />
             React Instant Messenger
           </header>
           <form className="w-full py-4" onSubmit={onSubmit}>
