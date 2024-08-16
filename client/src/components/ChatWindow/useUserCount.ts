@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import logger from "../../logger";
+import logger from "~/logger";
 
 export default function useUserCount(roomName: string) {
   const [users, setUsers] = useState([]);

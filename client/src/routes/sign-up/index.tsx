@@ -1,6 +1,6 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SignUpAuthCredentials } from "../../store/auth";
+import { SignUpAuthCredentials } from "~/store/auth";
 
 const signUp = async (creds: SignUpAuthCredentials) => {
   const res = await fetch("/api/auth/create", {

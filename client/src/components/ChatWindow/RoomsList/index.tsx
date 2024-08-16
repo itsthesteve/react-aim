@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
-import { ChatLoaderType } from "../../../routes/chat";
-import { ChatRoom } from "../../../types/room";
+import { ChatLoaderType } from "~/routes/chat";
+import { ChatRoom } from "~/types/room";
 
 interface RoomListItemProps {
   /* Name of the room the chat window is currently servicing */

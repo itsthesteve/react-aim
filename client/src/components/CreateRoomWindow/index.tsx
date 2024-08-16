@@ -1,7 +1,7 @@
 import { FormEventHandler, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { getAuthState } from "../../store/auth";
-import { ChatRoom } from "../../types/room";
+import { getAuthState } from "~/store/auth";
+import { ChatRoom } from "~/types/room";
 
 export default function CreateRoomWindow() {
   const [roomName, setRoomName] = useState<string>();
