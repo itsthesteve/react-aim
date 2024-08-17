@@ -3,39 +3,22 @@ import { db } from "../data/index.ts";
 import { Message, MessageData } from "../data/models.ts";
 import {
   AuthMiddleware,
+  BouncerMiddleware,
   JsonResponseMiddleware,
   RateLimitMiddleware,
 } from "../middleware/index.ts";
-import { canAccess } from "../utils/room.ts";
-import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 
 const router = new Router({
   prefix: "/chat",
 });
 
-router.use(AuthMiddleware);
+router.use(AuthMiddleware).use(BouncerMiddleware);
 
 /**
  * Get's all the messages for the channel based on the roomId search param at once.
  */
-router.get("/", JsonResponseMiddleware, async ({ request, response, state }) => {
-  // Ensure there's a room parameter
-  const room = request.url.searchParams.get("room");
-  if (!room) {
-    response.status = 400;
-    response.body = { ok: false, reason: "NOROOMID" };
-    return;
-  }
-
-  // Check the room exists/is public
-  const exists = await canAccess(room, state.username);
-  if (!exists) {
-    response.status = 404;
-    response.body = { ok: false, reason: "NOROOM" };
-    return;
-  }
-
-  const entries = db.list({ prefix: ["message", room] });
+router.get("/", JsonResponseMiddleware, async ({ response, state }) => {
+  const entries = db.list({ prefix: ["message", state.currentRoom] });
   const result = [];
   for await (const entry of entries) {
     result.push(entry.value);
@@ -48,13 +31,7 @@ router.get("/", JsonResponseMiddleware, async ({ request, response, state }) => 
  * Server Sent Events endpoint ƒor getting messages
  */
 router.get("/messages", async (ctx) => {
-  const roomName = ctx.request.url.searchParams.get("room");
-  if (!roomName) {
-    ctx.response.status = 400;
-    ctx.response.body = { ok: false, reason: "NOROOMID" };
-    return;
-  }
-
+  const roomName = ctx.state.currentRoom;
   const target = await ctx.sendEvents();
 
   // Provided by AuthProvider
@@ -97,64 +74,14 @@ router.get("/messages", async (ctx) => {
  * Receieves a message payload from the chat window and saves to the KV
  * store with the keys "message" and the channel ID.
  */
-router.post("/", async ({ request, response, cookies }) => {
-  const requestRoom = request.url.searchParams.get("room");
-  const roomName = await cookies.get(AUTH_PRESENCE_COOKIE);
-  if (!roomName) {
-    response.status = 400;
-    response.body = { ok: false, reason: "NOPRESENCE" };
-    return;
-  }
-
-  if (requestRoom !== roomName) {
-    response.status = 401;
-    response.body = { ok: false, reason: "CONFLICTINGPRESENCE" };
-    return;
-  }
-
-  console.log("Passed:", requestRoom, roomName);
-
-  try {
-    const body: Message = await request.body.json();
-
-    await db.set(["message", roomName, body.data.id], body.data);
-    await db.set(["last_message_id", roomName], body.data.id);
-
-    response.status = 201;
-    response.body = { result: "OK" };
-  } catch (e) {
-    console.warn("Error saving", e);
-
-    response.status = 400;
-    response.body = { result: ":(" };
-  }
-});
-
-/**
- * Receieves a message payload from the chat window and saves to the KV
- * store with the keys "message" and the channel ID.
- */
 router.post(
   "/message",
   await RateLimitMiddleware({
     windowMs: 1000,
     max: () => 3,
   }),
-  async ({ request, response, cookies }) => {
-    const requestRoom = request.url.searchParams.get("room");
-    const roomName = await cookies.get(AUTH_PRESENCE_COOKIE);
-    if (!roomName) {
-      response.status = 400;
-      response.body = { ok: false, reason: "NOPRESENCE" };
-      return;
-    }
-
-    if (requestRoom !== roomName) {
-      response.status = 401;
-      response.body = { ok: false, reason: "CONFLICTINGPRESENCE" };
-      return;
-    }
-
+  async ({ request, response, state }) => {
+    const roomName = state.currentRoom;
     try {
       const body: Message = await request.body.json();
 

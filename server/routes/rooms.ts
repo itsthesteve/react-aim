@@ -1,50 +1,16 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import * as uuid from "jsr:@std/uuid";
 import { ChatRoom } from "../../client/src/types/room.ts";
+import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 import { db } from "../data/index.ts";
 import { MessageData } from "../data/models.ts";
-import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
-import { canAccess } from "../utils/room.ts";
-import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE } from "../cookies.ts";
+import { AuthMiddleware, BouncerMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/rooms",
 });
 
 router.use(AuthMiddleware).use(JsonResponseMiddleware);
-
-/**
- * Set the online flag for the given room
- */
-router.get("/access", async ({ request, response, cookies, state }) => {
-  const room = request.url.searchParams.get("room");
-
-  // Dunno what you're looking for...
-  if (!room) {
-    response.body = { ok: false, reason: "NOROOM" };
-    response.status = 400;
-    return;
-  }
-
-  const exists = await canAccess(room, state.username);
-  if (!exists) {
-    console.warn(`Room ${room} doesn't exist or is not public.`);
-    response.status = 404;
-    response.body = { ok: false, reason: "NOROOM" };
-    return;
-  }
-
-  // ...otherwise, everything's good. Set the cookie and allow passage.
-  await cookies.set(AUTH_PRESENCE_COOKIE, room, {
-    path: "/",
-    secure: false,
-    httpOnly: true,
-    maxAge: 31536000,
-  });
-
-  response.status = 200;
-  response.body = { ok: true };
-});
 
 router.get("/", async ({ response, state }) => {
   const userRoomRows = db.list({ prefix: ["rooms", state.username] });
