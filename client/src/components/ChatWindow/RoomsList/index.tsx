@@ -1,6 +1,7 @@
 import { memo, useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import { ChatLoaderType } from "~/routes/chat";
+import { User } from "~/store/auth";
 import { ChatRoom } from "~/types/room";
 
 interface RoomListItemProps {
@@ -29,7 +30,7 @@ const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemP
   );
 };
 
-function UserList() {
+function UserList({ users }: { users: { user: User; state: string }[] }) {
   const { room } = useLoaderData() as ChatLoaderType;
   const [visibleTab, setVisibleTab] = useState(0);
   const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({
@@ -132,11 +133,11 @@ function UserList() {
             </p>
             <hr className="mb-0" />
             <ul className="h-full m-0 p-0 list-none overflow-auto">
-              {/* {online.map((user) => (
-                <li key={user.username} className="px-2 py-1 hover:bg-slate-200">
-                  {JSON.stringify(user)}
+              {users.map((entry) => (
+                <li key={entry.user.username} className="px-2 py-1 hover:bg-slate-200">
+                  {entry.user.username} ({entry.state})
                 </li>
-              ))} */}
+              ))}
             </ul>
           </article>
         </section>

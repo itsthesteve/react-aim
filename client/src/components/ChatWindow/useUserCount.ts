@@ -14,12 +14,11 @@ export default function usePresence(room: string) {
 
     function onMessage(message: MessageEvent) {
       const data = JSON.parse(message.data);
-      console.log("onMessage", data);
-      setUsers(data);
+      setUsers(data.results);
     }
 
     function onError(e: Event) {
-      console.log("!!! EventSource error", e);
+      console.log("EventSource error", e);
     }
     return () => {
       evtRef.current?.removeEventListener("message", onMessage);

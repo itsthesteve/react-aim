@@ -17,8 +17,6 @@ export default function ChatWindow() {
   const sendLogout = useBeacon();
   const onlineUsers = usePresence(room);
 
-  const online = onlineUsers.result?.filter((user) => user.status === "active");
-
   useEffect(() => {
     if (!elRef.current) return;
     elRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
@@ -49,13 +47,13 @@ export default function ChatWindow() {
         <div className={styles.chatContainer}>
           <MessagesList />
           <ChatInput />
-          <UserList />
+          <UserList users={onlineUsers} />
         </div>
       </div>
       <div className="status-bar mx-0">
         <div className="flex">
           <p className="status-bar-field px-2">Current channel: {room}</p>
-          <p className="status-bar-field pr-2">{online?.length} member(s) online</p>
+          <p className="status-bar-field pr-2">{onlineUsers?.length} member(s) online</p>
           <p className="status-bar-field pr-2">CPU Usage: 14%</p>
         </div>
       </div>
