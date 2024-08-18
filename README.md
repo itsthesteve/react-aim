@@ -19,15 +19,13 @@ One major caveat is this uses a fork of the `oak-rate-limit` package on github. 
 update that adds the Deno KV store, which can be found
 [here](https://github.com/itsthesteve/oak-rate-limit).
 
-<div style="padding: .6rem 1rem; margin: 1rem 0; color: brick; border: 1px solid red">
-I'm using an import map to change the destination to the remote fork. Not sure if this will work
-forever or for everyone, so once I test the forked code I'll need to publish to denoland for a
-proper import.
-</div>
+> Note: I'm using an import map to change the destination to the remote fork. Not sure if this will
+> work forever or for everyone, so once I test the forked code I'll need to publish to denoland for
+> a proper import.
 
 As mentioned before, you'll need to have
 [Deno](https://docs.deno.com/runtime/manual/getting_started/installation/) installed. This is using
-v1.45.5.
+`v1.45.5`.
 
 I'm also using the [denokv](https://github.com/denoland/denokv) library as the local KV server. This
 uses Docker so that needs to be running.
@@ -35,17 +33,23 @@ uses Docker so that needs to be running.
 Once all that's installed, open 3 terminals windows. In two, `cd` into `./server` and run the
 following:
 
-Starts the `denokv` server on `4512`. This is needed for Deno's key/value store. Kinda like a redis
+Start the `denokv` server on `4512`. This is needed for Deno's key/value store. Kinda like a redis
 server:
 
 - `docker run -it --init -p 4512:4512 -v ./data:/data ghcr.io/denoland/denokv --sqlite-path /data/react-chat.sqlite serve --access-token qwepoi9832745` -
 
-Starts the API server on port 9000
+Start the API server on port 9000
 
 - `deno task start`
 
-Finally, `cd ./client` and run the dev server:
+Finally, `cd ./client`, run `npm install` and run the dev server:
 
 - `npm run dev`
 
-> I haven't tested a fresh install as of yet, so more steps might be needed
+> Note: I haven't tested a fresh install as of yet, so more steps might be needed
+
+### Misc
+
+e2e testing has been set up but isn't fully fleshed out. I'm using playwright and it can be run via
+`npm run test` in the client dir. Tests for the server, especially rate limiting and payload
+validation is todo.
