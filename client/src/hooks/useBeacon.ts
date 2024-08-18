@@ -3,8 +3,10 @@ import { useLoaderData, useLocation } from "react-router-dom";
 import { ChatLoaderType } from "~/routes/chat";
 import { getAuthState, User } from "~/store/auth";
 
-function sendBeacon(event: string, user: User, room: string, present: boolean) {
-  navigator.sendBeacon("/api/debug/test", JSON.stringify({ event, user, room, present }));
+type BeaconEvents = "visibilitychange" | "unload" | "load" | "logout";
+
+function sendBeacon(event: BeaconEvents, user: User, room: string, present: boolean) {
+  navigator.sendBeacon("/api/rooms/presence", JSON.stringify({ event, user, room, present }));
 }
 
 /**
@@ -19,7 +21,7 @@ export default function useBeacon() {
 
   const onVizChange = useCallback(
     (e: Event) => {
-      sendBeacon(e.type, user!, room, document.visibilityState === "visible");
+      sendBeacon(e.type as BeaconEvents, user!, room, document.visibilityState === "visible");
     },
     [room, user]
   );
@@ -37,6 +39,7 @@ export default function useBeacon() {
     sendBeacon("load", user, room, true);
 
     return () => {
+      sendBeacon("unload", user, room, false);
       document.removeEventListener("visibilitychange", onVizChange);
     };
   }, [room, user, onVizChange, onBeforeUnload, location.search]);

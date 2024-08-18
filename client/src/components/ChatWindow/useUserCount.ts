@@ -1,57 +1,31 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import logger from "~/logger";
+import { useEffect, useRef, useState } from "react";
 
-export default function useUserCount(roomName: string) {
+export default function usePresence(room: string) {
   const [users, setUsers] = useState([]);
   const evtRef = useRef<EventSource>();
 
-  const setOnline = useCallback(
-    (present: boolean) => {
-      return fetch("/api/rooms/online", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({
-          room: roomName,
-          present,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    },
-    [roomName]
-  );
-
   useEffect(() => {
-    setOnline(true)
-      .then(() => {
-        evtRef.current = new EventSource(`/api/roooms/online?room=${roomName}`, {
-          withCredentials: true,
-        });
+    evtRef.current = new EventSource(`/api/rooms/presence?room=${room}`, {
+      withCredentials: true,
+    });
 
-        evtRef.current.addEventListener("message", onMessage);
-        evtRef.current.addEventListener("error", onError);
-      })
-      .catch(logger.warn);
+    evtRef.current.addEventListener("message", onMessage);
+    evtRef.current.addEventListener("error", onError);
 
     function onMessage(message: MessageEvent) {
       const data = JSON.parse(message.data);
-      setUsers(data);
+      setUsers(data.results);
     }
 
     function onError(e: Event) {
-      console.log("!!! EventSource error", e);
+      console.log("EventSource error", e);
     }
     return () => {
-      setOnline(false)
-        .then(() => {
-          evtRef.current?.removeEventListener("message", onMessage);
-          evtRef.current?.removeEventListener("error", onError);
-          evtRef.current?.close();
-        })
-        .catch(logger.warn);
+      evtRef.current?.removeEventListener("message", onMessage);
+      evtRef.current?.removeEventListener("error", onError);
+      evtRef.current?.close();
     };
-  }, [roomName, setOnline]);
+  }, [room]);
 
   return users;
 }

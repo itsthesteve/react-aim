@@ -1,27 +1,27 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
-import { RateLimitMiddleware } from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/debug",
 });
 
-router.post("/test", async ({ request, response }) => {
-  const body = await request.body.json();
+router.get("/test", async ({ response }) => {
+  const list = db.list({ prefix: ["presence"] });
+  for await (const entry of list) {
+    console.log(entry);
+  }
 
-  console.log(body);
   response.status = 200;
 });
 
-router.post("/delete", async ({ response, request }) => {
-  const entries = await Array.fromAsync(db.list({ prefix: ["ratelimit"] }));
-  for await (const e of entries) {
-    await db.delete(e.key);
+router.delete("/test", async ({ response }) => {
+  const list = db.list({ prefix: ["presence"] });
+  for await (const entry of list) {
+    console.log("Deleted", entry);
+    await db.delete(entry.key);
   }
 
-  const left = await Array.fromAsync(db.list({ prefix: ["ratelimit"] }));
-  console.log("ok", left.length);
-  response.body = "Deleted\n";
+  response.status = 200;
 });
 
 export default router.routes();
