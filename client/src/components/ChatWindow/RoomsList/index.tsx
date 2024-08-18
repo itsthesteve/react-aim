@@ -24,7 +24,7 @@ function UserList({ users }: { users: { user: User; state: string }[] }) {
               aria-selected={visibleTab === 1}
               onClick={() => setVisibleTab(1)}
               role="tab"
-              aria-controls="tab-B">
+              aria-controls="users-tab">
               Users
             </button>
           </menu>
@@ -51,7 +51,7 @@ function UserList({ users }: { users: { user: User; state: string }[] }) {
           </article>
           <article
             role="tabpanel"
-            id="tab-B"
+            id="users-tab"
             className={`grow p-0 overflow-hidden flex-col ${visibleTab === 1 ? "flex" : "hidden"}`}>
             <p className="px-2 m-0 mt-2 text-center">
               Members of <strong>{room}</strong>
