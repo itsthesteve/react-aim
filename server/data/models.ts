@@ -1,7 +1,5 @@
 // == Chat Messages ==
-// Same as client/src/context/messages
 export interface MessageData {
-  id: string;
   owner: string;
   payload: string;
 }

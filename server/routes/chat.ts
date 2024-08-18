@@ -1,4 +1,5 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import * as uuid from "jsr:@std/uuid";
 import { db } from "../data/index.ts";
 import { Message, MessageData } from "../data/models.ts";
 import {
@@ -84,9 +85,10 @@ router.post(
     const roomName = state.currentRoom;
     try {
       const body: Message = await request.body.json();
+      const msgId = uuid.v1.generate();
 
-      await db.set(["message", roomName, body.data.id], body.data);
-      await db.set(["last_message_id", roomName], body.data.id);
+      await db.set(["message", roomName, msgId], { ...body.data, id: msgId });
+      await db.set(["last_message_id", roomName], msgId);
 
       response.status = 201;
       response.body = { result: "OK" };

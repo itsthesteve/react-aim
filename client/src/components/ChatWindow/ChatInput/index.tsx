@@ -32,7 +32,6 @@ export default function ChatInput() {
     sendMessage({
       room: room,
       data: {
-        id: "msg-" + Date.now(),
         owner: user!.username,
         payload: message,
       },

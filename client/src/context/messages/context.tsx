@@ -7,7 +7,6 @@ import { MessageError } from "./errors";
 export const MessagesContext = createContext<MessageContextType | undefined>(undefined);
 
 export interface MessageData {
-  id: string;
   owner: string;
   payload: string;
 }
