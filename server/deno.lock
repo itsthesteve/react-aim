@@ -183,6 +183,13 @@
     "https://deno.land/x/oak_rate_limit@v0.1.1/src/stores/AbstractStore.ts": "29fb349d0af41b157012e59143c3b577ad1a9c08a28335e1f7defa4829c8b20f",
     "https://deno.land/x/oak_rate_limit@v0.1.1/src/stores/MapStore.ts": "56c92a7e72ccfe202f2adb2654dd1254605551b6f047713c069ef97d3fe6886d",
     "https://deno.land/x/oak_rate_limit@v0.1.1/src/stores/mod.ts": "fcb08b9731466d503d078b981298046febabc77e217148d14650f2228dcbcbce",
-    "https://deno.land/x/oak_rate_limit@v0.1.1/src/utils/defaults.ts": "d37fd3f54c8bd1d0dcbcb0d376b1d2c4b33d4fe1bba86a166aee63d0152955c6"
+    "https://deno.land/x/oak_rate_limit@v0.1.1/src/utils/defaults.ts": "d37fd3f54c8bd1d0dcbcb0d376b1d2c4b33d4fe1bba86a166aee63d0152955c6",
+    "https://raw.githubusercontent.com/itsthesteve/oak-rate-limit/main/mod.ts": "577b6ee1f0160ec516472fcf73b6ebfe13de778b88c73ba019983b7c6bfefe97",
+    "https://raw.githubusercontent.com/itsthesteve/oak-rate-limit/main/src/ratelimit.ts": "0b24f4e95e6c6396410d3c931e8fdef013438641b1da7fa293c6988f4c33afd6",
+    "https://raw.githubusercontent.com/itsthesteve/oak-rate-limit/main/src/stores/AbstractStore.ts": "e9ec531caf6599c56af16abc81c7e309baba14268fcf38400ed824c9aafd7058",
+    "https://raw.githubusercontent.com/itsthesteve/oak-rate-limit/main/src/stores/KeyValueStore.ts": "23c5fdc20077e8c2f0d3b8f47d6b5fee81962da6140fc39062854111b1e9a3bb",
+    "https://raw.githubusercontent.com/itsthesteve/oak-rate-limit/main/src/stores/MapStore.ts": "56c92a7e72ccfe202f2adb2654dd1254605551b6f047713c069ef97d3fe6886d",
+    "https://raw.githubusercontent.com/itsthesteve/oak-rate-limit/main/src/stores/mod.ts": "4ddb0ba8cf0d91c603233b149049ae49ea2a7ded225894d62896e08f2dbb7c4d",
+    "https://raw.githubusercontent.com/itsthesteve/oak-rate-limit/main/src/utils/defaults.ts": "5884feb1d85b9fd38fc258650e982b073dd16a9ceb1b5f6da3e4ec15bef085b1"
   }
 }

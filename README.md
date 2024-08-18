@@ -20,7 +20,9 @@ update that adds the Deno KV store, which can be found
 [here](https://github.com/itsthesteve/oak-rate-limit).
 
 <div style="padding: .6rem 1rem; margin: 1rem 0; color: brick; border: 1px solid red">
-This won't work out of the box as of this commit as I'm using an import map to change the destination to the local fork. I need to update link.json to point to my GH repo. You can probably clone the repo and update the URL in link.json, but I need to make this more robust.
+I'm using an import map to change the destination to the remote fork. Not sure if this will work
+forever or for everyone, so once I test the forked code I'll need to publish to denoland for a
+proper import.
 </div>
 
 As mentioned before, you'll need to have
