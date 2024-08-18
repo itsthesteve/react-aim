@@ -6,7 +6,7 @@ const router = new Router({
 });
 
 router.get("/test", async ({ response }) => {
-  const list = db.list({ prefix: ["presence"] });
+  const list = db.list({ prefix: ["message"] });
   for await (const entry of list) {
     console.log(entry);
   }
