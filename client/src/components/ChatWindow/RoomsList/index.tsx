@@ -6,7 +6,6 @@ import RoomListGroup from "../RoomListGroup";
 
 function UserList({ users }: { users: { user: User; state: string }[] }) {
   const { room, userRooms } = useLoaderData() as ChatLoaderType;
-  console.log(room, userRooms);
   const [visibleTab, setVisibleTab] = useState(0);
 
   return (
@@ -18,7 +17,7 @@ function UserList({ users }: { users: { user: User; state: string }[] }) {
               onClick={() => setVisibleTab(0)}
               role="tab"
               aria-selected={visibleTab === 0}
-              aria-controls="tab-A">
+              aria-controls="rooms-tab">
               Rooms
             </button>
             <button
@@ -31,26 +30,22 @@ function UserList({ users }: { users: { user: User; state: string }[] }) {
           </menu>
           <article
             role="tabpanel"
-            id="tab-A"
+            id="rooms-tab"
             className={`grow p-0 overflow-hidden flex-col ${visibleTab === 0 ? "flex" : "hidden"}`}>
-            <ul className="tree-view">
+            <ul className="tree-view" aria-label="List of rooms">
               <li>
-                <details open>
-                  <summary>Global ({userRooms.global.length})</summary>
-                  <RoomListGroup data={userRooms.global} current={room} />
-                </details>
+                <RoomListGroup title="Global" open={true} data={userRooms.global} current={room} />
               </li>
               <li>
-                <details open>
-                  <summary>Your rooms ({userRooms.user.length})</summary>
-                  <RoomListGroup data={userRooms.user} current={room} />
-                </details>
+                <RoomListGroup title="Your rooms" data={userRooms.user} current={room} />
               </li>
               <li>
-                <details>
-                  <summary>Public rooms ({userRooms.open.length})</summary>
-                  <RoomListGroup data={userRooms.open} current={room} icon={true} />
-                </details>
+                <RoomListGroup
+                  title="Public rooms"
+                  data={userRooms.open}
+                  current={room}
+                  icon={true}
+                />
               </li>
             </ul>
           </article>
