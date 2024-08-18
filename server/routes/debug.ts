@@ -6,17 +6,12 @@ const router = new Router({
   prefix: "/debug",
 });
 
-router.get(
-  "/test",
-  // @ts-ignore Deno doesn't like this due to a mismatch in Oak version
-  await RateLimitMiddleware({
-    windowMs: 10000,
-    max: () => 100,
-  }),
-  async ({ request, response }) => {
-    response.body = "test OK\n";
-  }
-);
+router.post("/test", async ({ request, response }) => {
+  const body = await request.body.json();
+
+  console.log(body);
+  response.status = 200;
+});
 
 router.post("/delete", async ({ response, request }) => {
   const entries = await Array.fromAsync(db.list({ prefix: ["ratelimit"] }));

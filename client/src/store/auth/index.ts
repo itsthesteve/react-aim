@@ -14,16 +14,13 @@ export interface AuthCredentials {
   password: string;
 }
 
-// Used in the sign up form, adds the verification field to the AuthCredentials interface
+// Used in the sign up form,ß adds the verification field to the AuthCredentials interface
 export interface SignUpAuthCredentials extends AuthCredentials {
   verifyPassword: string;
 }
 
 // Provider context type
 export interface AuthState {
-  // signUp: (creds: SignUpAuthCredentials) => Promise<boolean>;
-  // login: (creds: AuthCredentials) => Promise<User>;
-  // logout: () => Promise<void>;
   user: User | null;
   error: string | null;
   loading: boolean;

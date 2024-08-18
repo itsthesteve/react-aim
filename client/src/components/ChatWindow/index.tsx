@@ -6,12 +6,14 @@ import UserList from "~/components/ChatWindow/RoomsList";
 import { useDraggable } from "~/hooks/useDraggable";
 import { ChatLoaderType } from "~/routes/chat";
 import styles from "./styles.module.css";
+import useBeacon from "~/hooks/useBeacon";
 
 export default function ChatWindow() {
   const navigate = useNavigate();
   const elRef = useRef<HTMLDivElement | null>(null);
   const { room } = useLoaderData() as ChatLoaderType;
   const { x, y } = useDraggable(elRef);
+  const sendLogout = useBeacon();
 
   useEffect(() => {
     if (!elRef.current) return;
@@ -19,13 +21,14 @@ export default function ChatWindow() {
   }, [x, y]);
 
   const logout = useCallback(async () => {
+    sendLogout();
     await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",
     });
 
     navigate("/", { replace: true });
-  }, [navigate]);
+  }, []);
 
   return (
     <div className={`window ${styles.windowContainer}`} ref={(el) => (elRef.current = el)}>
