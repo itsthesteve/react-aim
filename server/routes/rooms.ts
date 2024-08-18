@@ -5,7 +5,6 @@ import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 import { db } from "../data/index.ts";
 import { MessageData, User } from "../data/models.ts";
 import { AuthMiddleware, BouncerMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
-import { UserAgent } from "https://deno.land/x/oak@v16.1.0/deps.ts";
 
 const router = new Router({
   prefix: "/rooms",
@@ -31,13 +30,13 @@ router.get("/", async ({ response, state }) => {
   }
 
   const publicRoomRows = await Array.fromAsync(db.list<ChatRoom>({ prefix: ["rooms"] }));
-  const publicRooms = publicRoomRows
+  const open = publicRoomRows
     // Filter out rooms that are either global or created by the current user
     .filter((room) => !["__admin__", state.username].includes(room.value.createdBy))
     .filter((room) => !!room.value.isPublic)
     .map((obj) => obj.value);
 
-  response.body = { ok: true, userRooms, globalRooms, publicRooms };
+  response.body = { ok: true, user: userRooms, global: globalRooms, open };
 });
 
 /**

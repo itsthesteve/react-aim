@@ -1,62 +1,13 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import { ChatLoaderType } from "~/routes/chat";
 import { User } from "~/store/auth";
-import { ChatRoom } from "~/types/room";
-
-interface RoomListItemProps {
-  /* Name of the room the chat window is currently servicing */
-  currentRoom: string;
-
-  /* The room object in the current iteration */
-  listedRoom: ChatRoom;
-
-  /* Prevents rendering of the global icon, redundant for "global" rooms */
-  skipGlobalIcon?: boolean;
-}
-
-/**
- * Helper component for rendering each of the type of rooms in the list
- */
-const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemProps) => {
-  return (
-    <li
-      title={listedRoom.isPublic ? "Public" : "Private"}
-      className={`flex items-center gap-1 ${currentRoom === listedRoom.name ? "font-bold" : ""}`}
-      key={listedRoom.id}>
-      <Link to={`/chat?room=${listedRoom.name}`}>{listedRoom.name}</Link>
-      {!skipGlobalIcon && listedRoom.isPublic && <img src="/public.png" width="12" height="12" />}
-    </li>
-  );
-};
+import RoomListGroup from "../RoomListGroup";
 
 function UserList({ users }: { users: { user: User; state: string }[] }) {
-  const { room } = useLoaderData() as ChatLoaderType;
+  const { room, userRooms } = useLoaderData() as ChatLoaderType;
+  console.log(room, userRooms);
   const [visibleTab, setVisibleTab] = useState(0);
-  const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({
-    user: [],
-    global: [],
-    public: [],
-  });
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/rooms", {
-      method: "GET",
-      credentials: "include",
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
-      .then(({ userRooms, globalRooms, publicRooms }) => {
-        setRooms({
-          user: userRooms,
-          global: globalRooms,
-          public: publicRooms,
-        });
-      });
-
-    return () => controller.abort("Unmounted");
-  }, []);
 
   return (
     <>
@@ -85,41 +36,20 @@ function UserList({ users }: { users: { user: User; state: string }[] }) {
             <ul className="tree-view">
               <li>
                 <details open>
-                  <summary>Global ({rooms.global.length})</summary>
-                  <ul>
-                    {rooms.global.map((globalRoom) => (
-                      <li
-                        className={globalRoom.name === room ? "font-bold" : ""}
-                        key={globalRoom.id}>
-                        <Link to="/chat">{globalRoom.name}</Link>
-                      </li>
-                    ))}
-                  </ul>
+                  <summary>Global ({userRooms.global.length})</summary>
+                  <RoomListGroup data={userRooms.global} current={room} />
                 </details>
               </li>
               <li>
                 <details open>
-                  <summary>Your rooms ({rooms.user.length})</summary>
-                  <ul>
-                    {rooms.user.map((userRoom) => (
-                      <RoomListItem key={userRoom.id} currentRoom={room} listedRoom={userRoom} />
-                    ))}
-                  </ul>
+                  <summary>Your rooms ({userRooms.user.length})</summary>
+                  <RoomListGroup data={userRooms.user} current={room} />
                 </details>
               </li>
               <li>
                 <details>
-                  <summary>Public rooms ({rooms.public.length})</summary>
-                  <ul>
-                    {rooms.public.map((publicRoom) => (
-                      <RoomListItem
-                        skipGlobalIcon={true}
-                        key={publicRoom.id}
-                        currentRoom={room}
-                        listedRoom={publicRoom}
-                      />
-                    ))}
-                  </ul>
+                  <summary>Public rooms ({userRooms.open.length})</summary>
+                  <RoomListGroup data={userRooms.open} current={room} icon={true} />
                 </details>
               </li>
             </ul>

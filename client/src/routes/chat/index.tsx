@@ -2,7 +2,7 @@ import { LoaderFunctionArgs, Navigate } from "react-router-dom";
 import ChatWindow from "~/components/ChatWindow";
 import { MessagesProvider } from "~/context/messages/context";
 import { getAuthState } from "~/store/auth";
-import { DEFAULT_ROOM } from "~/types/room";
+import { ChatRoom, DEFAULT_ROOM } from "~/types/room";
 
 export function ChatRoute() {
   const { loading, user } = getAuthState();
@@ -24,6 +24,7 @@ export function ChatRoute() {
 
 export type ChatLoaderType = {
   room: string;
+  userRooms: { user: ChatRoom[]; global: ChatRoom[]; open: ChatRoom[] };
 };
 
 /**
@@ -40,7 +41,14 @@ export async function chatRouteLoader({ request }: LoaderFunctionArgs) {
     throw new Response("Invalid room name", { status: 400 });
   }
 
+  const response = await fetch("/api/rooms", {
+    method: "GET",
+    credentials: "include",
+  });
+  const userRooms = await response.json();
+
   return {
     room,
+    userRooms,
   };
 }
