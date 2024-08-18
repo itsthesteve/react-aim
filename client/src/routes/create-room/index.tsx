@@ -10,8 +10,8 @@ export async function createRoomLoader() {
       method: "GET",
       credentials: "include",
     });
-    const { userRooms } = await res.json();
-    return userRooms;
+    const { user } = await res.json();
+    return user;
   } catch (e) {
     console.warn("Error getting rooms");
     return [];

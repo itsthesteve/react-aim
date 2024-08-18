@@ -1,62 +1,12 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import { ChatLoaderType } from "~/routes/chat";
 import { User } from "~/store/auth";
-import { ChatRoom } from "~/types/room";
-
-interface RoomListItemProps {
-  /* Name of the room the chat window is currently servicing */
-  currentRoom: string;
-
-  /* The room object in the current iteration */
-  listedRoom: ChatRoom;
-
-  /* Prevents rendering of the global icon, redundant for "global" rooms */
-  skipGlobalIcon?: boolean;
-}
-
-/**
- * Helper component for rendering each of the type of rooms in the list
- */
-const RoomListItem = ({ skipGlobalIcon, currentRoom, listedRoom }: RoomListItemProps) => {
-  return (
-    <li
-      title={listedRoom.isPublic ? "Public" : "Private"}
-      className={`flex items-center gap-1 ${currentRoom === listedRoom.name ? "font-bold" : ""}`}
-      key={listedRoom.id}>
-      <Link to={`/chat?room=${listedRoom.name}`}>{listedRoom.name}</Link>
-      {!skipGlobalIcon && listedRoom.isPublic && <img src="/public.png" width="12" height="12" />}
-    </li>
-  );
-};
+import RoomListGroup from "../RoomListGroup";
 
 function UserList({ users }: { users: { user: User; state: string }[] }) {
-  const { room } = useLoaderData() as ChatLoaderType;
+  const { room, userRooms } = useLoaderData() as ChatLoaderType;
   const [visibleTab, setVisibleTab] = useState(0);
-  const [rooms, setRooms] = useState<{ user: ChatRoom[]; global: ChatRoom[]; public: ChatRoom[] }>({
-    user: [],
-    global: [],
-    public: [],
-  });
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/rooms", {
-      method: "GET",
-      credentials: "include",
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
-      .then(({ userRooms, globalRooms, publicRooms }) => {
-        setRooms({
-          user: userRooms,
-          global: globalRooms,
-          public: publicRooms,
-        });
-      });
-
-    return () => controller.abort("Unmounted");
-  }, []);
 
   return (
     <>
@@ -67,66 +17,41 @@ function UserList({ users }: { users: { user: User; state: string }[] }) {
               onClick={() => setVisibleTab(0)}
               role="tab"
               aria-selected={visibleTab === 0}
-              aria-controls="tab-A">
+              aria-controls="rooms-tab">
               Rooms
             </button>
             <button
               aria-selected={visibleTab === 1}
               onClick={() => setVisibleTab(1)}
               role="tab"
-              aria-controls="tab-B">
+              aria-controls="users-tab">
               Users
             </button>
           </menu>
           <article
             role="tabpanel"
-            id="tab-A"
+            id="rooms-tab"
             className={`grow p-0 overflow-hidden flex-col ${visibleTab === 0 ? "flex" : "hidden"}`}>
-            <ul className="tree-view">
+            <ul className="tree-view" aria-label="List of rooms">
               <li>
-                <details open>
-                  <summary>Global ({rooms.global.length})</summary>
-                  <ul>
-                    {rooms.global.map((globalRoom) => (
-                      <li
-                        className={globalRoom.name === room ? "font-bold" : ""}
-                        key={globalRoom.id}>
-                        <Link to="/chat">{globalRoom.name}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
+                <RoomListGroup title="Global" open={true} data={userRooms.global} current={room} />
               </li>
               <li>
-                <details open>
-                  <summary>Your rooms ({rooms.user.length})</summary>
-                  <ul>
-                    {rooms.user.map((userRoom) => (
-                      <RoomListItem key={userRoom.id} currentRoom={room} listedRoom={userRoom} />
-                    ))}
-                  </ul>
-                </details>
+                <RoomListGroup title="Your rooms" data={userRooms.user} current={room} />
               </li>
               <li>
-                <details>
-                  <summary>Public rooms ({rooms.public.length})</summary>
-                  <ul>
-                    {rooms.public.map((publicRoom) => (
-                      <RoomListItem
-                        skipGlobalIcon={true}
-                        key={publicRoom.id}
-                        currentRoom={room}
-                        listedRoom={publicRoom}
-                      />
-                    ))}
-                  </ul>
-                </details>
+                <RoomListGroup
+                  title="Public rooms"
+                  data={userRooms.open}
+                  current={room}
+                  icon={true}
+                />
               </li>
             </ul>
           </article>
           <article
             role="tabpanel"
-            id="tab-B"
+            id="users-tab"
             className={`grow p-0 overflow-hidden flex-col ${visibleTab === 1 ? "flex" : "hidden"}`}>
             <p className="px-2 m-0 mt-2 text-center">
               Members of <strong>{room}</strong>
