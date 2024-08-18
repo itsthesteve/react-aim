@@ -43,8 +43,6 @@ export const AuthMiddleware = async (ctx: Context, next: Next) => {
   }
 
   state.username = username;
-  // state.currentRoom = currentRoom;
-  // console.log("AUTH State", state)
 
   await next();
 };

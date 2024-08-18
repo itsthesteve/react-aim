@@ -3,10 +3,11 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import ChatInput from "~/components/ChatWindow/ChatInput";
 import MessagesList from "~/components/ChatWindow/MessagesList";
 import UserList from "~/components/ChatWindow/RoomsList";
+import useBeacon from "~/hooks/useBeacon";
 import { useDraggable } from "~/hooks/useDraggable";
 import { ChatLoaderType } from "~/routes/chat";
 import styles from "./styles.module.css";
-import useBeacon from "~/hooks/useBeacon";
+import usePresence from "~/components/ChatWindow/useUserCount";
 
 export default function ChatWindow() {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ export default function ChatWindow() {
   const { room } = useLoaderData() as ChatLoaderType;
   const { x, y } = useDraggable(elRef);
   const sendLogout = useBeacon();
+  const onlineUsers = usePresence(room);
+
+  const online = onlineUsers.result?.filter((user) => user.status === "active");
 
   useEffect(() => {
     if (!elRef.current) return;
@@ -51,7 +55,7 @@ export default function ChatWindow() {
       <div className="status-bar mx-0">
         <div className="flex">
           <p className="status-bar-field px-2">Current channel: {room}</p>
-          {/* <p className="status-bar-field pr-2">{online?.length} member(s) online</p> */}
+          <p className="status-bar-field pr-2">{online?.length} member(s) online</p>
           <p className="status-bar-field pr-2">CPU Usage: 14%</p>
         </div>
       </div>

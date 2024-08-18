@@ -176,6 +176,13 @@
     "https://deno.land/x/oak@v16.1.0/utils/encode_url.ts": "c0ed6b318eb9523adeebba32eb9acd059c0f94d3511b2b9e3b024722d1b3dfb8",
     "https://deno.land/x/oak@v16.1.0/utils/resolve_path.ts": "aa39d54a003b38fee55f340a0cba3f93a7af85b8ddd5fbfb049a98fc0109b36d",
     "https://deno.land/x/oak@v16.1.0/utils/streams.ts": "6d55543fdeddc3c9c6f512de227b9b33ff4b0ec5e320edc109f0cbf9bef8963f",
-    "https://deno.land/x/oak@v16.1.0/utils/type_guards.ts": "a1b42aa4c431c4c07d3f8a45a2142020f86d5a3e1e319af94fdf2f4c6c72465f"
+    "https://deno.land/x/oak@v16.1.0/utils/type_guards.ts": "a1b42aa4c431c4c07d3f8a45a2142020f86d5a3e1e319af94fdf2f4c6c72465f",
+    "https://deno.land/x/oak_rate_limit@v0.1.1/deps.ts": "63ca6abb419d145a873b08b603cd86763009d46191541c8dede1356c9d769f4b",
+    "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts": "3e7f48260b54c4f22764187e7c8473cd1e5705bcef0d05a4f4a932d4890e61f3",
+    "https://deno.land/x/oak_rate_limit@v0.1.1/src/ratelimit.ts": "4b16ef6f74d2f3043142e2f1cfd8ef0102089b4a62ebe3e1b535a74ee1ed85f0",
+    "https://deno.land/x/oak_rate_limit@v0.1.1/src/stores/AbstractStore.ts": "29fb349d0af41b157012e59143c3b577ad1a9c08a28335e1f7defa4829c8b20f",
+    "https://deno.land/x/oak_rate_limit@v0.1.1/src/stores/MapStore.ts": "56c92a7e72ccfe202f2adb2654dd1254605551b6f047713c069ef97d3fe6886d",
+    "https://deno.land/x/oak_rate_limit@v0.1.1/src/stores/mod.ts": "fcb08b9731466d503d078b981298046febabc77e217148d14650f2228dcbcbce",
+    "https://deno.land/x/oak_rate_limit@v0.1.1/src/utils/defaults.ts": "d37fd3f54c8bd1d0dcbcb0d376b1d2c4b33d4fe1bba86a166aee63d0152955c6"
   }
 }
