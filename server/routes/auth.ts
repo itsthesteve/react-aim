@@ -90,8 +90,9 @@ router.post("/create", await RateLimitMiddleware(), async ({ request, response }
  * Logout
  * Delete the http cookie
  */
-router.post("/logout", (ctx) => {
-  ctx.cookies.delete(AUTH_COOKIE_NAME);
+router.post("/logout", async (ctx) => {
+  await ctx.cookies.delete(AUTH_COOKIE_NAME);
+  console.log("logging out");
   ctx.response.status = 200;
 });
 

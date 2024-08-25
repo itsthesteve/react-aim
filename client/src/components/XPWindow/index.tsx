@@ -1,6 +1,10 @@
 import { ReactNode, useRef } from "react";
 import { useDraggable } from "~/hooks/useDraggable";
 import styles from "./styles.module.css";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "~/store";
+import { logoutAction } from "~/store/auth/sign-in";
+import { useNavigate } from "react-router-dom";
 
 interface XPWindowProps {
   children: ReactNode;
@@ -11,23 +15,14 @@ interface XPWindowProps {
 
 export default function XPWindow({ children, statusBar, title, className }: XPWindowProps) {
   const elRef = useRef<HTMLDivElement | null>(null);
-  // TODO: Not all routes will have a room, either move the loader to the
-  // root, or something else.
-  // const navigate = useNavigate();
-  // const sendLogout = useBeacon();
   const { x, y } = useDraggable(elRef);
+  const dispatch = useDispatch() as AppDispatch;
+  const navigate = useNavigate();
 
-  const logout = () => alert("todo");
-
-  // const logout = async () => {
-  //   sendLogout();
-  //   await fetch("/api/auth/logout", {
-  //     method: "POST",
-  //     credentials: "include",
-  //   });
-
-  //   navigate("/", { replace: true });
-  // };
+  const logout = async () => {
+    await dispatch(logoutAction());
+    navigate("/", { replace: true });
+  };
 
   return (
     <div

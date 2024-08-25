@@ -26,6 +26,19 @@ export const signInAction = createAsyncThunk(
   }
 );
 
+export const logoutAction = createAsyncThunk("auth/logout", async () => {
+  try {
+    const res = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    console.log("Logged out result:", res.ok);
+  } catch (e) {
+    console.warn("Error fetching /auth/logout", e);
+  }
+});
+
 export const signInExtras = (builder: ActionReducerMapBuilder<AuthState>) => {
   builder.addCase(signInAction.pending, (state) => {
     state.loading = true;
@@ -41,6 +54,24 @@ export const signInExtras = (builder: ActionReducerMapBuilder<AuthState>) => {
 
   builder.addCase(signInAction.rejected, (state, { payload }) => {
     console.log(payload);
+    state.loading = false;
+    state.error = payload as string;
+  });
+};
+
+export const logoutExtras = (builder: ActionReducerMapBuilder<AuthState>) => {
+  builder.addCase(logoutAction.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  });
+
+  builder.addCase(logoutAction.fulfilled, (state) => {
+    state.loading = false;
+    state.user = null;
+  });
+
+  builder.addCase(logoutAction.rejected, (state, { payload }) => {
+    console.warn("Error logging out:", payload);
     state.loading = false;
     state.error = payload as string;
   });
