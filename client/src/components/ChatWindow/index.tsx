@@ -5,6 +5,7 @@ import UserList from "~/components/ChatWindow/RoomsList";
 import usePresence from "~/components/ChatWindow/useUserCount";
 import XPWindow from "~/components/XPWindow";
 import { ChatLoaderType } from "~/routes/chat";
+import styles from "./styles.module.css";
 
 export default function ChatWindow() {
   const { room } = useLoaderData() as ChatLoaderType;
@@ -19,10 +20,15 @@ export default function ChatWindow() {
   );
 
   return (
-    <XPWindow title="React Chat | XP Edition" statusBar={<StatusBar />}>
-      <MessagesList />
-      <ChatInput />
-      <UserList users={onlineUsers} />
+    <XPWindow
+      className="w-[768px] max-w-[90vw] aspect-video min-w-[360px]"
+      title="React Chat | XP Edition"
+      statusBar={<StatusBar />}>
+      <div className={`grid overflow-hidden h-full ${styles.content}`}>
+        <MessagesList />
+        <ChatInput />
+        <UserList users={onlineUsers} />
+      </div>
     </XPWindow>
   );
 }
