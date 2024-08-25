@@ -2,6 +2,7 @@
   width: 768px;
   max-width: 90vw;
   aspect-ratio: 16/9;
+  transform: translate3d(var(--x, 0), var(--y, 0), 0);
 }
 
 .content {

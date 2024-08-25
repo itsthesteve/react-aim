@@ -1,6 +1,7 @@
 import { ReactNode, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useBeacon from "~/hooks/useBeacon";
+import { useDraggable } from "~/hooks/useDraggable";
 import styles from "./styles.module.css";
 
 interface XPWindowProps {
@@ -13,6 +14,7 @@ export default function XPWindow({ children, statusBar, title }: XPWindowProps) 
   const elRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const sendLogout = useBeacon();
+  const { x, y } = useDraggable(elRef);
 
   const logout = async () => {
     sendLogout();
@@ -25,7 +27,10 @@ export default function XPWindow({ children, statusBar, title }: XPWindowProps) 
   };
 
   return (
-    <div className={`window ${styles.windowContainer}`} ref={(el) => (elRef.current = el)}>
+    <div
+      style={{ "--x": x + "px", "--y": y + "px" }}
+      className={`window ${styles.windowContainer}`}
+      ref={(el) => (elRef.current = el)}>
       <div className="title-bar">
         <div className="title-bar-text">{title}</div>
         <div className="title-bar-controls">

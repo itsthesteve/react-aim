@@ -1,9 +1,0 @@
-.chatContainer {
-  display: grid;
-  grid-template-columns: 1fr 10rem;
-  grid-template-rows: 1fr auto;
-  grid-template-areas:
-    "message users"
-    "input users";
-  overflow: hidden;
-}
