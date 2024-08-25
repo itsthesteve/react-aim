@@ -1,6 +1,4 @@
 import { ReactNode, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import useBeacon from "~/hooks/useBeacon";
 import { useDraggable } from "~/hooks/useDraggable";
 import styles from "./styles.module.css";
 
@@ -13,6 +11,8 @@ interface XPWindowProps {
 
 export default function XPWindow({ children, statusBar, title, className }: XPWindowProps) {
   const elRef = useRef<HTMLDivElement | null>(null);
+  // TODO: Not all routes will have a room, either move the loader to the
+  // root, or something else.
   // const navigate = useNavigate();
   // const sendLogout = useBeacon();
   const { x, y } = useDraggable(elRef);
