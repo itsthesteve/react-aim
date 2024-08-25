@@ -5,7 +5,7 @@ import { getAuthState, User } from "~/store/auth";
 
 type BeaconEvents = "visibilitychange" | "unload" | "load" | "logout";
 
-function sendBeacon(event: BeaconEvents, user: User, room: string, present: boolean) {
+function updateUserPresence(event: BeaconEvents, user: User, room: string, present: boolean) {
   navigator.sendBeacon("/api/rooms/presence", JSON.stringify({ event, user, room, present }));
 }
 
@@ -21,13 +21,18 @@ export default function useBeacon() {
 
   const onVizChange = useCallback(
     (e: Event) => {
-      sendBeacon(e.type as BeaconEvents, user!, room, document.visibilityState === "visible");
+      updateUserPresence(
+        e.type as BeaconEvents,
+        user!,
+        room,
+        document.visibilityState === "visible"
+      );
     },
     [room, user]
   );
 
   const onBeforeUnload = useCallback(() => {
-    sendBeacon("unload", user!, room, false);
+    updateUserPresence("unload", user!, room, false);
   }, []);
 
   useEffect(() => {
@@ -36,15 +41,15 @@ export default function useBeacon() {
     document.addEventListener("visibilitychange", onVizChange);
     window.addEventListener("beforeunload", onBeforeUnload);
 
-    sendBeacon("load", user, room, true);
+    updateUserPresence("load", user, room, true);
 
     return () => {
-      sendBeacon("unload", user, room, false);
+      updateUserPresence("unload", user, room, false);
       document.removeEventListener("visibilitychange", onVizChange);
     };
   }, [room, user, onVizChange, onBeforeUnload, location.search]);
 
   return () => {
-    sendBeacon("logout", user!, room, false);
+    updateUserPresence("logout", user!, room, false);
   };
 }
