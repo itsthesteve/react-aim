@@ -38,5 +38,6 @@ app.use(router.allowedMethods());
 app.use(router.routes());
 
 await app.listen({ port: 9000 });
+export default app;
 
 console.log("Server shutdown");

@@ -1,9 +1,5 @@
 import { Context, NativeRequest, Next } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import {
-  RateLimiter,
-  Ratelimiter,
-  RatelimitOptions,
-} from "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts";
+import { RateLimiter, RatelimitOptions } from "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts";
 
 import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cookies.ts";
 import { db, RATE_LIMIT_OPTS } from "../data/index.ts";
@@ -52,7 +48,7 @@ export const RateLimitMiddleware = async (
     windowMs: 60 * 1000 * 60, // one hour
     max: () => Promise.resolve(2),
   }
-): Promise<Ratelimiter> => {
+): Promise<typeof RateLimiter> => {
   // @ts-ignore Deno doesn't like this due to a mismatch in Oak version
   // Limit account creation to 2 every hour
   return await RateLimiter({

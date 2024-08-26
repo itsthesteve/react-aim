@@ -1,16 +1,13 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { db } from "../data/index.ts";
+import { JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/debug",
 });
 
-router.get("/test", async ({ response }) => {
-  const list = db.list({ prefix: ["message"] });
-  for await (const entry of list) {
-    console.log(entry);
-  }
-
+router.get("/test", JsonResponseMiddleware, ({ response }) => {
+  response.body = { ok: true, message: "testing" };
   response.status = 200;
 });
 
