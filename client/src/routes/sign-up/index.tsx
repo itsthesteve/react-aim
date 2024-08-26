@@ -41,30 +41,28 @@ export function SignUp() {
   };
 
   return (
-    <>
-      <XPWindow title="Create account">
-        <ReactAimHeader />
-        <form className="w-full py-4" onSubmit={onSubmit}>
-          <label htmlFor="username" className="px-2 flex flex-col gap-1 items-stretch">
-            <span>Username</span>
-            <input name="username" onChange={(e) => updateForm(e)} />
-          </label>
+    <XPWindow title="Create account">
+      <ReactAimHeader />
+      <form className="w-full py-4" onSubmit={onSubmit}>
+        <label htmlFor="username" className="px-2 flex flex-col gap-1 items-stretch">
+          <span>Username</span>
+          <input name="username" onChange={(e) => updateForm(e)} />
+        </label>
 
-          <label htmlFor="password" className="px-2 flex flex-col gap-1 items-stretch mt-4">
-            <span>Password</span>
-            <input name="password" type="password" onChange={(e) => updateForm(e)} />
-          </label>
+        <label htmlFor="password" className="px-2 flex flex-col gap-1 items-stretch mt-4">
+          <span>Password</span>
+          <input name="password" type="password" onChange={(e) => updateForm(e)} />
+        </label>
 
-          <label htmlFor="verifyPassword" className="px-2 flex flex-col gap-1 items-stretch mt-4">
-            <span>Verify password</span>
-            <input name="verifyPassword" type="password" onChange={(e) => updateForm(e)} />
-          </label>
+        <label htmlFor="verifyPassword" className="px-2 flex flex-col gap-1 items-stretch mt-4">
+          <span>Verify password</span>
+          <input name="verifyPassword" type="password" onChange={(e) => updateForm(e)} />
+        </label>
 
-          <footer className="mt-4 text-center">
-            <button>Create account</button>
-          </footer>
-        </form>
-      </XPWindow>
-    </>
+        <footer className="mt-4 text-center">
+          <button>Create account</button>
+        </footer>
+      </form>
+    </XPWindow>
   );
 }
