@@ -6,6 +6,8 @@ import { db } from "../data/index.ts";
 import { MessageData, User } from "../data/models.ts";
 import { AuthMiddleware, BouncerMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
+const ROOM_NAME_REGEX = /^[a-z0-9-_+!~+|/\\]*$/i;
+
 const router = new Router({
   prefix: "/rooms",
 });
@@ -63,10 +65,9 @@ router.post("/", async ({ request, response, cookies, state }) => {
     return;
   }
 
-  if (/^[a-z0-9-_+!~+|]$/i.test(baseName) === false) {
-    // Only alphanumeric room names
+  if (ROOM_NAME_REGEX.test(baseName) === false) {
     response.status = 400;
-    response.body = { ok: false, reason: "Room names can only contain: a-z0-9-_+!~+|" };
+    response.body = { ok: false, reason: "Bad pattern" };
     return;
   }
 
