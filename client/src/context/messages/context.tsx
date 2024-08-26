@@ -113,7 +113,6 @@ export const MessagesProvider = ({ children }: Props) => {
 
       if (!response.ok) {
         console.warn("Unable to get channel messages", response);
-        // TODO: Navigate to 404
         navigate("/404", { replace: true });
       }
 

@@ -2,7 +2,6 @@ import { useCallback, useEffect } from "react";
 import { useLoaderData, useLocation } from "react-router-dom";
 import { ChatLoaderType } from "~/routes/chat";
 import { getAuthState, User } from "~/store/auth";
-import { DEFAULT_ROOM } from "~/types/room";
 
 type BeaconEvents = "visibilitychange" | "unload" | "load" | "logout";
 
