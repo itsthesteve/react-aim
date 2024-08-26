@@ -1,4 +1,6 @@
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { ulid } from "jsr:@std/ulid/ulid";
 import * as uuid from "jsr:@std/uuid";
 import { ChatRoom } from "../../client/src/types/room.ts";
 import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
@@ -7,6 +9,10 @@ import { MessageData, User } from "../data/models.ts";
 import { AuthMiddleware, BouncerMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
 const ROOM_NAME_REGEX = /^[a-z0-9-_+!~+|/\\]*$/i;
+
+// Validation constants
+const ROOM_NAME_MIN = 3;
+const ROOM_NAME_MAX = 24;
 
 const router = new Router({
   prefix: "/rooms",
@@ -45,35 +51,26 @@ router.get("/", async ({ response, state }) => {
  * Create a new room
  */
 router.post("/", async ({ request, response, cookies, state }) => {
-  // Middleware catches this, so we can be sure (?) the cookie exists here
+  // Validate body before doing anything else
+  const CreateRoomSchema = z.object({
+    room: z.string().trim().min(ROOM_NAME_MIN).max(ROOM_NAME_MAX).regex(ROOM_NAME_REGEX),
+    isPublic: z.boolean(),
+  });
+
+  const body = await request.body.json();
+
+  const validRoomPost = CreateRoomSchema.safeParse(body);
+  if (validRoomPost.error) {
+    response.status = 400;
+    response.body = { ok: false };
+    return;
+  }
+
   const { username } = state;
+  const { room, isPublic } = body;
+  const KV_ROOM_KEY = ["rooms", username, room];
 
-  const { room: roomName, isPublic } = await request.body.json();
-
-  // Needs a "room" property in the request body
-  if (!roomName) {
-    response.status = 400;
-    response.body = { ok: false, reason: "No room specified" };
-    return;
-  }
-
-  const baseName = roomName.trim();
-
-  if (baseName.length < 1 || baseName.length > 24) {
-    response.status = 400;
-    response.body = { ok: false, reason: "Room name must be between 1 and 24 characters" };
-    return;
-  }
-
-  if (ROOM_NAME_REGEX.test(baseName) === false) {
-    response.status = 400;
-    response.body = { ok: false, reason: "Bad pattern" };
-    return;
-  }
-
-  const KV_ROOM_KEY = ["rooms", username, baseName];
-
-  console.log("User", username, "wants to create room", baseName);
+  console.log("User", username, "wants to create room", room);
 
   // Check to see if the room exists
   const { value: existingRoom } = await db.get(KV_ROOM_KEY);
@@ -83,35 +80,44 @@ router.post("/", async ({ request, response, cookies, state }) => {
     return;
   }
 
-  // User checks pass, create the room
+  // Validation checks pass, create the room
   const roomValue = {
     id: uuid.v1.generate(),
-    name: baseName,
+    name: room,
     createdBy: username,
     createdAt: Date.now(),
     isPublic,
   };
 
-  const msgId = uuid.v1.generate();
-  await db
+  const msgId = ulid();
+  const initialMessageOp = await db
     .atomic()
     .set(KV_ROOM_KEY, roomValue)
-    .set(["message", roomName, msgId], {
+    .set(["message", room, msgId], {
       id: msgId,
       owner: "__system__",
-      payload: "Welcome to " + roomName,
+      payload: "Welcome to " + room,
     } as MessageData)
     .commit();
 
-  console.log(username, "created room:", roomName);
+  // This shouldn't happen, but check for it anyway
+  if (!initialMessageOp.ok) {
+    console.warn("Error setting initial message.");
+    response.status = 500;
+    response.body = { ok: false, reason: "Error initializing messages" };
+    return;
+  }
 
-  await cookies.set(AUTH_PRESENCE_COOKIE, roomName, {
+  console.log(username, "created room:", room);
+
+  await cookies.set(AUTH_PRESENCE_COOKIE, room, {
     path: "/",
     secure: false,
     httpOnly: true,
     maxAge: 31536000,
   });
 
+  response.status = 201;
   response.body = { ok: true, roomValue };
 });
 
