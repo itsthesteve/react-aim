@@ -106,7 +106,7 @@ router.post("/", async ({ request, response, cookies, state }) => {
   response.body = { ok: true, roomValue };
 });
 
-type BeaconEvents = "visibilitychange" | "unload" | "load" | "logout";
+type BeaconEvents = "visibilitychange" | "pagehide" | "unload" | "load" | "logout";
 type PresenceType = "active" | "idle" | "absent" | "unknown"; // unknown shouldn't happen
 interface PresenceBody {
   event: BeaconEvents;
@@ -116,8 +116,8 @@ interface PresenceBody {
 }
 /**
  * Update the users presence in the given room. Event types can be one of
- * "visibilitychange" | "unload" | "load" | "logout" as defined as above, shared with the type
- * defined in the useBeacon hook
+ * type BeaconEvents defined as above, shared with the type
+ * defined in the usePresence hook
  * TODO: Might want to move to redis as this is a pretty heavy hit URL
  */
 router.post("/presence", async ({ request, response }) => {
@@ -130,17 +130,16 @@ router.post("/presence", async ({ request, response }) => {
       state = "active";
       break;
     case "visibilitychange":
-      // user is either present or idle
+      // app is open, but is either focused or not
       state = present ? "active" : "idle";
       break;
     case "logout":
-    case "unload":
-      // user is offline
-      // user is not on the app
+    case "pagehide":
+      // user has logged out, or app is not focused
       state = "absent";
       break;
     default:
-      console.log("Unknown state");
+      console.log("Unknown state", event);
       state = "unknown";
   }
 
@@ -161,7 +160,7 @@ router.post("/presence", async ({ request, response }) => {
     state,
   });
 
-  console.log("user presence updated", user.username, room, present);
+  console.log("user presence updated", event, user.username, room, present);
 
   response.status = 200;
 });
