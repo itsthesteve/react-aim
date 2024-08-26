@@ -177,7 +177,6 @@ router.get("/presence", BouncerMiddleware, async (ctx) => {
   for await (const _ of db.watch([["presence_update"]])) {
     const allUsers = await Array.fromAsync(db.list({ prefix: ["presence", room] }));
     const presentUsers = allUsers.filter((u) => u.value?.state !== "absent").map((e) => e.value);
-    console.log(`${allUsers.length} active users in ${room}`);
     target.dispatchMessage({ ok: true, results: presentUsers });
   }
 });
