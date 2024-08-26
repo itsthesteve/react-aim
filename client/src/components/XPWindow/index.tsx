@@ -1,10 +1,10 @@
 import { ReactNode, useRef } from "react";
-import { useDraggable } from "~/hooks/useDraggable";
-import styles from "./styles.module.css";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useDraggable, usePresence } from "~/hooks";
 import { AppDispatch } from "~/store";
 import { logoutAction } from "~/store/auth/sign-in";
-import { useNavigate } from "react-router-dom";
+import styles from "./styles.module.css";
 
 interface XPWindowProps {
   children: ReactNode;
@@ -17,9 +17,11 @@ export default function XPWindow({ children, statusBar, title, className }: XPWi
   const elRef = useRef<HTMLDivElement | null>(null);
   const { x, y } = useDraggable(elRef);
   const dispatch = useDispatch() as AppDispatch;
+  const presenceLogout = usePresence();
   const navigate = useNavigate();
 
   const logout = async () => {
+    presenceLogout();
     await dispatch(logoutAction());
     navigate("/", { replace: true });
   };

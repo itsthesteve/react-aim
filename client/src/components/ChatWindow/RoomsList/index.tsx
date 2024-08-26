@@ -1,12 +1,13 @@
 import { memo, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import { ChatLoaderType } from "~/routes/chat";
-import { User } from "~/store/auth";
+import useOnlineUsers from "../../../hooks/useOnline";
 import RoomListGroup from "../RoomListGroup";
 
-function UserList({ users }: { users: { user: User; state: string }[] }) {
+function UserList() {
   const { room, userRooms } = useLoaderData() as ChatLoaderType;
   const [visibleTab, setVisibleTab] = useState(0);
+  const onlineUsers = useOnlineUsers(room);
 
   return (
     <>
@@ -53,14 +54,15 @@ function UserList({ users }: { users: { user: User; state: string }[] }) {
             role="tabpanel"
             id="users-tab"
             className={`grow p-0 overflow-hidden flex-col ${visibleTab === 1 ? "flex" : "hidden"}`}>
-            <p className="px-2 m-0 mt-2 text-center">
-              Members of <strong>{room}</strong>
-            </p>
             <hr className="mb-0" />
             <ul className="h-full m-0 p-0 list-none overflow-auto">
-              {users.map((entry) => (
-                <li key={entry.user.username} className="px-2 py-1 hover:bg-slate-200">
-                  {entry.user.username} ({entry.state})
+              {onlineUsers.map((entry) => (
+                <li
+                  key={entry.user.username}
+                  className={`px-2 py-1 hover:bg-slate-200 ${
+                    entry.state === "idle" ? "italic text-gray-500" : ""
+                  }`}>
+                  {entry.user.username}
                 </li>
               ))}
             </ul>
