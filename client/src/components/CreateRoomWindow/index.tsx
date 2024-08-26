@@ -48,13 +48,16 @@ export default function CreateRoomWindow() {
   return (
     <XPWindow title="Create room">
       <ReactAimHeader />
-      <form className="w-full py-4" onSubmit={onSubmit}>
+      <form className="w-full py-4" onSubmit={onSubmit} noValidate>
         {!submitted ? (
           <>
             <label htmlFor="roomName" className="px-2 flex flex-col gap-1 items-stretch">
               <span>Room name</span>
               <input
                 onChange={(e) => setRoomName(e.target.value)}
+                pattern="^[a-z0-9-_+!~+|]$"
+                maxLength={24}
+                minLength={1}
                 name="roomName"
                 placeholder={`i.e. xX${user.username}SlayerXx`}
               />

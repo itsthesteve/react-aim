@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, Navigate } from "react-router-dom";
 import ChatWindow from "~/components/ChatWindow";
+import { ROOM_NAME_REGEX } from "~/consts";
 import { MessagesProvider } from "~/context/messages/context";
 import { getAuthState } from "~/store/auth";
 import { ChatRoom, DEFAULT_ROOM } from "~/types/room";
@@ -36,7 +37,8 @@ export async function chatRouteLoader({ request }: LoaderFunctionArgs) {
   const room = url.searchParams.get("room") ?? DEFAULT_ROOM;
 
   // // Check to make sure its valid in case someone mucks with it, redirect to default otherwise.
-  if (!/^[a-z0-9]+$/i.test(room)) {
+  console.log(ROOM_NAME_REGEX, room);
+  if (!ROOM_NAME_REGEX.test(room)) {
     console.warn("Invalid room name, redirecting.");
     throw new Response("Invalid room name", { status: 400 });
   }

@@ -6,6 +6,8 @@ import { db } from "../data/index.ts";
 import { MessageData, User } from "../data/models.ts";
 import { AuthMiddleware, BouncerMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
+const ROOM_NAME_REGEX = /^[a-z0-9-_+!~+|/\\]*$/i;
+
 const router = new Router({
   prefix: "/rooms",
 });
@@ -55,16 +57,23 @@ router.post("/", async ({ request, response, cookies, state }) => {
     return;
   }
 
-  // Only alphanumeric room names
-  if (/^[a-z0-9]+$/i.test(roomName) === false) {
+  const baseName = roomName.trim();
+
+  if (baseName.length < 1 || baseName.length > 24) {
     response.status = 400;
-    response.body = { ok: false, reason: "Room names must be alphanumeric" };
+    response.body = { ok: false, reason: "Room name must be between 1 and 24 characters" };
     return;
   }
 
-  const KV_ROOM_KEY = ["rooms", username, roomName];
+  if (ROOM_NAME_REGEX.test(baseName) === false) {
+    response.status = 400;
+    response.body = { ok: false, reason: "Bad pattern" };
+    return;
+  }
 
-  console.log("User", username, "wants to create room", roomName);
+  const KV_ROOM_KEY = ["rooms", username, baseName];
+
+  console.log("User", username, "wants to create room", baseName);
 
   // Check to see if the room exists
   const { value: existingRoom } = await db.get(KV_ROOM_KEY);
@@ -77,7 +86,7 @@ router.post("/", async ({ request, response, cookies, state }) => {
   // User checks pass, create the room
   const roomValue = {
     id: uuid.v1.generate(),
-    name: roomName,
+    name: baseName,
     createdBy: username,
     createdAt: Date.now(),
     isPublic,
