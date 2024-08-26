@@ -151,21 +151,4 @@ export function SignIn() {
       </>
     </XPWindow>
   );
-
-  // return (
-  //   <>
-  //     <div className="window" ref={(el) => (elRef.current = el)}>
-  //       <div className="title-bar">
-  //         <div className="title-bar-text">Sign On</div>
-  //         <div className="title-bar-controls">
-  //           <button aria-label="Close" onClick={() => alert("todo")}></button>
-  //         </div>
-  //       </div>
-
-  //       <div className="status-bar mx-0">
-  //         <p className="status-bar-field text-center">Version 0.1.0</p>
-  //       </div>
-  //     </div>
-  //   </>
-  // );
 }
