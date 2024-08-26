@@ -2,6 +2,7 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import { ChangeEventHandler, FormEventHandler, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import ReactAimHeader from "~/components/ReactAimHeader";
 import XPWindow from "~/components/XPWindow";
 import { AppDispatch } from "~/store";
 import { getAuthState } from "~/store/auth";
@@ -95,10 +96,7 @@ export function SignIn() {
   return (
     <XPWindow title="Sign on" statusBar={<StatusBar />}>
       <>
-        <header className="bg-blue-700 aspect-square w-40 text-center font-sans font-bold flex flex-col text-white justify-between p-4">
-          <img className="self-end" src="/aimguy-256.png" width="112" height="122" />
-          React Instant Messenger
-        </header>
+        <ReactAimHeader />
         {!submitted ? (
           <>
             <form className="my-4 px-2" onSubmit={onSubmit}>
