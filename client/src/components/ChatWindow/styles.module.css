@@ -1,20 +1,8 @@
-.chatContainer {
-  display: grid;
+.content {
+  background: rgb(236, 233, 216);
   grid-template-columns: 1fr 10rem;
   grid-template-rows: 1fr auto;
   grid-template-areas:
     "message users"
     "input users";
-  overflow: hidden;
-}
-
-.content {
-  grid-template-rows: 1fr auto;
-  height: 100%;
-}
-
-.windowContainer {
-  width: 768px;
-  max-width: 90vw;
-  aspect-ratio: 16/9;
 }
