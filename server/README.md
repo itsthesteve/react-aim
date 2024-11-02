@@ -19,7 +19,7 @@ The `DENO_KV_ACCESS_TOKEN` is the same as the `--access-token` in the docker com
 #### Start the proxy
 
 ```sh
-deno run -A --unstable-kv --watch index.ts
+deno task start
 ```
 
 Proxy server is now running on port 9000. The sqlite db for Deno's KV is in

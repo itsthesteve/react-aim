@@ -25,7 +25,7 @@ export function usePresence() {
 
   useEffect(() => {
     if (!user || !loaderData?.room) {
-      return console.warn("No user or room found for beacon calls.", loaderData, user);
+      return console.log("! No user or room found for beacon calls.");
     }
 
     const room = loaderData.room;

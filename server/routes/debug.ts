@@ -15,7 +15,7 @@ router.get("/test", async ({ response }) => {
 });
 
 router.delete("/test", async ({ response }) => {
-  const list = db.list({ prefix: ["presence"] });
+  const list = db.list({ prefix: ["ratelimit"] });
   for await (const entry of list) {
     console.log("Deleted", entry);
     await db.delete(entry.key);
