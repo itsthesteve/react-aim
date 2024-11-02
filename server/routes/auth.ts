@@ -1,15 +1,11 @@
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { z, ZodIssue } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+import { ZodError } from "https://deno.land/x/zod@v3.23.8/ZodError.ts";
 import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cookies.ts";
 import { db } from "../data/index.ts";
 import { DEFAULT_ROOM, UserRow } from "../data/models.ts";
-import {
-  AuthMiddleware,
-  JsonResponseMiddleware,
-  RateLimitMiddleware,
-} from "../middleware/index.ts";
-import { typeToFlattenedError, ZodError } from "https://deno.land/x/zod@v3.23.8/ZodError.ts";
+import { AuthMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
 
 const router = new Router({
   prefix: "/auth",
@@ -68,6 +64,7 @@ router.post("/login", async ({ response, request, cookies }) => {
 router.post(
   "/create",
   // @ts-ignore Types are wonky due to multiple oak versions (I suspect)
+  // TODO: Look into the rate limiter, seems to be off a bit
   // await RateLimitMiddleware(),
   async ({ request, response }) => {
     const body = await request.body.json();
