@@ -1,17 +1,27 @@
 import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { db } from "../data/index.ts";
-import { AuthCredentials, DEFAULT_ROOM, UserRow } from "../data/models.ts";
+import { z, ZodIssue } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cookies.ts";
+import { db } from "../data/index.ts";
+import { DEFAULT_ROOM, UserRow } from "../data/models.ts";
 import {
   AuthMiddleware,
   JsonResponseMiddleware,
   RateLimitMiddleware,
 } from "../middleware/index.ts";
+import { typeToFlattenedError, ZodError } from "https://deno.land/x/zod@v3.23.8/ZodError.ts";
 
 const router = new Router({
   prefix: "/auth",
 });
+
+/** Minimum length for passwords */
+const MIN_PWD_LEN = 6;
+const MAX_PWD_LEN = 2 ** 16; // 16KiB - max size Deno KV supports
+
+/** Minimum length for usernames */
+const MIN_USERNAME_LEN = 3;
+const MAX_USERNAME_LEN = 24; // Arbitrary
 
 router.use(JsonResponseMiddleware);
 
@@ -25,17 +35,19 @@ router.post("/login", async ({ response, request, cookies }) => {
 
   const existingUser = await db.get<string>(["users", username]);
 
+  // No user found
   if (!existingUser.value) {
     response.status = 401;
-    response.body = { ok: false, reason: "NOUSER" };
+    response.body = { ok: false, reason: "Invalid credentials" };
     return;
   }
 
   const match = await bcrypt.compare(password, existingUser.value);
 
+  // Bad password
   if (!match) {
     response.status = 401;
-    response.body = { ok: false, reason: "BADPASS" };
+    response.body = { ok: false, reason: "Invalid credentials" };
     return;
   }
 
@@ -53,38 +65,81 @@ router.post("/login", async ({ response, request, cookies }) => {
  * Requires username, password, and verifyPassword in the body
  * Returns 200 and sets an HTTP cookie upon success and a 400 otherwise.
  */
-router.post("/create", await RateLimitMiddleware(), async ({ request, response }) => {
-  const { username, password, verifyPassword } = (await request.body.json()) as AuthCredentials;
-  if (password !== verifyPassword) {
-    response.status = 400;
-    response.body = { ok: false, reason: "Passwords don't match" };
-    return;
+router.post(
+  "/create",
+  // @ts-ignore Types are wonky due to multiple oak versions (I suspect)
+  // await RateLimitMiddleware(),
+  async ({ request, response }) => {
+    const body = await request.body.json();
+
+    const zTrimStr = z.string().trim();
+    const CreateUserSchema = z
+      .object({
+        username: zTrimStr
+          .min(MIN_USERNAME_LEN, {
+            message: `Username must be at least ${MIN_USERNAME_LEN} characters.`,
+          })
+          .max(MAX_USERNAME_LEN, {
+            message: `Username must be at most ${MAX_USERNAME_LEN} characters.`,
+          }),
+        password: zTrimStr
+          .min(MIN_PWD_LEN, { message: `Password must be at least ${MIN_PWD_LEN} characters.` })
+          .max(MAX_PWD_LEN, { message: `Password must be at most ${MAX_PWD_LEN} characters.` }),
+
+        verifyPassword: zTrimStr,
+      })
+      .refine((data) => data.password === data.verifyPassword, {
+        message: "Passwords don't match",
+      })
+      .refine(
+        async (data) => {
+          const userRow = await db.get<UserRow>(["users", data.username]);
+          return userRow.value === null;
+        },
+        {
+          message: "Username is taken",
+        }
+      );
+
+    try {
+      await CreateUserSchema.parseAsync(body);
+    } catch (e) {
+      let reason;
+      if (e instanceof ZodError) {
+        reason = e.flatten((issue: ZodIssue) => ({
+          message: issue.message,
+          errorCode: issue.code,
+        }));
+
+        console.log("Error validating user", e, reason);
+      }
+
+      response.status = 400;
+      response.body = {
+        ok: false,
+        reason,
+      };
+      return;
+    }
+
+    const { username, password } = body;
+
+    // Add seasoning and store the user
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const result = await db.set(["users", username], hashedPassword);
+    console.log("User created", result);
+    if (result.ok) {
+      response.status = 201;
+      response.body = { ok: true };
+      return;
+    }
+
+    response.status = 500;
+    response.body = { ok: true, reason: "Error creating user" };
   }
-
-  const userRow = await db.get<UserRow>(["users", username]);
-
-  // If the user exists, let them know. Maybe just 400 to prevent iteration attacks?
-  if (userRow.value !== null) {
-    response.status = 400;
-    response.body = { ok: false, reason: "Username is taken" };
-    return;
-  }
-
-  // Add seasoning and store the user
-  const salt = await bcrypt.genSalt();
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  const result = await db.set(["users", username], hashedPassword);
-  console.log("User created", result);
-  if (result.ok) {
-    response.status = 201;
-    response.body = { ok: true };
-    return;
-  }
-
-  response.status = 500;
-  response.body = { ok: true, reason: "Error creating user" };
-});
+);
 
 /**
  * Logout
