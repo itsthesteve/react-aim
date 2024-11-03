@@ -7,6 +7,14 @@ type KvMessageShape = {
   payload: string;
 };
 
+type KvRoomShape = {
+  id: string;
+  name: string;
+  createdBy: string;
+  createdAt: string;
+  isPublic: boolean;
+};
+
 type FormattedMessage = {
   id: string;
   owner: string;
@@ -25,12 +33,23 @@ export default function messagesRoutes(db: Deno.Kv) {
   msgApp.get("/", async (ctx) => {
     const room = ctx.req.query("room");
     if (!room) {
-      throw new HTTPException(400, { message: "No room provided" });
+      return ctx.json({ reason: "No room provided" }, 400);
     }
 
-    const roomList = db.list({ prefix: ["rooms"] });
-    for await (const room of roomList) {
-      console.log(room);
+    // Check to see if the room exists, return 404 if not.
+    // TODO (#35) Make a directory-style KV table to make searching more efficient
+    const roomList = db.list<KvRoomShape>({ prefix: ["rooms"] });
+    let roomExists = false;
+    for await (const r of roomList) {
+      const name = r.key[2];
+      if (name === room) {
+        roomExists = true;
+        break;
+      }
+    }
+
+    if (!roomExists) {
+      return ctx.json({ reason: `Room "${room}" not found.` }, 404);
     }
 
     const entries = db.list<KvMessageShape>({ prefix: ["message", room] });
