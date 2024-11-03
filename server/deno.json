@@ -4,5 +4,5 @@
     "update": "deno run --allow-read=./ --allow-net --allow-write=./ https://deno.land/x/deno_outdated@0.2.5/cli.ts",
     "cron": "deno run --unstable-cron --unstable-kv --allow-net --allow-read --allow-env --import-map=./link.json ./_cron/index.ts"
   },
-  "exclude": ["client/**/*"]
+  "exclude": ["client/**/*", "../viewer/client/**/*"]
 }
