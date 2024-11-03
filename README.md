@@ -48,6 +48,17 @@ Finally, `cd ./client`, run `npm install` and run the dev server:
 
 > Note: I haven't tested a fresh install as of yet, so more steps might be needed
 
+## KV Viewer
+
+A simple admin dashboard has been started in `viewer` to display info from the KV store in a more
+readable manner than browsing SQLite.
+
+Similar deal as before:
+
+- `cd viewer/server; deno task start` starts the server on :8000
+- `cd viewer/client; npm run dev` starts the viewer on :5173 (can't run at the same time as the app
+  client )
+
 ### Misc
 
 e2e testing has been set up but isn't fully fleshed out. I'm using playwright and it can be run via
