@@ -1,6 +1,4 @@
 {
-  "deno.enablePaths": [
-    "./"
-  ],
+  "deno.enablePaths": ["../api"],
   "editor.inlayHints.enabled": "off"
 }
