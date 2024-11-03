@@ -4,3 +4,4 @@ node_modules
 
 # Local Deno KV database
 server/data/react-chat*
+**/*.env*
