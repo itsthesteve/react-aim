@@ -5,8 +5,7 @@ import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cooki
 import { db, RATE_LIMIT_OPTS } from "../data/index.ts";
 import { canAccess } from "../utils/room.ts";
 
-const DEFAULT_RATE_TIMEOUT =
-  Deno.env.get("ENV") === "dev" ? Number.MAX_SAFE_INTEGER : 60 * 1000 * 60; // one hour
+const DEFAULT_RATE_TIMEOUT = Deno.env.get("ENV") === "dev" ? 1 : 1000;
 
 // Serve response as JSON
 export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
@@ -47,15 +46,13 @@ export const AuthMiddleware = async (ctx: Context, next: Next) => {
 };
 
 export const RateLimitMiddleware = async (
-  opts: Pick<RatelimitOptions, "windowMs" | "max"> = {
+  opts: Partial<RatelimitOptions> = {
     windowMs: DEFAULT_RATE_TIMEOUT,
     max: () => Promise.resolve(2),
   }
 ): Promise<typeof RateLimiter> => {
-  // Force unlimited for dev
-  if (Deno.env.get("ENV") === "dev") {
-    opts.windowMs = DEFAULT_RATE_TIMEOUT;
-  }
+  opts.windowMs = DEFAULT_RATE_TIMEOUT;
+
   // @ts-ignore Deno doesn't like this due to a mismatch in Oak version
   return await RateLimiter({
     ...RATE_LIMIT_OPTS,

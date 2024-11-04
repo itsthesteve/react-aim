@@ -37,7 +37,6 @@ export async function chatRouteLoader({ request }: LoaderFunctionArgs) {
   const room = url.searchParams.get("room") ?? DEFAULT_ROOM;
 
   // // Check to make sure its valid in case someone mucks with it, redirect to default otherwise.
-  console.log(ROOM_NAME_REGEX, room);
   if (!ROOM_NAME_REGEX.test(room)) {
     console.warn("Invalid room name, redirecting.");
     throw new Response("Invalid room name", { status: 400 });
