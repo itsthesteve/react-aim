@@ -61,6 +61,7 @@ router.post("/", async ({ request, response, cookies, state }) => {
 
   const validRoomPost = CreateRoomSchema.safeParse(body);
   if (validRoomPost.error) {
+    console.warn("Invalid room name");
     response.status = 400;
     response.body = { ok: false };
     return;
@@ -68,17 +69,8 @@ router.post("/", async ({ request, response, cookies, state }) => {
 
   const { username } = state;
   const { room, isPublic } = body;
-  const KV_ROOM_KEY = ["rooms", username, room];
 
   console.log("User", username, "wants to create room", room);
-
-  // Check to see if the room exists
-  const { value: existingRoom } = await db.get(KV_ROOM_KEY);
-  if (existingRoom) {
-    response.status = 400;
-    response.body = { ok: false };
-    return;
-  }
 
   // Validation checks pass, create the room
   const roomValue = {
@@ -90,9 +82,13 @@ router.post("/", async ({ request, response, cookies, state }) => {
   };
 
   const msgId = ulid();
+  // Check to see if the room exists, create it, and an initial message
   const initialMessageOp = await db
     .atomic()
-    .set(KV_ROOM_KEY, roomValue)
+    .check({ key: ["rooms", username, room], versionstamp: null })
+    .check({ key: ["room_names", room], versionstamp: null })
+    .set(["rooms", username, room], roomValue)
+    .set(["room_names", room], { creator: username, isPublic })
     .set(["message", room, msgId], {
       id: msgId,
       owner: "__system__",
@@ -102,9 +98,9 @@ router.post("/", async ({ request, response, cookies, state }) => {
 
   // This shouldn't happen, but check for it anyway
   if (!initialMessageOp.ok) {
-    console.warn("Error setting initial message.");
+    console.warn("Error creating room", initialMessageOp);
     response.status = 500;
-    response.body = { ok: false, reason: "Error initializing messages" };
+    response.body = { ok: false, reason: "Error creating room" };
     return;
   }
 

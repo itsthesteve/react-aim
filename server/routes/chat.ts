@@ -77,6 +77,7 @@ router.get("/messages", async (ctx) => {
  */
 router.post(
   "/message",
+  // @ts-ignore Types are wonky
   await RateLimitMiddleware({
     windowMs: 1000,
     max: () => 3,
@@ -87,8 +88,17 @@ router.post(
       const body: Message = await request.body.json();
       const msgId = ulid();
 
-      await db.set(["message", roomName, msgId], { ...body.data, id: msgId });
-      await db.set(["last_message_id", roomName], msgId);
+      const res = await db
+        .atomic()
+        .set(["message", roomName, msgId], { ...body.data, id: msgId })
+        .set(["last_message_id", roomName], msgId)
+        .commit();
+
+      if (!res.ok) {
+        response.status = 500;
+        response.body = { result: "fail", reason: "Unable to store message" };
+        return;
+      }
 
       response.status = 201;
       response.body = { result: "OK" };
