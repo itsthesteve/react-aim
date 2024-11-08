@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
+export type OnlineUser = {
+  state: "active" | "idle" | "absent" | "unknown";
+  user: { username: string };
+};
+
 export default function useOnlineUsers(room: string) {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<OnlineUser[]>([]);
   const evtRef = useRef<EventSource>();
 
   useEffect(() => {

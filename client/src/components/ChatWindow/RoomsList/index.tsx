@@ -9,6 +9,8 @@ function UserList() {
   const [visibleTab, setVisibleTab] = useState(0);
   const onlineUsers = useOnlineUsers(room);
 
+  console.log(onlineUsers);
+
   return (
     <>
       <aside className="[grid-area:users] flex flex-col mt-2">
@@ -38,15 +40,15 @@ function UserList() {
                 <RoomListGroup title="Global" open={true} data={userRooms.global} current={room} />
               </li>
               <li>
-                <RoomListGroup title="Your rooms" data={userRooms.user} current={room} />
+                <RoomListGroup
+                  title="Your rooms"
+                  data={userRooms.user}
+                  current={room}
+                  showIcon={true}
+                />
               </li>
               <li>
-                <RoomListGroup
-                  title="Public rooms"
-                  data={userRooms.open}
-                  current={room}
-                  icon={true}
-                />
+                <RoomListGroup title="Public rooms" data={userRooms.open} current={room} />
               </li>
             </ul>
           </article>

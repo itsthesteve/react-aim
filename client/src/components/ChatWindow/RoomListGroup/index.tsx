@@ -5,8 +5,8 @@ interface RoomListProps {
   data: ChatRoom[];
   current: string;
   title: string;
-  icon?: boolean;
   open?: boolean;
+  showIcon?: boolean;
 }
 
 /**
@@ -16,8 +16,8 @@ export default function RoomListGroup({
   data,
   current,
   title,
-  icon = false,
   open = false,
+  showIcon = false,
 }: RoomListProps) {
   return (
     <details open={open}>
@@ -32,7 +32,7 @@ export default function RoomListGroup({
             className={`flex items-center gap-1 ${current === room.name ? "font-bold" : ""}`}
             key={room.id}>
             <Link to={`/chat?room=${room.name}`}>{room.name}</Link>
-            {icon && room.isPublic && <img src="/public.png" width="12" height="12" />}
+            {showIcon && room.isPublic && <img src="/public.png" width="12" height="12" />}
           </li>
         ))}
       </ul>
