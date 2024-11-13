@@ -1,14 +1,16 @@
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { Application, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import { ChatRoom } from "../client/src/types/room.ts";
+import * as path from "jsr:@std/path";
 import { db } from "./data/index.ts";
 import { DEFAULT_ROOM } from "./data/models.ts";
+import { routeStaticFilesFrom } from "./middleware/index.ts";
 import authRoutes from "./routes/auth.ts";
 import chatRoutes from "./routes/chat.ts";
 import debugRoutes from "./routes/debug.ts";
 import roomRoutes from "./routes/rooms.ts";
+import { type ChatRoom } from "./types.ts";
 
-const router = new Router();
+const router = new Router({ prefix: "/api" });
 
 // Initial set up
 // - Create the global default store. Based on the value of DEFAULT_ROOM
@@ -27,16 +29,34 @@ try {
 router.use(debugRoutes).use(authRoutes).use(chatRoutes).use(roomRoutes);
 
 const app = new Application();
-app.use(
-  oakCors({
-    credentials: true,
-    origin: /http:\/\/localhost:[\d]{4}/i,
-  })
-);
+const corsOpts =
+  Deno.env.get("ENV") === "dev"
+    ? {
+        credentials: true,
+        origin: /http:\/\/localhost:[\d]{4}/i,
+      }
+    : undefined;
 
-app.use(router.allowedMethods());
+const clientDir = path.resolve(Deno.cwd(), "../client");
+app.use(oakCors(corsOpts));
 app.use(router.routes());
+app.use(router.allowedMethods());
+app.use(async (ctx, next) => {
+  try {
+    await ctx.send({
+      root: `${clientDir}/dist`,
+    });
+  } catch (e) {
+    console.warn(e);
+    next();
+  }
+});
 
-await app.listen({ port: 9000 });
+// const clientDir = path.resolve(Deno.cwd(), "../client");
+// console.log({ clientDir });
+// app.use(routeStaticFilesFrom([`${clientDir}/dist`, `${clientDir}/public`]));
+
+console.log("Listening on port 8000");
+await app.listen({ port: 8000 });
 
 console.log("Server shutdown");

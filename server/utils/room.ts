@@ -1,5 +1,5 @@
-import { type ChatRoom } from "../../client/src/types/room.ts";
 import { db } from "../data/index.ts";
+import { type ChatRoom } from "../types.ts";
 
 /**
  * Grab all rooms and search for the room in the store key. Might need to refactor this at some

@@ -1,9 +1,11 @@
 import { Context, NativeRequest, Next } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { RateLimiter, RatelimitOptions } from "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts";
+import { resolve } from "jsr:@std/path";
 
 import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cookies.ts";
 import { db, RATE_LIMIT_OPTS } from "../data/index.ts";
 import { canAccess } from "../utils/room.ts";
+import { pathMatch } from "https://deno.land/x/oak@v16.1.0/deps.ts";
 
 const DEFAULT_RATE_TIMEOUT = Deno.env.get("ENV") === "dev" ? 1 : 1000;
 
@@ -98,3 +100,20 @@ export const BouncerMiddleware = async (ctx: Context, next: Next) => {
 
   return await next();
 };
+
+export function routeStaticFilesFrom(staticPaths: string[]) {
+  return async (context: Context<Record<string, object>>, next: Next) => {
+    for (const path of staticPaths) {
+      try {
+        console.log("Sending", "root = ", path);
+        await context.send({ root: path, index: "index.html" });
+        return;
+      } catch (e) {
+        console.warn(e);
+        continue;
+      }
+    }
+
+    await next();
+  };
+}
