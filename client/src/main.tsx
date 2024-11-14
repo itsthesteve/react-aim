@@ -50,8 +50,9 @@ const router = createBrowserRouter([
         },
       },
       {
+        // TODO: make this a better 404
         path: "*",
-        element: <div>Not found</div>,
+        element: <div className="text-white text-2xl">Not found</div>,
       },
     ],
   },

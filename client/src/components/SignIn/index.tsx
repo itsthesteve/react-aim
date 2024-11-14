@@ -125,7 +125,7 @@ export function SignIn() {
                     className="h-auto"
                     onChange={updateForm}></input>
                 </label>
-                <a href="/" className="mt-1 inline-block">
+                <a href="/" onClick={() => alert("todo, sorry :(")} className="mt-1 inline-block">
                   Forgot password?
                 </a>
               </div>

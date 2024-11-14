@@ -4,7 +4,7 @@ set -eu
 
 ORG=its
 PROJECT_NAME=react-aim
-ENTRYPOINT=./server/index.ts
+ENTRYPOINT=./server/main.ts
 
 echo "Building client"
 

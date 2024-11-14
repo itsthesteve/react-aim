@@ -1,9 +1,8 @@
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { Application, Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
-import * as path from "jsr:@std/path";
 import { db } from "./data/index.ts";
 import { DEFAULT_ROOM } from "./data/models.ts";
-import { routeStaticFilesFrom } from "./middleware/index.ts";
+import { staticHandler } from "./middleware/index.ts";
 import authRoutes from "./routes/auth.ts";
 import chatRoutes from "./routes/chat.ts";
 import debugRoutes from "./routes/debug.ts";
@@ -12,8 +11,10 @@ import { type ChatRoom } from "./types.ts";
 
 const router = new Router({ prefix: "/api" });
 
-// Initial set up
-// - Create the global default store. Based on the value of DEFAULT_ROOM
+// Initial setup
+// - Create the global default store
+// TODO: Send this to our API to make sure it's done correctly
+// instead of doing it manually here.
 try {
   await db.set(["rooms", "__admin__", DEFAULT_ROOM], {
     id: "0001",
@@ -37,24 +38,14 @@ const corsOpts =
       }
     : undefined;
 
-const clientDir = path.resolve(Deno.cwd(), "../client");
+if (corsOpts !== undefined) {
+  console.warn("Using CORS credentials");
+}
+
 app.use(oakCors(corsOpts));
 app.use(router.routes());
 app.use(router.allowedMethods());
-app.use(async (ctx, next) => {
-  try {
-    await ctx.send({
-      root: `${clientDir}/dist`,
-    });
-  } catch (e) {
-    console.warn(e);
-    next();
-  }
-});
-
-// const clientDir = path.resolve(Deno.cwd(), "../client");
-// console.log({ clientDir });
-// app.use(routeStaticFilesFrom([`${clientDir}/dist`, `${clientDir}/public`]));
+app.use(staticHandler());
 
 console.log("Listening on port 8000");
 await app.listen({ port: 8000 });

@@ -1,13 +1,18 @@
-import { Context, NativeRequest, Next } from "https://deno.land/x/oak@v16.1.0/mod.ts";
+import { Context, NativeRequest, Next, send } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { RateLimiter, RatelimitOptions } from "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts";
-import { resolve } from "jsr:@std/path";
+import { resolve, join } from "jsr:@std/path";
 
 import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cookies.ts";
 import { db, RATE_LIMIT_OPTS } from "../data/index.ts";
 import { canAccess } from "../utils/room.ts";
-import { pathMatch } from "https://deno.land/x/oak@v16.1.0/deps.ts";
 
 const DEFAULT_RATE_TIMEOUT = Deno.env.get("ENV") === "dev" ? 1 : 1000;
+
+// Final build location for transpiled client code. Default by vite is /dist
+const STATIC_DIST = "dist";
+
+// The directory relative to the cwd to resolve file paths
+const STATIC_CLIENT_ROOT = resolve(Deno.cwd(), "../client");
 
 // Serve response as JSON
 export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
@@ -101,19 +106,20 @@ export const BouncerMiddleware = async (ctx: Context, next: Next) => {
   return await next();
 };
 
-export function routeStaticFilesFrom(staticPaths: string[]) {
-  return async (context: Context<Record<string, object>>, next: Next) => {
-    for (const path of staticPaths) {
-      try {
-        console.log("Sending", "root = ", path);
-        await context.send({ root: path, index: "index.html" });
-        return;
-      } catch (e) {
-        console.warn(e);
-        continue;
-      }
-    }
+export function staticHandler() {
+  return async function (context: Context<Record<string, object>>) {
+    const {
+      request: { url },
+    } = context;
 
-    await next();
+    if (!url.pathname.includes(".")) {
+      return await send(context, "index.html", {
+        root: join(STATIC_CLIENT_ROOT, STATIC_DIST),
+      });
+    }
+    await send(context, url.pathname, {
+      root: join(STATIC_CLIENT_ROOT, STATIC_DIST),
+      index: "index.html",
+    });
   };
 }
