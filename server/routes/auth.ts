@@ -42,7 +42,8 @@ router.post("/login", async ({ response, request, cookies }) => {
     return;
   }
 
-  const match = await bcrypt.compare(password, existingUser.value);
+  // Deno deploy doesn't support Workers, which is required for the non-sync version of `compare`
+  const match = bcrypt.compareSync(password, existingUser.value);
 
   // Bad password
   if (!match) {

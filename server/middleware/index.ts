@@ -1,18 +1,29 @@
 import { Context, NativeRequest, Next, send } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { RateLimiter, RatelimitOptions } from "https://deno.land/x/oak_rate_limit@v0.1.1/mod.ts";
-import { resolve, join } from "jsr:@std/path";
+import { resolve } from "jsr:@std/path";
 
+import { DEV_MODE } from "../common.ts";
 import { AUTH_COOKIE_NAME, AUTH_PRESENCE_COOKIE, COOKIE_OPTIONS } from "../cookies.ts";
 import { db, RATE_LIMIT_OPTS } from "../data/index.ts";
 import { canAccess } from "../utils/room.ts";
 
-const DEFAULT_RATE_TIMEOUT = Deno.env.get("ENV") === "dev" ? 1 : 1000;
+// Unlimited in dev mode, 1s in prod
+const DEFAULT_RATE_TIMEOUT = DEV_MODE ? 1 : 1000;
 
-// Final build location for transpiled client code. Default by vite is /dist
+/**
+ * Final build location for transpiled client code. Default by vite is /dist
+ */
 const STATIC_DIST = "dist";
 
-// The directory relative to the cwd to resolve file paths
-const STATIC_CLIENT_ROOT = resolve(Deno.cwd(), "../client");
+/**
+ * The directory relative to the cwd to resolve file paths
+ * The filesystem in Deno deploy is slightly different. Either my paths can be cleaned up somewhere
+ * or this check is required. Without the check everything works fine locally, but once on DD
+ * it fails with an fs stat error that the file cannot be found.
+ */
+const STATIC_CLIENT_ROOT = DEV_MODE ? resolve(Deno.cwd(), "../client") : "client";
+
+const STATIC_ROOT = STATIC_CLIENT_ROOT + "/" + STATIC_DIST;
 
 // Serve response as JSON
 export const JsonResponseMiddleware = async (ctx: Context, next: Next) => {
@@ -106,20 +117,29 @@ export const BouncerMiddleware = async (ctx: Context, next: Next) => {
   return await next();
 };
 
+/**
+ * If the requested path is a route, return index.html to let react handle it.
+ * Otherwise, serve the requested file.
+ *
+ * TODO: Check the prefix (i.e. "assets") and not just the presence of a "."
+ */
 export function staticHandler() {
   return async function (context: Context<Record<string, object>>) {
     const {
       request: { url },
     } = context;
 
+    // Route
     if (!url.pathname.includes(".")) {
       return await send(context, "index.html", {
-        root: join(STATIC_CLIENT_ROOT, STATIC_DIST),
+        root: STATIC_ROOT,
       });
     }
+
+    // Asset
     await send(context, url.pathname, {
-      root: join(STATIC_CLIENT_ROOT, STATIC_DIST),
-      index: "index.html",
+      root: STATIC_ROOT,
+      // index: "index.html",
     });
   };
 }

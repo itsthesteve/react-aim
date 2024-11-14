@@ -29,4 +29,5 @@ ENV=production deployctl deploy --project=$PROJECT_NAME \
   --exclude=./client/playwright* \
   --exclude=**/.git* \
   --exclude=**/.sqlite* \
-  --entrypoint=$ENTRYPOINT
+  --entrypoint=$ENTRYPOINT \
+  --save-config
