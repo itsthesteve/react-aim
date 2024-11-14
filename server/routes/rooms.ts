@@ -154,22 +154,26 @@ router.post("/presence", async ({ request, response }) => {
       state = "unknown";
   }
 
-  await db.set(
-    ["presence_update"],
-    {
+  try {
+    await db.set(
+      ["presence_update"],
+      {
+        user,
+        state,
+      },
+      {
+        // There's a cron job that cleans these up every 3 days
+        expireIn: 1000 * 60 * 60 * 24 * 3, // 3 days
+      }
+    );
+
+    await db.set(["presence", room, user.username], {
       user,
       state,
-    },
-    {
-      // There's a cron job that cleans these up every 3 days
-      expireIn: 1000 * 60 * 60 * 24 * 3, // 3 days
-    }
-  );
-
-  await db.set(["presence", room, user.username], {
-    user,
-    state,
-  });
+    });
+  } catch (e) {
+    console.warn("Error updating presence", e);
+  }
 
   console.log("user presence updated", event, user.username, room, present);
 
