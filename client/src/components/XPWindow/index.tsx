@@ -1,4 +1,4 @@
-import { ReactNode, useRef } from "react";
+import { CSSProperties, ReactNode, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useDraggable, usePresence } from "~/hooks";
@@ -28,7 +28,7 @@ export default function XPWindow({ children, statusBar, title, className }: XPWi
 
   return (
     <div
-      style={{ "--x": x + "px", "--y": y + "px" }}
+      style={{ "--x": x + "px", "--y": y + "px" } as CSSProperties}
       className={`window grid ${className ? className : ""} ${styles.windowContainer}`}
       ref={(el) => (elRef.current = el)}>
       <div className="title-bar">

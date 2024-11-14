@@ -9,8 +9,6 @@ function UserList() {
   const [visibleTab, setVisibleTab] = useState(0);
   const onlineUsers = useOnlineUsers(room);
 
-  console.log(onlineUsers);
-
   return (
     <>
       <aside className="[grid-area:users] flex flex-col mt-2">

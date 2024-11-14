@@ -17,7 +17,6 @@ export default function Rooms() {
       .then((res) => res.json())
       .then((result) => {
         setRooms(result);
-        console.log(result);
       });
   }, []);
 

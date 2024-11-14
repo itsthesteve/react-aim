@@ -32,6 +32,7 @@ export default function ChatInput() {
     sendMessage({
       room: room,
       data: {
+        id: "", // set by the server
         owner: user!.username,
         payload: message,
       },

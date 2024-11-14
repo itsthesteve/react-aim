@@ -38,7 +38,7 @@ server:
 
 - `docker run -it --init -p 4512:4512 -v ./data:/data ghcr.io/denoland/denokv --sqlite-path /data/react-chat.sqlite serve --access-token qwepoi9832745` -
 
-Start the API server on port 9000
+Start the API server on port 8000
 
 - `deno task start`
 

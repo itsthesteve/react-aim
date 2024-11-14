@@ -1,0 +1,8 @@
+{
+  "deploy": {
+    "project": "5a4c75d5-5053-4ee7-bfb0-ea62aafe71a0",
+    "exclude": ["client/playwright*", "**/.git*", "**/.sqlite*", "**/node_modules"],
+    "include": ["client/dist", "server"],
+    "entrypoint": "server/main.ts"
+  }
+}

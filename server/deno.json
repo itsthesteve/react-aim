@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "start": "deno run --unstable-kv --allow-read --allow-write --allow-env --allow-net --import-map=./link.json --watch ./index.ts",
+    "start": "deno run --unstable-kv --allow-read --allow-write --allow-env --allow-net --import-map=./link.json --watch ./main.ts",
     "update": "deno run --allow-read=./ --allow-net --allow-write=./ https://deno.land/x/deno_outdated@0.2.5/cli.ts",
     "cron": "deno run --unstable-cron --unstable-kv --allow-net --allow-read --allow-env --import-map=./link.json ./_cron/index.ts"
   },
-  "exclude": ["client/**/*", "../viewer/client/**/*"]
+  "exclude": ["client/**/*", "**/viewer/client/**/*"]
 }

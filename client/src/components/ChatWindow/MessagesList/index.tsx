@@ -45,9 +45,9 @@ function MessagesList() {
   return (
     <section ref={messagesWrapper} className={`p-2 bg-white mx-2 mt-2 ${styles.messageWindow}`}>
       <header>Welcome back, {user?.username}</header>
-      {messages.map((message, i) => {
+      {messages.map((message) => {
         return (
-          <p key={i} className="flex gap-1 items-start">
+          <p key={message.id} className="flex gap-1 items-start">
             <span className={message.owner === user?.username ? styles.me : styles.notMe}>
               {message.owner}:
             </span>

@@ -2,11 +2,11 @@ import { Router } from "https://deno.land/x/oak@v16.1.0/mod.ts";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 import { ulid } from "jsr:@std/ulid/ulid";
 import * as uuid from "jsr:@std/uuid";
-import { ChatRoom } from "../../client/src/types/room.ts";
 import { AUTH_PRESENCE_COOKIE } from "../cookies.ts";
 import { db } from "../data/index.ts";
 import { MessageData, User } from "../data/models.ts";
 import { AuthMiddleware, BouncerMiddleware, JsonResponseMiddleware } from "../middleware/index.ts";
+import { type ChatRoom } from "../types.ts";
 
 const ROOM_NAME_REGEX = /^[a-z0-9-_+!~+|/\\]*$/i;
 
