@@ -128,9 +128,9 @@ router.post(
 
     const { username, password } = body;
 
-    // Add seasoning and store the user
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Add seasoning and store the user. Deno deploy doesn't support Workers, so sync it is.
+    const salt = bcrypt.genSaltSync();
+    const hashedPassword = bcrypt.hashSync(password, salt);
 
     const result = await db.set(["users", username], hashedPassword);
     console.log("User created", result);
